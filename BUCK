@@ -30,9 +30,8 @@ java_test(
 
 java_binary(
   name = 'owl_lang_cli',
-  main_class = 'owl.lang.CliMain',
+  main_class = 'owl.lang.CLI',
   deps = [
     ':owl_lang',
   ],
 )
-

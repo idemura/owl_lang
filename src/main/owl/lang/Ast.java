@@ -9,21 +9,23 @@ public class Ast {
 }
 
 
-abstract class AstNode {
-    static interface Visitor {
-        default void visit(AstName node) {}
-        default void visit(AstType node) {}
-        default void visit(AstModule node) {}
-        default void visit(AstFunction node) {}
-        default void visit(AstVariable node) {}
-        default void visit(AstBlock node) {}
-    }
-
-    abstract void accept(Visitor visitor);
+interface AstVisitor {
+    default void visit(AstName node) {}
+    default void visit(AstType node) {}
+    default void visit(AstModule node) {}
+    default void visit(AstFunction node) {}
+    default void visit(AstVariable node) {}
+    default void visit(AstBlock node) {}
+    default void visit(AstStatement node) {}
 }
 
 
-class TypeNameVisitor implements AstNode.Visitor {
+abstract class AstNode {
+    abstract void accept(AstVisitor visitor);
+}
+
+
+class TypeNameVisitor implements AstVisitor {
     static String typeStr(AstType type) {
         TypeNameVisitor v = new TypeNameVisitor();
         type.accept(v);
@@ -64,7 +66,7 @@ class AstName extends AstNode {
     }
 
     @Override
-    public void accept(AstNode.Visitor v) {
+    public void accept(AstVisitor v) {
         v.visit(this);
     }
 
@@ -98,7 +100,7 @@ class AstType extends AstNode {
     AstType() {}
 
     @Override
-    public void accept(AstNode.Visitor v) {
+    public void accept(AstVisitor v) {
         v.visit(this);
     }
 }
@@ -108,7 +110,7 @@ class AstModule extends AstNode {
     List<AstFunction> functions = new ArrayList<>();
 
     @Override
-    public void accept(AstNode.Visitor visitor) {
+    public void accept(AstVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -125,7 +127,7 @@ class AstFunction extends AstNode {
     AstBlock block;
 
     @Override
-    public void accept(AstNode.Visitor v) {
+    public void accept(AstVisitor v) {
         v.visit(this);
     }
 }
@@ -136,15 +138,25 @@ class AstVariable extends AstNode {
     AstType type = AstType.None;
 
     @Override
-    public void accept(AstNode.Visitor v) {
+    public void accept(AstVisitor v) {
         v.visit(this);
     }
 }
 
 
 class AstBlock extends AstNode {
+    List<AstStatement> statements = new ArrayList<>();
+
     @Override
-    public void accept(AstNode.Visitor v) {
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
+
+
+class AstStatement extends AstNode {
+    @Override
+    public void accept(AstVisitor v) {
         v.visit(this);
     }
 }

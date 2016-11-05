@@ -30,7 +30,7 @@ final class DebugPrinter {
 }
 
 
-class DebugPrintVisitor implements AstNode.Visitor {
+class DebugPrintVisitor implements AstVisitor {
     private DebugPrinter printer = new DebugPrinter();
 
     @Override
@@ -85,6 +85,15 @@ class DebugPrintVisitor implements AstNode.Visitor {
 
     @Override
     public void visit(AstBlock n) {
+        node(n);
+        for (AstStatement s : n.statements) {
+            s.accept(this);
+        }
+        endNode();
+    }
+
+    @Override
+    public void visit(AstStatement n) {
         leaf(n, null);
     }
 

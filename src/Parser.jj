@@ -99,10 +99,19 @@ AstVariable variable(): {
 }
 
 AstBlock block(): {
+    AstBlock block = new AstBlock();
+    AstStatement s;
 }
 {
-    "{" "}"
-    { return new AstBlock(); }
+    "{" (s = statement() { block.statements.add(s); } ";")* "}"
+    { return block; }
+}
+
+AstStatement statement() : {
+}
+{
+    <AS>
+    { return new AstStatement(); }
 }
 
 AstType baseType(): {
