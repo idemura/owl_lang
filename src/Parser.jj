@@ -98,20 +98,52 @@ AstVariable variable(): {
     { return variable; }
 }
 
-AstBlock block(): {
-    AstBlock block = new AstBlock();
-    AstStatement s;
+AstList block(): {
+    AstList block = new AstList();
+    AstNode s;
 }
 {
-    "{" (s = statement() { block.statements.add(s); } ";")* "}"
+    "{" ((s = statement() { block.nodes.add(s); })? ";")* "}"
     { return block; }
 }
 
-AstStatement statement() : {
+AstNode expression(): {
+    AstNode first, arg;
+    AstInvoke invoke = null;
 }
 {
-    <AS>
-    { return new AstStatement(); }
+    first = qualifiedName()
+    (
+        "("
+        (
+            arg = expression()
+            {
+                invoke = new AstInvoke();
+                invoke.nodes.add(first);
+                invoke.nodes.add(arg);
+            }
+            ("," arg = expression() { invoke.nodes.add(arg); } )*
+        )?
+        ")"
+      |
+        "[" arg = expression()
+        {
+            invoke = new AstInvoke();
+            invoke.mapping = true;
+            invoke.nodes.add(first);
+            invoke.nodes.add(arg);
+        }
+        "]"
+    )?
+    { return invoke == null? first: invoke; }
+}
+
+AstNode statement(): {
+    AstNode expr;
+}
+{
+    expr = expression()
+    { return expr; }
 }
 
 AstType baseType(): {
@@ -121,7 +153,8 @@ AstType baseType(): {
     type.name = qualifiedName()
     (
         "(" ")"
-      | "[" "]" {
+      | "[" "]"
+        {
             AstType arrayType = AstType.fromName("Array");
             arrayType.params.add(type);
             type = arrayType;
@@ -137,7 +170,8 @@ AstType type(): {
 {
     type = baseType()
     (
-        "=>" t = baseType() {
+        "=>" t = baseType()
+        {
             if (functionType == null) {
                 functionType = AstType.fromName("Function");
                 type.params.add(type);

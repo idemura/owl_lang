@@ -15,8 +15,8 @@ interface AstVisitor {
     default void visit(AstModule node) {}
     default void visit(AstFunction node) {}
     default void visit(AstVariable node) {}
-    default void visit(AstBlock node) {}
-    default void visit(AstStatement node) {}
+    default void visit(AstList node) {}
+    default void visit(AstInvoke node) {}
 }
 
 
@@ -124,7 +124,7 @@ class AstFunction extends AstNode {
     String name;
     List<AstVariable> arguments = new ArrayList<>();
     AstType returnType = AstType.None;
-    AstBlock block;
+    AstList block;
 
     @Override
     public void accept(AstVisitor v) {
@@ -144,8 +144,8 @@ class AstVariable extends AstNode {
 }
 
 
-class AstBlock extends AstNode {
-    List<AstStatement> statements = new ArrayList<>();
+class AstList extends AstNode {
+    List<AstNode> nodes = new ArrayList<>();
 
     @Override
     public void accept(AstVisitor v) {
@@ -154,7 +154,10 @@ class AstBlock extends AstNode {
 }
 
 
-class AstStatement extends AstNode {
+class AstInvoke extends AstNode {
+    List<AstNode> nodes = new ArrayList<>();
+    boolean mapping = false;
+
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);

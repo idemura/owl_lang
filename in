@@ -1,0 +1,10 @@
+# hello
+fn f1() { }
+fn f2(z) { ; }
+fn f3(x, y: I32) {
+    f1();
+    f2(x);
+    f3(x, y);
+    module.f3(mod.x, y);
+    arr[x];
+}

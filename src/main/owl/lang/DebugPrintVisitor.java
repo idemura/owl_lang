@@ -84,17 +84,21 @@ class DebugPrintVisitor implements AstVisitor {
     }
 
     @Override
-    public void visit(AstBlock n) {
+    public void visit(AstList n) {
         node(n);
-        for (AstStatement s : n.statements) {
+        for (AstNode s : n.nodes) {
             s.accept(this);
         }
         endNode();
     }
 
     @Override
-    public void visit(AstStatement n) {
-        leaf(n, null);
+    public void visit(AstInvoke n) {
+        node(n);
+        for (AstNode e : n.nodes) {
+            e.accept(this);
+        }
+        endNode();
     }
 
     private void prop(String name, String s) {
