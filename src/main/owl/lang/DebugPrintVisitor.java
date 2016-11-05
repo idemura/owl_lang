@@ -35,11 +35,7 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstName n) {
-        node(n);
-        if (n.name != null) {
-            prop("name", String.join("/", n.name));
-        }
-        endNode();
+        leaf(n, n.getName());
     }
 
     @Override
@@ -57,14 +53,14 @@ class DebugPrintVisitor implements AstVisitor {
         node(n);
         for (AstFunction f : n.functions) {
             f.accept(this);
+            printer.print("\n");
         }
         endNode();
     }
 
     @Override
     public void visit(AstFunction n) {
-        node(n);
-        prop("name", n.name);
+        node(n, n.name);
         prop("returnType", n.returnType);
         for (AstVariable a : n.arguments) {
             a.accept(this);
@@ -75,19 +71,17 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstVariable n) {
-        node(n);
-        if (n.name != null) {
-            prop("name", n.name);
-        }
+        node(n, n.name);
         n.type.accept(this);
         endNode();
     }
 
     @Override
-    public void visit(AstList n) {
+    public void visit(AstBlock n) {
         node(n);
         for (AstNode s : n.nodes) {
             s.accept(this);
+            printer.print(";\n");
         }
         endNode();
     }
@@ -101,6 +95,11 @@ class DebugPrintVisitor implements AstVisitor {
         endNode();
     }
 
+    @Override
+    public void visit(AstConstant n) {
+        leaf(n, n.value);
+    }
+
     private void prop(String name, String s) {
         printer.print(name + ": " + s + "\n");
     }
@@ -110,16 +109,20 @@ class DebugPrintVisitor implements AstVisitor {
         node.accept(this);
     }
 
-    private void leaf(AstNode node, String s) {
-        String text = getClassName(node);
-        if (s != null) {
-            text += " " + s;
-        }
-        printer.print(text + "\n");
+    private void leaf(AstNode n) {
+        printer.print(getClassName(n) + "\n");
     }
 
-    private void node(AstNode node) {
-        printer.print(getClassName(node) + "{\n");
+    private void leaf(AstNode n, String s) {
+        printer.print(getClassName(n) + " " + s + "\n");
+    }
+
+    private void node(AstNode n) {
+        printer.print(getClassName(n) + "{\n");
+    }
+
+    private void node(AstNode n, String s) {
+        printer.print(getClassName(n) + " " + s + "{\n");
     }
 
     private void endNode() {
@@ -128,6 +131,10 @@ class DebugPrintVisitor implements AstVisitor {
 
     private static String getClassName(AstNode node) {
         String fullName = node.getClass().getName();
-        return fullName.substring(fullName.lastIndexOf('.') + 1);
+        String name = fullName.substring(fullName.lastIndexOf('.') + 1);
+        if (name.startsWith("Ast")) {
+            name = name.substring(3);
+        }
+        return name;
     }
 }

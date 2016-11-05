@@ -30,7 +30,7 @@ TOKEN:
 {
     <AS: "as">
   | <FN: "fn">
-  | "." | "," | "_"
+  | "." | ","
   | ":" | ";"
   | "(" | ")"
   | "{" | "}"
@@ -47,9 +47,7 @@ AstModule module(): {
     AstFunction f;
 }
 {
-    (
-        f = function() { module.addFunction(f); }
-    )*
+    (f = function() { module.addFunction(f); })*
     { return module; }
 }
 
@@ -68,9 +66,7 @@ AstFunction function(): {
 }
 {
     <FN> function.name = <NAME>.image
-    (
-        "(" (function.arguments = variableList())? ")"
-    )?
+    ("(" (function.arguments = variableList())? ")")?
     (":" function.returnType = type())?
     function.block = block()
     { return function; }
@@ -82,9 +78,7 @@ List<AstVariable> variableList(): {
 }
 {
     a = variable() { argList.add(a); }
-    (
-        "," a = variable() { argList.add(a); }
-    )*
+    ("," a = variable() { argList.add(a); })*
     { return argList; }
 }
 
@@ -98,8 +92,8 @@ AstVariable variable(): {
     { return variable; }
 }
 
-AstList block(): {
-    AstList block = new AstList();
+AstBlock block(): {
+    AstBlock block = new AstBlock();
     AstNode s;
 }
 {
@@ -107,35 +101,56 @@ AstList block(): {
     { return block; }
 }
 
+AstNode prime(): {
+    AstNode p = null;
+    Token tok;
+}
+{
+    (
+        p = qualifiedName()
+      | tok = <OCT> { p = new AstConstant(tok.image); }
+      | tok = <DEC> { p = new AstConstant(tok.image); }
+      | tok = <HEX> { p = new AstConstant(tok.image); }
+      | "(" p = expression() ")"
+    )
+    { return p; }
+}
+
 AstNode expression(): {
-    AstNode first, arg;
+    AstNode arg, res;
     AstInvoke invoke = null;
 }
 {
-    first = qualifiedName()
+    res = prime()
     (
-        "("
-        (
-            arg = expression()
-            {
-                invoke = new AstInvoke();
-                invoke.nodes.add(first);
-                invoke.nodes.add(arg);
-            }
-            ("," arg = expression() { invoke.nodes.add(arg); } )*
-        )?
-        ")"
-      |
-        "[" arg = expression()
         {
             invoke = new AstInvoke();
-            invoke.mapping = true;
-            invoke.nodes.add(first);
-            invoke.nodes.add(arg);
         }
-        "]"
-    )?
-    { return invoke == null? first: invoke; }
+        (
+            { invoke.nodes.add(res); }
+            "("
+            (
+                arg = expression() { invoke.nodes.add(arg); }
+                ("," arg = expression() { invoke.nodes.add(arg); })*
+            )?
+            ")"
+          |
+            {
+                invoke.nodes.add(new AstName("[]"));
+                invoke.nodes.add(res);
+            }
+            "["
+            (
+                arg = expression() { invoke.nodes.add(arg); }
+                ("," arg = expression() { invoke.nodes.add(arg); })*
+            )?
+            "]"
+        )
+        {
+            res = invoke;
+        }
+    )*
+    { return res; }
 }
 
 AstNode statement(): {

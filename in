@@ -7,4 +7,6 @@ fn f3(x, y: I32) {
     f3(x, y);
     module.f3(mod.x, y);
     arr[x];
+    f4()(x)[10];
+    (f2)(x);
 }

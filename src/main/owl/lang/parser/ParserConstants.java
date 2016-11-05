@@ -15,13 +15,13 @@ interface ParserConstants {
   /** RegularExpression Id. */
   int FN = 7;
   /** RegularExpression Id. */
-  int OCT = 20;
+  int OCT = 19;
   /** RegularExpression Id. */
-  int DEC = 21;
+  int DEC = 20;
   /** RegularExpression Id. */
-  int HEX = 22;
+  int HEX = 21;
   /** RegularExpression Id. */
-  int NAME = 23;
+  int NAME = 22;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -38,7 +38,6 @@ interface ParserConstants {
     "\"fn\"",
     "\".\"",
     "\",\"",
-    "\"_\"",
     "\":\"",
     "\";\"",
     "\"(\"",
