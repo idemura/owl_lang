@@ -1,0 +1,15 @@
+#! /bin/bash
+
+set -e
+
+CLEAR=false
+PARSER_DIR=src/main/owl/lang/parser
+if $CLEAR && [ -d $PARSER_DIR ];
+then
+  rm -r $PARSER_DIR
+fi
+
+# JavaCC will create a directory for us if it doesn't exist, but produce
+# a warning in this case.
+java -cp javacc-6.0.jar javacc -output_directory=$PARSER_DIR Parser.jj
+

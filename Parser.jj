@@ -1,0 +1,140 @@
+options
+{
+    // BUILD_TOKEN_MANAGER = false;
+    JDK_VERSION = "1.8";
+    STATIC = false;
+    SUPPORT_CLASS_VISIBILITY_PUBLIC = false;
+    // USER_CHAR_STREAM = true;
+}
+
+PARSER_BEGIN(Parser)
+package owl.lang;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Parser {
+}
+
+PARSER_END(Parser)
+
+SKIP: {
+    " "
+  | "\r"
+  | "\n"
+  | "\t"
+  | < "#" (~["\n"])* >
+}
+
+TOKEN:
+{
+    <AS: "as">
+  | <FN: "fn">
+  | "." | "," | "_"
+  | ":" | ";"
+  | "(" | ")"
+  | "{" | "}"
+  | "[" | "]"
+  | "=>"
+  | <OCT: "0o" (["0"-"7"])+>
+  | <DEC: (["0"-"9"])+>
+  | <HEX: "0x" (["0"-"9", "a"-"f", "A"-"F"])+>
+  | <NAME: ["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "0"-"9", "_"])*>
+}
+
+AstModule module(): {
+    AstModule module = new AstModule();
+    AstFunction f;
+}
+{
+    (
+        f = function() { module.addFunction(f); }
+    )*
+    { return module; }
+}
+
+AstName qualifiedName(): {
+    AstName name = new AstName();
+    Token tok;
+}
+{
+    tok = <NAME> { name.add(tok.image); }
+    ("." tok = <NAME> { name.add(tok.image); })*
+    { return name; }
+}
+
+AstFunction function(): {
+    AstFunction function = new AstFunction();
+}
+{
+    <FN> function.name = <NAME>.image
+    (
+        "(" (function.arguments = variableList())? ")"
+    )?
+    (":" function.returnType = type())?
+    function.block = block()
+    { return function; }
+}
+
+List<AstVariable> variableList(): {
+    List<AstVariable> argList = new ArrayList<AstVariable>();
+    AstVariable a;
+}
+{
+    a = variable() { argList.add(a); }
+    (
+        "," a = variable() { argList.add(a); }
+    )*
+    { return argList; }
+}
+
+AstVariable variable(): {
+    AstVariable variable = new AstVariable();
+    Token tok;
+}
+{
+    tok = <NAME> { variable.name = tok.image; } (":" variable.type = type())?
+    // Init expression!
+    { return variable; }
+}
+
+AstBlock block(): {
+}
+{
+    "{" "}"
+    { return new AstBlock(); }
+}
+
+AstType baseType(): {
+    AstType type = new AstType();
+}
+{
+    type.name = qualifiedName()
+    (
+        "(" ")"
+      | "[" "]" {
+            AstType arrayType = AstType.fromName("Array");
+            arrayType.params.add(type);
+            type = arrayType;
+        }
+      | {}
+    )
+    { return type; }
+}
+
+AstType type(): {
+    AstType type, t, functionType = null;
+}
+{
+    type = baseType()
+    (
+        "=>" t = baseType() {
+            if (functionType == null) {
+                functionType = AstType.fromName("Function");
+                type.params.add(type);
+            }
+            functionType.params.add(t);
+        }
+    )*
+    { return functionType != null? functionType: type; }
+}
