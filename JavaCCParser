@@ -11,5 +11,5 @@ fi
 
 # JavaCC will create a directory for us if it doesn't exist, but produce
 # a warning in this case.
-java -cp javacc-6.0.jar javacc -output_directory=$PARSER_DIR Parser.jj
+java -cp javacc-6.0.jar javacc -output_directory=$PARSER_DIR src/Parser.jj
 
