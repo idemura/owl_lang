@@ -2,7 +2,7 @@ package owl.lang;
 
 import java.io.*;
 
-public class CliMain {
+public class CLI {
     public static void main(String[] args) {
         boolean failed = false;
         for (String file_name : args) {
