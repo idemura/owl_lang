@@ -16,7 +16,7 @@ interface AstVisitor {
     default void visit(AstFunction node) {}
     default void visit(AstVariable node) {}
     default void visit(AstBlock node) {}
-    default void visit(AstInvoke node) {}
+    default void visit(AstApply node) {}
     default void visit(AstConstant node) {}
 }
 
@@ -155,7 +155,7 @@ class AstBlock extends AstNode {
 }
 
 
-class AstInvoke extends AstNode {
+class AstApply extends AstNode {
     List<AstNode> nodes = new ArrayList<>();
 
     @Override

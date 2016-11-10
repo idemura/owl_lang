@@ -116,41 +116,67 @@ AstNode prime(): {
     { return p; }
 }
 
-AstNode expression(): {
-    AstNode arg, res;
-    AstInvoke invoke = null;
+AstNode call(): {
+    AstNode res, arg;
+    AstApply apply = null;
 }
 {
     res = prime()
     (
         {
-            invoke = new AstInvoke();
+            apply = new AstApply();
         }
         (
-            { invoke.nodes.add(res); }
+            { apply.nodes.add(res); }
             "("
             (
-                arg = expression() { invoke.nodes.add(arg); }
-                ("," arg = expression() { invoke.nodes.add(arg); })*
+                arg = expression() { apply.nodes.add(arg); }
+                ("," arg = expression() { apply.nodes.add(arg); })*
             )?
             ")"
           |
             {
-                invoke.nodes.add(new AstName("[]"));
-                invoke.nodes.add(res);
+                apply.nodes.add(new AstName("[]"));
+                apply.nodes.add(res);
             }
             "["
             (
-                arg = expression() { invoke.nodes.add(arg); }
-                ("," arg = expression() { invoke.nodes.add(arg); })*
+                arg = expression() { apply.nodes.add(arg); }
+                ("," arg = expression() { apply.nodes.add(arg); })*
             )?
             "]"
         )
         {
-            res = invoke;
+            res = apply;
         }
     )*
     { return res; }
+}
+
+AstNode cast(): {
+    AstNode res, t;
+}
+{
+    res = call()
+    (
+        ":" t = type()
+        {
+            AstApply n = new AstApply();
+            n.nodes.add(new AstName(":"));
+            n.nodes.add(res);
+            n.nodes.add(t);
+            res = n;
+        }
+    )?
+    { return res; }
+}
+
+AstNode expression(): {
+    AstNode n;
+}
+{
+    n = cast()
+    { return n; }
 }
 
 AstNode statement(): {

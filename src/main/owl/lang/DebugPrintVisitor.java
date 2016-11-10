@@ -40,10 +40,9 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstType n) {
-        node(n);
-        n.name.accept(this);
+        node(n, n.name.getName());
         for (AstType t : n.params) {
-            n.accept(this);
+            t.accept(this);
         }
         endNode();
     }
@@ -87,7 +86,7 @@ class DebugPrintVisitor implements AstVisitor {
     }
 
     @Override
-    public void visit(AstInvoke n) {
+    public void visit(AstApply n) {
         node(n);
         for (AstNode e : n.nodes) {
             e.accept(this);
