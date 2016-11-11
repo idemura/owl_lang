@@ -1,7 +1,7 @@
 # The Owl Programming Language
 
-_I am providing code in this repository to you under an open source license. Because this is my personal repository,
-the license you recieve to my code is from me and not from my employer (Facebook).
+_I am providing code in this repository to you under an open source license. Because this is my personal repository,_
+_the license you recieve to my code is from me and not from my employer (Facebook)._
 
 ## Setup
 IntelliJ Idea:
