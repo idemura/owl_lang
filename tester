@@ -1,0 +1,17 @@
+#! /bin/bash
+
+build_dir="buck-out/gen"
+for owl in `find . -name '*.owl'`; do
+    out=`tempfile`
+    java -jar ${build_dir}/owl_lang_cli.jar $owl > $out
+    if [ $? != 0 ]; then
+        echo "Failure $owl"
+        exit 1
+    fi
+    diff -Z $owl.out $out
+    if [ $? != 0 ]; then
+        echo "Diff in $owl"
+        exit 1
+    fi
+done
+echo "ALL TESTS PASSED"

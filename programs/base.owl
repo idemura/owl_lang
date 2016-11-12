@@ -16,3 +16,8 @@ fn f4() {
     g(10 : String);
     g(50 : I32[]);
 }
+
+
+fn f5(): I32 => Char => Bool {
+    50 : I32 => Bool;
+}

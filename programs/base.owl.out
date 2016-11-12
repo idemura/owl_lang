@@ -1,0 +1,95 @@
+Module
+  Function f1
+    returnType: Type None
+    Block
+
+  Function f2
+    returnType: Type None
+    Variable z
+      Type None
+    Block
+
+  Function f3
+    returnType: Type None
+    Variable x
+      Type None
+    Variable y
+      Type I32
+    Block
+      Apply
+        Name f1
+      ;
+      Apply
+        Name f2
+        Name x
+      ;
+      Apply
+        Name f3
+        Name x
+        Name y
+      ;
+      Apply
+        Name module.f3
+        Name mod.x
+        Name y
+      ;
+      Apply
+        Name []
+        Name arr
+        Name x
+      ;
+      Apply
+        Name []
+        Apply
+          Apply
+            Name f4
+          Name x
+        Constant 10
+      ;
+      Apply
+        Name f2
+        Name x
+      ;
+
+  Function f4
+    returnType: Type None
+    Block
+      Apply
+        Name :
+        Apply
+          Name g
+          Constant 10
+          Constant 20
+        Type I32
+      ;
+      Apply
+        Name g
+        Apply
+          Name :
+          Constant 10
+          Type String
+      ;
+      Apply
+        Name g
+        Apply
+          Name :
+          Constant 50
+          Type Array
+            Type I32
+      ;
+
+  Function f5
+    returnType: Type Fn
+      Type I32
+      Type Char
+      Type Bool
+    Block
+      Apply
+        Name :
+        Constant 50
+        Type Fn
+          Type I32
+          Type Bool
+      ;
+
+Compiled!
