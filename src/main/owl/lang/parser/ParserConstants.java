@@ -15,49 +15,51 @@ interface ParserConstants {
   /** RegularExpression Id. */
   int FN = 7;
   /** RegularExpression Id. */
-  int DOT = 8;
+  int NEW = 8;
   /** RegularExpression Id. */
-  int COMMA = 9;
+  int DOT = 9;
   /** RegularExpression Id. */
-  int COLON = 10;
+  int COMMA = 10;
   /** RegularExpression Id. */
-  int SEMICOLON = 11;
+  int COLON = 11;
   /** RegularExpression Id. */
-  int LPAREN = 12;
+  int SEMICOLON = 12;
   /** RegularExpression Id. */
-  int RPAREN = 13;
+  int LPAREN = 13;
   /** RegularExpression Id. */
-  int LCURLY = 14;
+  int RPAREN = 14;
   /** RegularExpression Id. */
-  int RCURLY = 15;
+  int LCURLY = 15;
   /** RegularExpression Id. */
-  int LBRACKET = 16;
+  int RCURLY = 16;
   /** RegularExpression Id. */
-  int RBRACKET = 17;
+  int LBRACKET = 17;
   /** RegularExpression Id. */
-  int ANN = 18;
+  int RBRACKET = 18;
   /** RegularExpression Id. */
-  int TILDE = 19;
+  int ANN = 19;
   /** RegularExpression Id. */
-  int NOT = 20;
+  int TILDE = 20;
   /** RegularExpression Id. */
-  int MUL = 21;
+  int NOT = 21;
   /** RegularExpression Id. */
-  int DIV = 22;
+  int MUL = 22;
   /** RegularExpression Id. */
-  int PLS = 23;
+  int DIV = 23;
   /** RegularExpression Id. */
-  int MNS = 24;
+  int PLS = 24;
   /** RegularExpression Id. */
-  int ARROW = 25;
+  int MNS = 25;
   /** RegularExpression Id. */
-  int OCT = 26;
+  int ARROW = 26;
   /** RegularExpression Id. */
-  int DEC = 27;
+  int OCT = 27;
   /** RegularExpression Id. */
-  int HEX = 28;
+  int DEC = 28;
   /** RegularExpression Id. */
-  int NAME = 29;
+  int HEX = 29;
+  /** RegularExpression Id. */
+  int NAME = 30;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -72,6 +74,7 @@ interface ParserConstants {
     "<token of kind 5>",
     "\"as\"",
     "\"fn\"",
+    "\"new\"",
     "\".\"",
     "\",\"",
     "\":\"",

@@ -1,6 +1,7 @@
 # hello
 fn f1() { }
 fn f2(z) { ; }
+
 fn f3(x, y: I32) {
     f1();
     f2(x);
@@ -17,9 +18,11 @@ fn f4() {
     g(50 : I32[]);
 }
 
-
 fn f5(): I32 => Char => Bool {
     50 : I32 => Bool;
+    12 : Generic(I32);
+    13 : Generic(I32, String, Bool);
+    14 : Generic(I32 => Bool, String[], Bool => Char[]);
 }
 
 fn f6() {

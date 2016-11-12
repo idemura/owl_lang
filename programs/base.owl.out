@@ -91,6 +91,34 @@ Module
           Type I32
           Type Bool
       ;
+      Apply
+        Name :
+        Constant 12
+        Type Generic
+          Type I32
+      ;
+      Apply
+        Name :
+        Constant 13
+        Type Generic
+          Type I32
+          Type String
+          Type Bool
+      ;
+      Apply
+        Name :
+        Constant 14
+        Type Generic
+          Type Fn
+            Type I32
+            Type Bool
+          Type Array
+            Type String
+          Type Fn
+            Type Bool
+            Type Array
+              Type Char
+      ;
   
   Function f6
     returnType: Type None
