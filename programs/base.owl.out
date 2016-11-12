@@ -78,7 +78,7 @@ Module
             Type I32
       ;
 
-  Function f5
+  Function f5asd
     returnType: Type Fn
       Type I32
       Type Char

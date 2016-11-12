@@ -4,49 +4,31 @@ import java.io.*;
 
 public class CLI {
     public static void main(String[] args) {
-        boolean failed = false;
-        for (String file_name : args) {
-            if (!compileFile(file_name)) {
-                failed = true;
+        boolean anyFailed = false;
+        for (String fileName : args) {
+            try {
+                if (!compileFile(fileName)) {
+                    anyFailed = true;
+                    System.err.println("Error compiling " + fileName);
+                }
+            } catch (Exception e) {
+                System.err.println("Error: " + e.getMessage());
+                anyFailed = true;
             }
         }
-        System.exit(failed ? 1 : 0);
+        System.exit(anyFailed ? 1 : 0);
     }
 
-    private static boolean compileFile(String file_name) {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(new File(file_name));
+    private static boolean compileFile(String fileName) throws Exception {
+        try (InputStream in = new FileInputStream(new File(fileName))) {
             return compile(in);
-        } catch (IOException e) {
-            System.err.println("IO error: " + e.getMessage());
-            return false;
-        } finally {
-            closeStream(in);
         }
     }
 
-    private static boolean compile(InputStream in) {
+    private static boolean compile(InputStream in) throws Exception {
         Parser parser = new Parser(new ParserTokenManager(new SimpleCharStream(in)));
-        try {
-            AstNode root = parser.module();
-            root.accept(new DebugPrintVisitor());
-            System.out.println("Compiled!");
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
+        AstModule module = parser.module();
+        module.accept(new DebugPrintVisitor());
         return true;
-    }
-
-    private static void closeStream(InputStream in) {
-        if (in == null) {
-            return;
-        }
-        try {
-            in.close();
-        } catch (IOException e) {
-            // Empty
-        }
     }
 }
