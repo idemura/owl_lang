@@ -2,13 +2,13 @@ Module
   Function f1
     returnType: Type None
     Block
-
+  
   Function f2
     returnType: Type None
     Variable z
       Type None
     Block
-
+  
   Function f3
     returnType: Type None
     Variable x
@@ -50,7 +50,7 @@ Module
         Name f2
         Name x
       ;
-
+  
   Function f4
     returnType: Type None
     Block
@@ -77,8 +77,8 @@ Module
           Type Array
             Type I32
       ;
-
-  Function f5asd
+  
+  Function f5
     returnType: Type Fn
       Type I32
       Type Char
@@ -91,5 +91,80 @@ Module
           Type I32
           Type Bool
       ;
-
-Compiled!
+  
+  Function f6
+    returnType: Type None
+    Block
+      Apply
+        Name f
+        Apply
+          Name ~
+          Constant 10
+      ;
+      Apply
+        Name f
+        Apply
+          Name ~
+          Apply
+            Name :
+            Constant 10
+            Type I32
+      ;
+      Apply
+        Name f
+        Apply
+          Name -
+          Constant 100
+      ;
+      Apply
+        Name f
+        Apply
+          Name -
+          Constant 100
+        Apply
+          Name !
+          Apply
+            Name :
+            Name a
+            Type I32
+      ;
+      Apply
+        Name f
+        Apply
+          Name -
+          Constant 100
+        Apply
+          Name !
+          Apply
+            Name :
+            Name a
+            Type I32
+      ;
+      Apply
+        Name f
+        Apply
+          Name -
+          Constant 100
+        Apply
+          Name :
+          Apply
+            Name !
+            Name a
+          Type I32
+      ;
+      Apply
+        Name +
+        Apply
+          Name f
+          Constant 10
+      ;
+      Apply
+        Name +
+        Apply
+          Name :
+          Apply
+            Name f
+            Constant 10
+          Type I32
+      ;
+  

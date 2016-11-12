@@ -29,17 +29,29 @@ SKIP: {
 TOKEN:
 {
     <AS: "as">
-  | <FN: "fn">
-  | "." | ","
-  | ":" | ";"
-  | "(" | ")"
-  | "{" | "}"
-  | "[" | "]"
-  | "=>"
-  | <OCT: "0o" (["0"-"7"])+>
-  | <DEC: (["0"-"9"])+>
-  | <HEX: "0x" (["0"-"9", "a"-"f", "A"-"F"])+>
-  | <NAME: ["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "0"-"9", "_"])*>
+|   <FN: "fn">
+|   <DOT: ".">
+|   <COMMA: ",">
+|   <COLON: ":">
+|   <SEMICOLON: ";">
+|   <LPAREN: "(">
+|   <RPAREN: ")">
+|   <LCURLY: "{">
+|   <RCURLY: "}">
+|   <LBRACKET: "[">
+|   <RBRACKET: "]">
+|   <ANN: "@">
+|   <TILDE: "~">
+|   <NOT: "!">
+|   <MUL: "*">
+|   <DIV: "/">
+|   <PLS: "+">
+|   <MNS: "-">
+|   <ARROW: "=>">
+|   <OCT: "0o" (["0"-"7"])+>
+|   <DEC: (["0"-"9"])+>
+|   <HEX: "0x" (["0"-"9", "a"-"f", "A"-"F"])+>
+|   <NAME: ["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "0"-"9", "_"])*>
 }
 
 AstModule module(): {
@@ -47,7 +59,9 @@ AstModule module(): {
     AstFunction f;
 }
 {
-    (f = function() { module.addFunction(f); })*
+    (
+        f = function() { module.addFunction(f); }
+    )*
     { return module; }
 }
 
@@ -57,29 +71,33 @@ AstName qualifiedName(): {
 }
 {
     tok = <NAME> { name.add(tok.image); }
-    ("." tok = <NAME> { name.add(tok.image); })*
+    (
+        <DOT> tok = <NAME> { name.add(tok.image); }
+    )*
     { return name; }
 }
 
 AstFunction function(): {
     AstFunction function = new AstFunction();
-}
-{
-    <FN> function.name = <NAME>.image
-    ("(" (function.arguments = variableList())? ")")?
-    (":" function.returnType = type())?
-    function.block = block()
-    { return function; }
-}
-
-List<AstVariable> variableList(): {
-    List<AstVariable> argList = new ArrayList<AstVariable>();
     AstVariable a;
 }
 {
-    a = variable() { argList.add(a); }
-    ("," a = variable() { argList.add(a); })*
-    { return argList; }
+    <FN> function.name = <NAME>.image
+    (
+        <LPAREN>
+        (
+            a = variable() { function.args.add(a); }
+            (
+                "," a = variable() { function.args.add(a); }
+            )*
+        )?
+        <RPAREN>
+    )?
+    (
+        <COLON> function.returnType = type()
+    )?
+    function.block = block()
+    { return function; }
 }
 
 AstVariable variable(): {
@@ -87,8 +105,10 @@ AstVariable variable(): {
     Token tok;
 }
 {
-    tok = <NAME> { variable.name = tok.image; } (":" variable.type = type())?
-    // Init expression!
+    tok = <NAME> { variable.name = tok.image; }
+    (
+        <COLON> variable.type = type()
+    )?
     { return variable; }
 }
 
@@ -97,7 +117,14 @@ AstBlock block(): {
     AstNode s;
 }
 {
-    "{" ((s = statement() { block.nodes.add(s); })? ";")* "}"
+    <LCURLY>
+    (
+        (
+            s = statement() { block.statements.add(s); }
+        )?
+        <SEMICOLON>
+    )*
+    <RCURLY>
     { return block; }
 }
 
@@ -108,10 +135,10 @@ AstNode prime(): {
 {
     (
         p = qualifiedName()
-      | tok = <OCT> { p = new AstConstant(tok.image); }
-      | tok = <DEC> { p = new AstConstant(tok.image); }
-      | tok = <HEX> { p = new AstConstant(tok.image); }
-      | "(" p = expression() ")"
+    |   tok = <OCT> { p = new AstConstant(tok.image); }
+    |   tok = <DEC> { p = new AstConstant(tok.image); }
+    |   tok = <HEX> { p = new AstConstant(tok.image); }
+    |   <LPAREN> p = expression() <RPAREN>
     )
     { return p; }
 }
@@ -123,32 +150,35 @@ AstNode call(): {
 {
     res = prime()
     (
-        {
-            apply = new AstApply();
-        }
+        { apply = new AstApply(); }
         (
-            { apply.nodes.add(res); }
-            "("
+        // Reqular call with ()
+            { apply.args.add(res); }
+            <LPAREN>
             (
-                arg = expression() { apply.nodes.add(arg); }
-                ("," arg = expression() { apply.nodes.add(arg); })*
+                arg = expression() { apply.args.add(arg); }
+                (
+                    <COMMA> arg = expression() { apply.args.add(arg); }
+                )*
             )?
-            ")"
-          |
+            <RPAREN>
+
+        // Array index []
+        |
             {
-                apply.nodes.add(new AstName("[]"));
-                apply.nodes.add(res);
+                apply.args.add(new AstName("[]"));
+                apply.args.add(res);
             }
-            "["
+            <LBRACKET>
             (
-                arg = expression() { apply.nodes.add(arg); }
-                ("," arg = expression() { apply.nodes.add(arg); })*
+                arg = expression() { apply.args.add(arg); }
+                (
+                    <COMMA> arg = expression() { apply.args.add(arg); }
+                )*
             )?
-            "]"
+            <RBRACKET>
         )
-        {
-            res = apply;
-        }
+        { res = apply; }
     )*
     { return res; }
 }
@@ -159,23 +189,40 @@ AstNode cast(): {
 {
     res = call()
     (
-        ":" t = type()
+        <COLON> t = type()
         {
-            AstApply n = new AstApply();
-            n.nodes.add(new AstName(":"));
-            n.nodes.add(res);
-            n.nodes.add(t);
-            res = n;
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(":"));
+            apply.args.add(res);
+            apply.args.add(t);
+            res = apply;
         }
     )?
     { return res; }
+}
+
+AstNode unary(): {
+    Token tok = null;
+    AstNode n;
+}
+{
+    (tok = <TILDE> | tok = <NOT> | tok = <PLS> | tok = <MNS>)? n = cast()
+    {
+        if (tok == null) {
+            return n;
+        }
+        AstApply apply = new AstApply();
+        apply.args.add(new AstName(tok.image));
+        apply.args.add(n);
+        return apply;
+    }
 }
 
 AstNode expression(): {
     AstNode n;
 }
 {
-    n = cast()
+    n = unary()
     { return n; }
 }
 
@@ -193,15 +240,17 @@ AstType baseType(): {
 {
     type.name = qualifiedName()
     (
-        "(" ")"
-      | "[" "]"
+        <LPAREN>
+        <RPAREN>
+
+    |   <LBRACKET>
+        <RBRACKET>
         {
-            AstType arrayType = AstType.fromName("Array");
-            arrayType.params.add(type);
-            type = arrayType;
+            AstType generic = AstType.fromName("Array");
+            generic.args.add(type);
+            type = generic;
         }
-      | {}
-    )
+    )?
     { return type; }
 }
 
@@ -212,7 +261,7 @@ AstType type(): {
 {
     t1 = baseType()
     (
-        "=>" t2 = baseType()
+        <ARROW> t2 = baseType()
         {
             if (ts == null) {
                 ts = new ArrayList<AstType>();
@@ -225,9 +274,9 @@ AstType type(): {
         if (ts == null) {
             return t1;
         } else {
-            AstType functionType = AstType.fromName("Fn");
-            functionType.params = ts;
-            return functionType;
+            AstType generic = AstType.fromName("Fn");
+            generic.args = ts;
+            return generic;
         }
     }
 }

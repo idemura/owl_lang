@@ -8,8 +8,8 @@ public class TypeTest {
     @Test
     public void testGenericTypeStr() {
         AstType t = AstType.fromName("Foo");
-        t.params.add(AstType.I32);
-        t.params.add(AstType.F32);
+        t.args.add(AstType.I32);
+        t.args.add(AstType.F32);
         assertEquals("Foo(I32, F32)", typeStr(t));
     }
 

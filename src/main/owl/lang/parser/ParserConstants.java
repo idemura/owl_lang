@@ -15,13 +15,49 @@ interface ParserConstants {
   /** RegularExpression Id. */
   int FN = 7;
   /** RegularExpression Id. */
-  int OCT = 19;
+  int DOT = 8;
   /** RegularExpression Id. */
-  int DEC = 20;
+  int COMMA = 9;
   /** RegularExpression Id. */
-  int HEX = 21;
+  int COLON = 10;
   /** RegularExpression Id. */
-  int NAME = 22;
+  int SEMICOLON = 11;
+  /** RegularExpression Id. */
+  int LPAREN = 12;
+  /** RegularExpression Id. */
+  int RPAREN = 13;
+  /** RegularExpression Id. */
+  int LCURLY = 14;
+  /** RegularExpression Id. */
+  int RCURLY = 15;
+  /** RegularExpression Id. */
+  int LBRACKET = 16;
+  /** RegularExpression Id. */
+  int RBRACKET = 17;
+  /** RegularExpression Id. */
+  int ANN = 18;
+  /** RegularExpression Id. */
+  int TILDE = 19;
+  /** RegularExpression Id. */
+  int NOT = 20;
+  /** RegularExpression Id. */
+  int MUL = 21;
+  /** RegularExpression Id. */
+  int DIV = 22;
+  /** RegularExpression Id. */
+  int PLS = 23;
+  /** RegularExpression Id. */
+  int MNS = 24;
+  /** RegularExpression Id. */
+  int ARROW = 25;
+  /** RegularExpression Id. */
+  int OCT = 26;
+  /** RegularExpression Id. */
+  int DEC = 27;
+  /** RegularExpression Id. */
+  int HEX = 28;
+  /** RegularExpression Id. */
+  int NAME = 29;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -46,6 +82,13 @@ interface ParserConstants {
     "\"}\"",
     "\"[\"",
     "\"]\"",
+    "\"@\"",
+    "\"~\"",
+    "\"!\"",
+    "\"*\"",
+    "\"/\"",
+    "\"+\"",
+    "\"-\"",
     "\"=>\"",
     "<OCT>",
     "<DEC>",

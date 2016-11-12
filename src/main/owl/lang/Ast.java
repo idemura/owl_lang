@@ -43,12 +43,12 @@ class TypeNameVisitor implements AstVisitor {
     @Override
     public void visit(AstType n) {
         n.name.accept(this);
-        if (!n.params.isEmpty()) {
+        if (!n.args.isEmpty()) {
             name += "(";
-            n.params.get(0).accept(this);
-            for (int i = 1; i < n.params.size(); i++) {
+            n.args.get(0).accept(this);
+            for (int i = 1; i < n.args.size(); i++) {
                 name += ",";
-                n.params.get(i).accept(this);
+                n.args.get(i).accept(this);
             }
             name += ")";
         }
@@ -96,7 +96,7 @@ class AstType extends AstNode {
     }
 
     AstName name;
-    List<AstType> params = new ArrayList<>();
+    List<AstType> args = new ArrayList<>();
 
     AstType() {}
 
@@ -123,7 +123,7 @@ class AstModule extends AstNode {
 
 class AstFunction extends AstNode {
     String name;
-    List<AstVariable> arguments = new ArrayList<>();
+    List<AstVariable> args = new ArrayList<>();
     AstType returnType = AstType.None;
     AstBlock block;
 
@@ -146,7 +146,7 @@ class AstVariable extends AstNode {
 
 
 class AstBlock extends AstNode {
-    List<AstNode> nodes = new ArrayList<>();
+    List<AstNode> statements = new ArrayList<>();
 
     @Override
     public void accept(AstVisitor v) {
@@ -156,7 +156,7 @@ class AstBlock extends AstNode {
 
 
 class AstApply extends AstNode {
-    List<AstNode> nodes = new ArrayList<>();
+    List<AstNode> args = new ArrayList<>();
 
     @Override
     public void accept(AstVisitor v) {

@@ -1,13 +1,12 @@
 #! /bin/bash
 
-build_dir="buck-out/gen"
 for owl in `find . -name '*.owl'`; do
     out=`tempfile`
-    java -jar ${build_dir}/owl_lang_cli.jar $owl > $out
+    ./owl $owl > $out
     if [ $? != 0 ]; then
         exit 1
     fi
-    diff -Zu $owl.out $out
+    diff -ZBu $owl.out $out
     if [ $? != 0 ]; then
         exit 1
     fi

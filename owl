@@ -1,0 +1,2 @@
+#! /bin/bash
+java -jar buck-out/gen/owl_lang_cli.jar "$@"
