@@ -361,8 +361,9 @@ AstType arrayType = AstType.fromName("Array");
     throw new Error("Missing return statement in function");
   }
 
-  final public AstType type() throws ParseException {AstType type, t, functionType = null;
-    type = baseType();
+  final public AstType type() throws ParseException {AstType t1, t2;
+    List<AstType> ts = null;
+    t1 = baseType();
     label_8:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -375,14 +376,20 @@ AstType arrayType = AstType.fromName("Array");
         break label_8;
       }
       jj_consume_token(18);
-      t = baseType();
-if (functionType == null) {
-                functionType = AstType.fromName("Function");
-                type.params.add(type);
+      t2 = baseType();
+if (ts == null) {
+                ts = new ArrayList<AstType>();
+                ts.add(t1);
             }
-            functionType.params.add(t);
+            ts.add(t2);
     }
-{if ("" != null) return functionType != null? functionType: type;}
+if (ts == null) {
+            {if ("" != null) return t1;}
+        } else {
+            AstType functionType = AstType.fromName("Fn");
+            functionType.params = ts;
+            {if ("" != null) return functionType;}
+        }
     throw new Error("Missing return statement in function");
   }
 

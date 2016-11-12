@@ -206,19 +206,28 @@ AstType baseType(): {
 }
 
 AstType type(): {
-    AstType type, t, functionType = null;
+    AstType t1, t2;
+    List<AstType> ts = null;
 }
 {
-    type = baseType()
+    t1 = baseType()
     (
-        "=>" t = baseType()
+        "=>" t2 = baseType()
         {
-            if (functionType == null) {
-                functionType = AstType.fromName("Function");
-                type.params.add(type);
+            if (ts == null) {
+                ts = new ArrayList<AstType>();
+                ts.add(t1);
             }
-            functionType.params.add(t);
+            ts.add(t2);
         }
     )*
-    { return functionType != null? functionType: type; }
+    {
+        if (ts == null) {
+            return t1;
+        } else {
+            AstType functionType = AstType.fromName("Fn");
+            functionType.params = ts;
+            return functionType;
+        }
+    }
 }
