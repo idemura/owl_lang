@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Parser implements ParserConstants {
 
-  final public AstModule module() throws ParseException {AstModule module = new AstModule();
+  final public AstModule module() throws ParseException {AstModule m = new AstModule();
     AstFunction f;
     label_1:
     while (true) {
@@ -21,16 +21,16 @@ public class Parser implements ParserConstants {
         break label_1;
       }
       f = function();
-module.addFunction(f);
+m.addFunction(f);
     }
-{if ("" != null) return module;}
+{if ("" != null) return m;}
     throw new Error("Missing return statement in function");
   }
 
-  final public AstName qualifiedName() throws ParseException {AstName name = new AstName();
+  final public AstName qualifiedName() throws ParseException {AstName n = new AstName();
     Token tok;
     tok = jj_consume_token(NAME);
-name.add(tok.image);
+n.add(tok.image);
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -44,23 +44,23 @@ name.add(tok.image);
       }
       jj_consume_token(DOT);
       tok = jj_consume_token(NAME);
-name.add(tok.image);
+n.add(tok.image);
     }
-{if ("" != null) return name;}
+{if ("" != null) return n;}
     throw new Error("Missing return statement in function");
   }
 
-  final public AstFunction function() throws ParseException {AstFunction function = new AstFunction();
-    AstVariable a;
+  final public AstFunction function() throws ParseException {AstFunction f = new AstFunction();
+    AstVariable arg;
     jj_consume_token(FN);
-    function.name = jj_consume_token(NAME).image;
+    f.name = jj_consume_token(NAME).image;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LPAREN:{
       jj_consume_token(LPAREN);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case NAME:{
-        a = variable();
-function.args.add(a);
+        arg = variable();
+f.args.add(arg);
         label_3:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -73,8 +73,8 @@ function.args.add(a);
             break label_3;
           }
           jj_consume_token(COMMA);
-          a = variable();
-function.args.add(a);
+          arg = variable();
+f.args.add(arg);
         }
         break;
         }
@@ -92,37 +92,37 @@ function.args.add(a);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case COLON:{
       jj_consume_token(COLON);
-      function.returnType = type();
+      f.returnType = type();
       break;
       }
     default:
       jj_la1[5] = jj_gen;
       ;
     }
-    function.block = block();
-{if ("" != null) return function;}
+    f.block = block();
+{if ("" != null) return f;}
     throw new Error("Missing return statement in function");
   }
 
-  final public AstVariable variable() throws ParseException {AstVariable variable = new AstVariable();
+  final public AstVariable variable() throws ParseException {AstVariable v = new AstVariable();
     Token tok;
     tok = jj_consume_token(NAME);
-variable.name = tok.image;
+v.name = tok.image;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case COLON:{
       jj_consume_token(COLON);
-      variable.type = type();
+      v.type = type();
       break;
       }
     default:
       jj_la1[6] = jj_gen;
       ;
     }
-{if ("" != null) return variable;}
+{if ("" != null) return v;}
     throw new Error("Missing return statement in function");
   }
 
-  final public AstBlock block() throws ParseException {AstBlock block = new AstBlock();
+  final public AstBlock block() throws ParseException {AstBlock b = new AstBlock();
     AstNode s;
     jj_consume_token(LCURLY);
     label_4:
@@ -156,7 +156,7 @@ variable.name = tok.image;
       case HEX:
       case NAME:{
         s = statement();
-block.statements.add(s);
+b.statements.add(s);
         break;
         }
       default:
@@ -166,7 +166,7 @@ block.statements.add(s);
       jj_consume_token(SEMICOLON);
     }
     jj_consume_token(RCURLY);
-{if ("" != null) return block;}
+{if ("" != null) return b;}
     throw new Error("Missing return statement in function");
   }
 
@@ -207,9 +207,9 @@ p = new AstConstant(tok.image);
     throw new Error("Missing return statement in function");
   }
 
-  final public AstNode call() throws ParseException {AstNode res, arg;
+  final public AstNode call() throws ParseException {AstNode r, arg;
     AstApply apply = null;
-    res = prime();
+    r = prime();
     label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -225,7 +225,7 @@ p = new AstConstant(tok.image);
 apply = new AstApply();
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case LPAREN:{
-apply.args.add(res);
+apply.args.add(r);
         jj_consume_token(LPAREN);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case LPAREN:
@@ -265,7 +265,7 @@ apply.args.add(arg);
         }
       case LBRACKET:{
 apply.args.add(new AstName("[]"));
-                apply.args.add(res);
+                apply.args.add(r);
         jj_consume_token(LBRACKET);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case LPAREN:
@@ -308,30 +308,30 @@ apply.args.add(arg);
         jj_consume_token(-1);
         throw new ParseException();
       }
-res = apply;
+r = apply;
     }
-{if ("" != null) return res;}
+{if ("" != null) return r;}
     throw new Error("Missing return statement in function");
   }
 
-  final public AstNode cast() throws ParseException {AstNode res, t;
-    res = call();
+  final public AstNode cast() throws ParseException {AstNode r, t;
+    r = call();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case COLON:{
       jj_consume_token(COLON);
       t = type();
 AstApply apply = new AstApply();
             apply.args.add(new AstName(":"));
-            apply.args.add(res);
+            apply.args.add(r);
             apply.args.add(t);
-            res = apply;
+            r = apply;
       break;
       }
     default:
       jj_la1[16] = jj_gen;
       ;
     }
-{if ("" != null) return res;}
+{if ("" != null) return r;}
     throw new Error("Missing return statement in function");
   }
 
@@ -434,8 +434,55 @@ AstApply apply = new AstApply();
     throw new Error("Missing return statement in function");
   }
 
+  final public String additiveOp() throws ParseException {Token tok;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case PLS:{
+      tok = jj_consume_token(PLS);
+{if ("" != null) return tok.image;}
+      break;
+      }
+    case MNS:{
+      tok = jj_consume_token(MNS);
+{if ("" != null) return tok.image;}
+      break;
+      }
+    default:
+      jj_la1[21] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+  }
+
+  final public AstNode additive() throws ParseException {String op;
+    AstNode l, r;
+    l = multiplicative();
+    label_9:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case PLS:
+      case MNS:{
+        ;
+        break;
+        }
+      default:
+        jj_la1[22] = jj_gen;
+        break label_9;
+      }
+      op = additiveOp();
+      r = multiplicative();
+AstApply apply = new AstApply();
+            apply.args.add(new AstName(op));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+    }
+{if ("" != null) return l;}
+    throw new Error("Missing return statement in function");
+  }
+
   final public AstNode expression() throws ParseException {AstNode n;
-    n = multiplicative();
+    n = additive();
 {if ("" != null) return n;}
     throw new Error("Missing return statement in function");
   }
@@ -446,8 +493,8 @@ AstApply apply = new AstApply();
     throw new Error("Missing return statement in function");
   }
 
-  final public AstType baseType() throws ParseException {AstType type = new AstType(), arg, t;
-    type.name = qualifiedName();
+  final public AstType baseType() throws ParseException {AstType t = new AstType(), arg;
+    t.name = qualifiedName();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LPAREN:
     case LBRACKET:{
@@ -455,8 +502,8 @@ AstApply apply = new AstApply();
       case LPAREN:{
         jj_consume_token(LPAREN);
         arg = type();
-type.args.add(arg);
-        label_9:
+t.args.add(arg);
+        label_10:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case COMMA:{
@@ -464,54 +511,54 @@ type.args.add(arg);
             break;
             }
           default:
-            jj_la1[21] = jj_gen;
-            break label_9;
+            jj_la1[23] = jj_gen;
+            break label_10;
           }
           jj_consume_token(COMMA);
           arg = type();
-type.args.add(arg);
+t.args.add(arg);
         }
         jj_consume_token(RPAREN);
         break;
         }
       case LBRACKET:{
-        label_10:
+        label_11:
         while (true) {
           jj_consume_token(LBRACKET);
           jj_consume_token(RBRACKET);
-t = AstType.fromName("Array");
-                t.args.add(type);
-                type = t;
+AstType arrayType = AstType.fromName("Array");
+                arrayType.args.add(t);
+                t = arrayType;
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
           case LBRACKET:{
             ;
             break;
             }
           default:
-            jj_la1[22] = jj_gen;
-            break label_10;
+            jj_la1[24] = jj_gen;
+            break label_11;
           }
         }
         break;
         }
       default:
-        jj_la1[23] = jj_gen;
+        jj_la1[25] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
       }
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[26] = jj_gen;
       ;
     }
-{if ("" != null) return type;}
+{if ("" != null) return t;}
     throw new Error("Missing return statement in function");
   }
 
   final public AstType type() throws ParseException {AstType t, s, functionType = null;
     t = baseType();
-    label_11:
+    label_12:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case ARROW:{
@@ -519,8 +566,8 @@ t = AstType.fromName("Array");
         break;
         }
       default:
-        jj_la1[25] = jj_gen;
-        break label_11;
+        jj_la1[27] = jj_gen;
+        break label_12;
       }
       jj_consume_token(ARROW);
       s = baseType();
@@ -544,13 +591,13 @@ if (functionType == null) {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[26];
+  final private int[] jj_la1 = new int[28];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x40,0x200,0x400,0x80000000,0x2000,0x800,0x800,0xf6303000,0xf6302000,0xf0002000,0x22000,0x400,0xf6302000,0x400,0xf6302000,0x22000,0x800,0x6300000,0x6300000,0x1c00000,0x1c00000,0x400,0x20000,0x22000,0x22000,0x8000000,};
+      jj_la1_0 = new int[] {0x40,0x200,0x400,0x80000000,0x2000,0x800,0x800,0xf6303000,0xf6302000,0xf0002000,0x22000,0x400,0xf6302000,0x400,0xf6302000,0x22000,0x800,0x6300000,0x6300000,0x1c00000,0x1c00000,0x6000000,0x6000000,0x400,0x20000,0x22000,0x22000,0x8000000,};
    }
 
   /** Constructor with InputStream. */
@@ -564,7 +611,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -578,7 +625,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -588,7 +635,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -598,7 +645,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -607,7 +654,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -616,7 +663,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -672,7 +719,7 @@ if (functionType == null) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 26; i++) {
+    for (int i = 0; i < 28; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

@@ -247,4 +247,30 @@ Module
           Name +
           Constant 6
       ;
+      Apply
+        Name -
+        Apply
+          Name +
+          Apply
+            Name *
+            Apply
+              Name foo
+              Constant 2
+              Constant 3
+            Apply
+              Name -
+              Constant 10
+          Apply
+            Name *
+            Constant 80
+            Apply
+              Name +
+              Constant 2
+              Apply
+                Name g
+        Apply
+          Name []
+          Name a
+          Constant 10
+      ;
   

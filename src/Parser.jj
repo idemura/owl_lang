@@ -59,81 +59,81 @@ TOKEN:
 
 AstModule module():
 {
-    AstModule module = new AstModule();
+    AstModule m = new AstModule();
     AstFunction f;
 }
 {
     (
-        f = function() { module.addFunction(f); }
+        f = function() { m.addFunction(f); }
     )*
-    { return module; }
+    { return m; }
 }
 
 AstName qualifiedName():
 {
-    AstName name = new AstName();
+    AstName n = new AstName();
     Token tok;
 }
 {
-    tok = <NAME> { name.add(tok.image); }
+    tok = <NAME> { n.add(tok.image); }
     (
-        <DOT> tok = <NAME> { name.add(tok.image); }
+        <DOT> tok = <NAME> { n.add(tok.image); }
     )*
-    { return name; }
+    { return n; }
 }
 
 AstFunction function():
 {
-    AstFunction function = new AstFunction();
-    AstVariable a;
+    AstFunction f = new AstFunction();
+    AstVariable arg;
 }
 {
-    <FN> function.name = <NAME>.image
+    <FN> f.name = <NAME>.image
     (
         <LPAREN>
         (
-            a = variable() { function.args.add(a); }
+            arg = variable() { f.args.add(arg); }
             (
-                "," a = variable() { function.args.add(a); }
+                "," arg = variable() { f.args.add(arg); }
             )*
         )?
         <RPAREN>
     )?
     (
-        <COLON> function.returnType = type()
+        <COLON> f.returnType = type()
     )?
-    function.block = block()
-    { return function; }
+    f.block = block()
+    { return f; }
 }
 
 AstVariable variable():
 {
-    AstVariable variable = new AstVariable();
+    AstVariable v = new AstVariable();
     Token tok;
 }
 {
-    tok = <NAME> { variable.name = tok.image; }
+    tok = <NAME> { v.name = tok.image; }
     (
-        <COLON> variable.type = type()
+        <COLON> v.type = type()
     )?
-    { return variable; }
+    { return v; }
 }
 
 AstBlock block():
 {
-    AstBlock block = new AstBlock();
+    AstBlock b = new AstBlock();
     AstNode s;
 }
 {
     <LCURLY>
     (
         (
-            s = statement() { block.statements.add(s); }
+            s = statement() { b.statements.add(s); }
         )?
         <SEMICOLON>
     )*
     <RCURLY>
-    { return block; }
+    { return b; }
 }
 
 AstNode prime():
@@ -154,16 +154,16 @@ AstNode prime():
 
 AstNode call():
 {
-    AstNode res, arg;
+    AstNode r, arg;
     AstApply apply = null;
 }
 {
-    res = prime()
+    r = prime()
     (
         { apply = new AstApply(); }
         (
-        // Reqular call with ()
-            { apply.args.add(res); }
+        // Reqular function call with ()
+            { apply.args.add(r); }
             <LPAREN>
             (
                 arg = expression() { apply.args.add(arg); }
@@ -177,7 +177,7 @@ AstNode call():
         |
             {
                 apply.args.add(new AstName("[]"));
-                apply.args.add(res);
+                apply.args.add(r);
             }
             <LBRACKET>
             (
@@ -188,28 +188,28 @@ AstNode call():
             )?
             <RBRACKET>
         )
-        { res = apply; }
+        { r = apply; }
     )*
-    { return res; }
+    { return r; }
 }
 
 AstNode cast():
 {
-    AstNode res, t;
+    AstNode r, t;
 }
 {
-    res = call()
+    r = call()
     (
         <COLON> t = type()
         {
             AstApply apply = new AstApply();
             apply.args.add(new AstName(":"));
-            apply.args.add(res);
+            apply.args.add(r);
             apply.args.add(t);
-            res = apply;
+            r = apply;
         }
     )?
-    { return res; }
+    { return r; }
 }
 
 AstNode unary():
@@ -260,12 +260,41 @@ AstNode multiplicative():
     { return l; }
 }
 
+String additiveOp():
+{
+    Token tok;
+}
+{
+    tok = <PLS> { return tok.image; }
+|   tok = <MNS> { return tok.image; }
+}
+
+AstNode additive():
+{
+    String op;
+    AstNode l, r;
+}
+{
+    l = multiplicative()
+    (
+        op = additiveOp() r = multiplicative()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
 AstNode expression():
 {
     AstNode n;
 }
 {
-    n = multiplicative()
+    n = additive()
     { return n; }
 }
 
@@ -274,34 +303,33 @@ AstNode statement():
     AstNode expr;
 }
 {
-    expr = expression()
-    { return expr; }
+    expr = expression() { return expr; }
 }
 
 AstType baseType():
 {
-    AstType type = new AstType(), arg, t;
+    AstType t = new AstType(), arg;
 }
 {
-    type.name = qualifiedName()
+    t.name = qualifiedName()
     (
         <LPAREN>
-        arg = type() { type.args.add(arg); }
+        arg = type() { t.args.add(arg); }
         (
-            <COMMA> arg = type() { type.args.add(arg); }
+            <COMMA> arg = type() { t.args.add(arg); }
         )*
         <RPAREN>
     |   (
             <LBRACKET>
             <RBRACKET>
             {
-                t = AstType.fromName("Array");
-                t.args.add(type);
-                type = t;
+                AstType arrayType = AstType.fromName("Array");
+                arrayType.args.add(t);
+                t = arrayType;
             }
         )+
     )?
-    { return type; }
+    { return t; }
 }
 
 AstType type():

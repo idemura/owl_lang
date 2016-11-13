@@ -1,0 +1,5 @@
+#! /bin/bash
+
+for owl in `find . -name '*.owl'`; do
+    ./owl $owl > $owl.out
+done
