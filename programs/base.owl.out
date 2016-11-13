@@ -205,6 +205,15 @@ Module
             Constant 10
           Type I32
       ;
+      Apply
+        Name +
+        Apply
+          Name -
+          Constant 3
+        Apply
+          Name +
+          Constant 6
+      ;
   
   Function f7
     returnType: Type None
