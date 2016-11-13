@@ -29,14 +29,24 @@ Module
         Name y
       ;
       Apply
-        Name module.f3
-        Name mod.x
+        Member
+          Name module
+          Name f3
+        Member
+          Name mod
+          Name x
         Name y
       ;
       Apply
         Name []
         Name arr
         Name x
+      ;
+      Apply
+        Name []
+        Name map
+        Name x
+        Name z
       ;
       Apply
         Name []
@@ -49,6 +59,33 @@ Module
       Apply
         Name f2
         Name x
+      ;
+      Member
+        Apply
+          Name f2
+        Name x
+      ;
+      Apply
+        Name []
+        Apply
+          Name f2
+        Constant 10
+      ;
+      Member
+        Apply
+          Name []
+          Name a
+          Name i
+        Name y
+      ;
+      Member
+        Member
+          Apply
+            Name []
+            Name a
+            Name i
+          Name y
+        Name z
       ;
   
   Function f4
@@ -67,7 +104,7 @@ Module
         Apply
           Name :
           Constant 10
-          Type String
+          Type owl.lang.String
       ;
       Apply
         Name g
@@ -117,7 +154,7 @@ Module
           Type Fn
             Type Bool
             Type Array
-              Type Char
+              Type owl.lang.Char
       ;
       Apply
         Name :

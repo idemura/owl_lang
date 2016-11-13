@@ -75,17 +75,28 @@ AstModule module():
     { return m; }
 }
 
-AstName qualifiedName():
+AstName name():
 {
-    AstName n = new AstName();
     Token tok;
 }
 {
-    tok = <NAME> { n.add(tok.image); }
+    tok = <NAME> { return new AstName(tok.image); }
+}
+
+AstName qualifiedName():
+{
+    String name;
+    Token tok;
+}
+{
+    tok = <NAME> { name = tok.image; }
     (
-        <DOT> tok = <NAME> { n.add(tok.image); }
+        <DOT> tok = <NAME>
+        {
+            name += "." + tok.image;
+        }
     )*
-    { return n; }
+    { return new AstName(name); }
 }
 
 AstFunction function():
@@ -149,10 +160,10 @@ AstNode prime():
 }
 {
     (
-        p = qualifiedName()
-    |   tok = <OCT> { p = new AstConstant(tok.image); }
-    |   tok = <DEC> { p = new AstConstant(tok.image); }
-    |   tok = <HEX> { p = new AstConstant(tok.image); }
+        p = name()
+    |   tok = <OCT>  { p = new AstConstant(tok.image); }
+    |   tok = <DEC>  { p = new AstConstant(tok.image); }
+    |   tok = <HEX>  { p = new AstConstant(tok.image); }
     |   <LPAREN> p = expression() <RPAREN>
     )
     { return p; }
@@ -161,15 +172,29 @@ AstNode prime():
 AstNode call():
 {
     AstNode r, arg;
-    AstApply apply = null;
+    AstName n;
+    AstApply apply;
+    Token tok;
 }
 {
     r = prime()
     (
-        { apply = new AstApply(); }
         (
-        // Reqular function call with ()
-            { apply.args.add(r); }
+            // Member lookup.
+            <DOT> n = name()
+            {
+                AstMember m = new AstMember();
+                m.left = r;
+                m.name = n;
+                r = m;
+            }
+
+        |   // Regular function call with ().
+            {
+                apply = new AstApply();
+                apply.args.add(r);
+                r = apply;
+            }
             <LPAREN>
             (
                 arg = expression() { apply.args.add(arg); }
@@ -179,11 +204,12 @@ AstNode call():
             )?
             <RPAREN>
 
-        // Array index []
-        |
+        |   // Array index [].
             {
+                apply = new AstApply();
                 apply.args.add(new AstName("[]"));
                 apply.args.add(r);
+                r = apply;
             }
             <LBRACKET>
             (
@@ -194,7 +220,6 @@ AstNode call():
             )?
             <RBRACKET>
         )
-        { r = apply; }
     )*
     { return r; }
 }
@@ -419,7 +444,7 @@ AstType baseType():
             <LBRACKET>
             <RBRACKET>
             {
-                AstType arrayType = AstType.fromName("Array");
+                AstType arrayType = new AstType("Array");
                 arrayType.args.add(t);
                 t = arrayType;
             }
@@ -438,7 +463,7 @@ AstType type():
         <ARROW> s = baseType()
         {
             if (functionType == null) {
-                functionType = AstType.fromName("Fn");
+                functionType = new AstType("Fn");
                 functionType.args.add(t);
                 t = functionType;
             }

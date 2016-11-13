@@ -35,15 +35,23 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstName n) {
-        leaf(n, n.getName());
+        leaf(n, n.name);
     }
 
     @Override
     public void visit(AstType n) {
-        node(n, n.name.getName());
+        node(n, n.name.name);
         for (AstType t : n.args) {
             t.accept(this);
         }
+        endNode();
+    }
+
+    @Override
+    public void visit(AstMember n) {
+        node(n);
+        n.left.accept(this);
+        n.name.accept(this);
         endNode();
     }
 

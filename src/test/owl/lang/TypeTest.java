@@ -7,7 +7,7 @@ import static owl.lang.TypeNameVisitor.typeStr;
 public class TypeTest {
     @Test
     public void testGenericTypeStr() {
-        AstType t = AstType.fromName("Foo");
+        AstType t = new AstType("Foo");
         t.args.add(AstType.I32);
         t.args.add(AstType.F32);
         assertEquals("Foo(I32, F32)", typeStr(t));
@@ -15,7 +15,7 @@ public class TypeTest {
 
     @Test
     public void testTypeStr() {
-        AstType t = AstType.fromName("Foo");
+        AstType t = new AstType("Foo");
         assertEquals("Foo", typeStr(t));
     }
 }

@@ -27,10 +27,16 @@ m.addFunction(f);
     throw new Error("Missing return statement in function");
   }
 
-  final public AstName qualifiedName() throws ParseException {AstName n = new AstName();
+  final public AstName name() throws ParseException {Token tok;
+    tok = jj_consume_token(NAME);
+{if ("" != null) return new AstName(tok.image);}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public AstName qualifiedName() throws ParseException {String name;
     Token tok;
     tok = jj_consume_token(NAME);
-n.add(tok.image);
+name = tok.image;
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -44,9 +50,9 @@ n.add(tok.image);
       }
       jj_consume_token(DOT);
       tok = jj_consume_token(NAME);
-n.add(tok.image);
+name += "." + tok.image;
     }
-{if ("" != null) return n;}
+{if ("" != null) return new AstName(name);}
     throw new Error("Missing return statement in function");
   }
 
@@ -174,7 +180,7 @@ b.statements.add(s);
     Token tok;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case NAME:{
-      p = qualifiedName();
+      p = name();
       break;
       }
     case OCT:{
@@ -208,11 +214,14 @@ p = new AstConstant(tok.image);
   }
 
   final public AstNode call() throws ParseException {AstNode r, arg;
-    AstApply apply = null;
+    AstName n;
+    AstApply apply;
+    Token tok;
     r = prime();
     label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case DOT:
       case LPAREN:
       case LBRACKET:{
         ;
@@ -222,10 +231,20 @@ p = new AstConstant(tok.image);
         jj_la1[10] = jj_gen;
         break label_5;
       }
-apply = new AstApply();
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case DOT:{
+        jj_consume_token(DOT);
+        n = name();
+AstMember m = new AstMember();
+                m.left = r;
+                m.name = n;
+                r = m;
+        break;
+        }
       case LPAREN:{
-apply.args.add(r);
+apply = new AstApply();
+                apply.args.add(r);
+                r = apply;
         jj_consume_token(LPAREN);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case LPAREN:
@@ -264,8 +283,10 @@ apply.args.add(arg);
         break;
         }
       case LBRACKET:{
-apply.args.add(new AstName("[]"));
+apply = new AstApply();
+                apply.args.add(new AstName("[]"));
                 apply.args.add(r);
+                r = apply;
         jj_consume_token(LBRACKET);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case LPAREN:
@@ -308,7 +329,6 @@ apply.args.add(arg);
         jj_consume_token(-1);
         throw new ParseException();
       }
-r = apply;
     }
 {if ("" != null) return r;}
     throw new Error("Missing return statement in function");
@@ -657,7 +677,7 @@ t.args.add(arg);
         while (true) {
           jj_consume_token(LBRACKET);
           jj_consume_token(RBRACKET);
-AstType arrayType = AstType.fromName("Array");
+AstType arrayType = new AstType("Array");
                 arrayType.args.add(t);
                 t = arrayType;
           switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -703,7 +723,7 @@ AstType arrayType = AstType.fromName("Array");
       jj_consume_token(ARROW);
       s = baseType();
 if (functionType == null) {
-                functionType = AstType.fromName("Fn");
+                functionType = new AstType("Fn");
                 functionType.args.add(t);
                 t = functionType;
             }
@@ -730,7 +750,7 @@ if (functionType == null) {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x40,0x200,0x400,0x0,0x2000,0x800,0x800,0x6303000,0x6302000,0x2000,0x22000,0x400,0x6302000,0x400,0x6302000,0x22000,0x800,0x6300000,0x6300000,0x1c00000,0x1c00000,0x6000000,0x6000000,0x38000000,0x38000000,0x40000000,0x80000000,0x0,0x400,0x20000,0x22000,0x22000,0x0,};
+      jj_la1_0 = new int[] {0x40,0x200,0x400,0x0,0x2000,0x800,0x800,0x6303000,0x6302000,0x2000,0x22200,0x400,0x6302000,0x400,0x6302000,0x22200,0x800,0x6300000,0x6300000,0x1c00000,0x1c00000,0x6000000,0x6000000,0x38000000,0x38000000,0x40000000,0x80000000,0x0,0x400,0x20000,0x22000,0x22000,0x0,};
    }
    private static void jj_la1_init_1() {
       jj_la1_1 = new int[] {0x0,0x0,0x0,0x20,0x0,0x0,0x0,0x3c,0x3c,0x3c,0x0,0x0,0x3c,0x0,0x3c,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,0x2,};

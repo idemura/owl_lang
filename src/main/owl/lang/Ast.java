@@ -18,6 +18,7 @@ interface AstVisitor {
     default void visit(AstBlock node) {}
     default void visit(AstApply node) {}
     default void visit(AstConstant node) {}
+    default void visit(AstMember node) {}
 }
 
 
@@ -37,7 +38,7 @@ class TypeNameVisitor implements AstVisitor {
 
     @Override
     public void visit(AstName n) {
-        name += n.getName();
+        name = n.name;
     }
 
     @Override
@@ -57,48 +58,45 @@ class TypeNameVisitor implements AstVisitor {
 
 
 class AstName extends AstNode {
-    List<String> name = new ArrayList<>();
+    String name;
 
     AstName() {}
-    AstName(String... parts) {
-        for (String s : parts) {
-            name.add(s);
-        }
+    AstName(String name) {
+        this.name = name;
     }
 
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
     }
-
-    void add(String s) {
-        name.add(s);
-    }
-
-    String getName() {
-        return String.join(".", name);
-    }
 }
-
 
 // Generic type with parameters.
 class AstType extends AstNode {
-    static final AstType Bool = fromName("Bool");
-    static final AstType Char = fromName("Char");
-    static final AstType F32 = fromName("F32");
-    static final AstType I32 = fromName("I32");
-    static final AstType None = fromName("None");
+    static final AstType Bool = new AstType("Bool");
+    static final AstType Char = new AstType("Char");
+    static final AstType F32 = new AstType("F32");
+    static final AstType I32 = new AstType("I32");
+    static final AstType None = new AstType("None");
 
-    static AstType fromName(String... parts) {
-        AstType t = new AstType();
-        t.name = new AstName(parts);
-        return t;
+    AstType() {}
+    AstType(String name) {
+        this.name = new AstName(name);
     }
 
     AstName name;
     List<AstType> args = new ArrayList<>();
 
-    AstType() {}
+    @Override
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
+
+
+class AstMember extends AstNode {
+    AstNode left;
+    AstName name;
 
     @Override
     public void accept(AstVisitor v) {
@@ -111,8 +109,8 @@ class AstModule extends AstNode {
     List<AstFunction> functions = new ArrayList<>();
 
     @Override
-    public void accept(AstVisitor visitor) {
-        visitor.visit(this);
+    public void accept(AstVisitor v) {
+        v.visit(this);
     }
 
     final void addFunction(AstFunction f) {
@@ -177,4 +175,9 @@ class AstConstant extends AstNode {
     public void accept(AstVisitor v) {
         v.visit(this);
     }
+}
+
+
+final class AstUtil {
+    private AstUtil() {}
 }

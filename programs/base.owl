@@ -1,5 +1,6 @@
 # hello
-fn f1() { }
+
+fn f1() {}
 fn f2(z) { ; }
 
 fn f3(x, y: I32) {
@@ -8,13 +9,18 @@ fn f3(x, y: I32) {
     f3(x, y);
     module.f3(mod.x, y);
     arr[x];
+    map[x, z];
     f4()(x)[10];
     (f2)(x);
+    f2().x;
+    f2()[10];
+    a[i].y;
+    a[i].y.z;
 }
 
 fn f4() {
     g(10, 20) : I32;
-    g(10 : String);
+    g(10 : owl.lang.String);
     g(50 : I32[]);
 }
 
@@ -22,7 +28,7 @@ fn f5(): I32 => Char => Bool {
     50 : I32 => Bool;
     12 : Generic(I32);
     13 : Generic(I32, String, Bool);
-    14 : Generic(I32 => Bool, String[], Bool => Char[]);
+    14 : Generic(I32 => Bool, String[], Bool => owl.lang.Char[]);
     15 : I32[][] => I64 => Bool;
 }
 
