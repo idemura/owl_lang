@@ -54,8 +54,8 @@ TOKEN:
 |   <RSHIFT: ">>">
 |   <LSHIFT: "<<">
 |   <BIT_AND: "&">
-|   <BIT_OR: "|">
 |   <BIT_XOR: "^">
+|   <BIT_OR: "|">
 |   <ARROW: "=>">
 |   <OCT: "0o" (["0"-"7"])+>
 |   <DEC: (["0"-"9"])+>
@@ -325,28 +325,58 @@ AstNode shift():
     { return l; }
 }
 
-String bitwiseOp():
+AstNode bitAnd():
 {
     Token tok;
-}
-{
-    tok = <BIT_AND> { return tok.image; }
-|   tok = <BIT_OR>  { return tok.image; }
-|   tok = <BIT_XOR> { return tok.image; }
-}
-
-AstNode bitwise():
-{
-    String op;
     AstNode l, r;
 }
 {
     l = shift()
     (
-        op = bitwiseOp() r = shift()
+        tok = <BIT_AND> r = shift()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(op));
+            apply.args.add(new AstName(tok.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+AstNode bitXor():
+{
+    Token tok;
+    AstNode l, r;
+}
+{
+    l = bitAnd()
+    (
+        tok = <BIT_XOR> r = bitAnd()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(tok.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+AstNode bitOr():
+{
+    Token tok;
+    AstNode l, r;
+}
+{
+    l = bitXor()
+    (
+        tok = <BIT_OR> r = bitXor()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(tok.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -360,7 +390,7 @@ AstNode expression():
     AstNode n;
 }
 {
-    n = bitwise()
+    n = bitOr()
     { return n; }
 }
 

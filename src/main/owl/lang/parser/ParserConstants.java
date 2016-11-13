@@ -61,9 +61,9 @@ interface ParserConstants {
   /** RegularExpression Id. */
   int BIT_AND = 30;
   /** RegularExpression Id. */
-  int BIT_OR = 31;
+  int BIT_XOR = 31;
   /** RegularExpression Id. */
-  int BIT_XOR = 32;
+  int BIT_OR = 32;
   /** RegularExpression Id. */
   int ARROW = 33;
   /** RegularExpression Id. */
@@ -111,8 +111,8 @@ interface ParserConstants {
     "\">>\"",
     "\"<<\"",
     "\"&\"",
-    "\"|\"",
     "\"^\"",
+    "\"|\"",
     "\"=>\"",
     "<OCT>",
     "<DEC>",
