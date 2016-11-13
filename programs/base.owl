@@ -23,6 +23,7 @@ fn f5(): I32 => Char => Bool {
     12 : Generic(I32);
     13 : Generic(I32, String, Bool);
     14 : Generic(I32 => Bool, String[], Bool => Char[]);
+    15 : I32[][] => I64 => Bool;
 }
 
 fn f6() {
@@ -34,4 +35,10 @@ fn f6() {
     f(-100, (!a) : I32);
     +f(10);
     +f(10) : I32;
+}
+
+fn f7 {
+    2 * 3 / 5;
+    2 * 3 / 5  % 9;
+    -2 * +4 / -5 % +6;
 }

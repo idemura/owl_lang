@@ -119,6 +119,16 @@ Module
             Type Array
               Type Char
       ;
+      Apply
+        Name :
+        Constant 15
+        Type Fn
+          Type Array
+            Type Array
+              Type I32
+          Type I64
+          Type Bool
+      ;
   
   Function f6
     returnType: Type None
@@ -194,5 +204,47 @@ Module
             Name f
             Constant 10
           Type I32
+      ;
+  
+  Function f7
+    returnType: Type None
+    Block
+      Apply
+        Name /
+        Apply
+          Name *
+          Constant 2
+          Constant 3
+        Constant 5
+      ;
+      Apply
+        Name %
+        Apply
+          Name /
+          Apply
+            Name *
+            Constant 2
+            Constant 3
+          Constant 5
+        Constant 9
+      ;
+      Apply
+        Name %
+        Apply
+          Name /
+          Apply
+            Name *
+            Apply
+              Name -
+              Constant 2
+            Apply
+              Name +
+              Constant 4
+          Apply
+            Name -
+            Constant 5
+        Apply
+          Name +
+          Constant 6
       ;
   

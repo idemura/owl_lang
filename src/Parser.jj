@@ -18,7 +18,8 @@ public class Parser {
 
 PARSER_END(Parser)
 
-SKIP: {
+SKIP:
+{
     " "
   | "\r"
   | "\n"
@@ -28,8 +29,8 @@ SKIP: {
 
 TOKEN:
 {
-    <AS: "as">
-|   <FN: "fn">
+    <FN: "fn">
+|   <AS: "is">
 |   <NEW: "new">
 |   <DOT: ".">
 |   <COMMA: ",">
@@ -46,6 +47,7 @@ TOKEN:
 |   <NOT: "!">
 |   <MUL: "*">
 |   <DIV: "/">
+|   <MOD: "%">
 |   <PLS: "+">
 |   <MNS: "-">
 |   <ARROW: "=>">
@@ -55,7 +57,8 @@ TOKEN:
 |   <NAME: ["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "0"-"9", "_"])*>
 }
 
-AstModule module(): {
+AstModule module():
+{
     AstModule module = new AstModule();
     AstFunction f;
 }
@@ -66,7 +69,8 @@ AstModule module(): {
     { return module; }
 }
 
-AstName qualifiedName(): {
+AstName qualifiedName():
+{
     AstName name = new AstName();
     Token tok;
 }
@@ -78,7 +82,8 @@ AstName qualifiedName(): {
     { return name; }
 }
 
-AstFunction function(): {
+AstFunction function():
+{
     AstFunction function = new AstFunction();
     AstVariable a;
 }
@@ -101,7 +106,8 @@ AstFunction function(): {
     { return function; }
 }
 
-AstVariable variable(): {
+AstVariable variable():
+{
     AstVariable variable = new AstVariable();
     Token tok;
 }
@@ -113,7 +119,8 @@ AstVariable variable(): {
     { return variable; }
 }
 
-AstBlock block(): {
+AstBlock block():
+{
     AstBlock block = new AstBlock();
     AstNode s;
 }
@@ -129,7 +136,8 @@ AstBlock block(): {
     { return block; }
 }
 
-AstNode prime(): {
+AstNode prime():
+{
     AstNode p = null;
     Token tok;
 }
@@ -144,7 +152,8 @@ AstNode prime(): {
     { return p; }
 }
 
-AstNode call(): {
+AstNode call():
+{
     AstNode res, arg;
     AstApply apply = null;
 }
@@ -184,21 +193,8 @@ AstNode call(): {
     { return res; }
 }
 
-// AstNode newObject(): {
-//     AstName name;
-// }
-// {
-//     <NEW> name = qualifiedName()
-//     (
-//         <LBRACKET>
-//         <RBRACKET>
-//     )?
-//     {
-//         return AstNew();
-//     }
-// }
-
-AstNode cast(): {
+AstNode cast():
+{
     AstNode res, t;
 }
 {
@@ -216,7 +212,8 @@ AstNode cast(): {
     { return res; }
 }
 
-AstNode unary(): {
+AstNode unary():
+{
     Token tok = null;
     AstNode n;
 }
@@ -233,15 +230,47 @@ AstNode unary(): {
     }
 }
 
-AstNode expression(): {
+String multiplicativeOp():
+{
+    Token tok;
+}
+{
+    tok = <MUL> { return tok.image; }
+|   tok = <DIV> { return tok.image; }
+|   tok = <MOD> { return tok.image; }
+}
+
+AstNode multiplicative():
+{
+    String op;
+    AstNode l, r;
+}
+{
+    l = unary()
+    (
+        op = multiplicativeOp() r = unary()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+AstNode expression():
+{
     AstNode n;
 }
 {
-    n = unary()
+    n = multiplicative()
     { return n; }
 }
 
-AstNode statement(): {
+AstNode statement():
+{
     AstNode expr;
 }
 {
@@ -249,8 +278,9 @@ AstNode statement(): {
     { return expr; }
 }
 
-AstType baseType(): {
-    AstType type = new AstType(), arg;
+AstType baseType():
+{
+    AstType type = new AstType(), arg, t;
 }
 {
     type.name = qualifiedName()
@@ -261,41 +291,35 @@ AstType baseType(): {
             <COMMA> arg = type() { type.args.add(arg); }
         )*
         <RPAREN>
-
-    |   <LBRACKET>
-        <RBRACKET>
-        {
-            AstType generic = AstType.fromName("Array");
-            generic.args.add(type);
-            type = generic;
-        }
+    |   (
+            <LBRACKET>
+            <RBRACKET>
+            {
+                t = AstType.fromName("Array");
+                t.args.add(type);
+                type = t;
+            }
+        )+
     )?
     { return type; }
 }
 
-AstType type(): {
-    AstType t1, t2;
-    List<AstType> ts = null;
+AstType type():
+{
+    AstType t, s, functionType = null;
 }
 {
-    t1 = baseType()
+    t = baseType()
     (
-        <ARROW> t2 = baseType()
+        <ARROW> s = baseType()
         {
-            if (ts == null) {
-                ts = new ArrayList<AstType>();
-                ts.add(t1);
+            if (functionType == null) {
+                functionType = AstType.fromName("Fn");
+                functionType.args.add(t);
+                t = functionType;
             }
-            ts.add(t2);
+            functionType.args.add(s);
         }
     )*
-    {
-        if (ts == null) {
-            return t1;
-        } else {
-            AstType generic = AstType.fromName("Fn");
-            generic.args = ts;
-            return generic;
-        }
-    }
+    { return t; }
 }
