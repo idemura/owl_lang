@@ -53,15 +53,27 @@ interface ParserConstants {
   /** RegularExpression Id. */
   int MNS = 26;
   /** RegularExpression Id. */
-  int ARROW = 27;
+  int SIGNED_RSHIFT = 27;
   /** RegularExpression Id. */
-  int OCT = 28;
+  int RSHIFT = 28;
   /** RegularExpression Id. */
-  int DEC = 29;
+  int LSHIFT = 29;
   /** RegularExpression Id. */
-  int HEX = 30;
+  int BIT_AND = 30;
   /** RegularExpression Id. */
-  int NAME = 31;
+  int BIT_OR = 31;
+  /** RegularExpression Id. */
+  int BIT_XOR = 32;
+  /** RegularExpression Id. */
+  int ARROW = 33;
+  /** RegularExpression Id. */
+  int OCT = 34;
+  /** RegularExpression Id. */
+  int DEC = 35;
+  /** RegularExpression Id. */
+  int HEX = 36;
+  /** RegularExpression Id. */
+  int NAME = 37;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -95,6 +107,12 @@ interface ParserConstants {
     "\"%\"",
     "\"+\"",
     "\"-\"",
+    "\">>>\"",
+    "\">>\"",
+    "\"<<\"",
+    "\"&\"",
+    "\"|\"",
+    "\"^\"",
     "\"=>\"",
     "<OCT>",
     "<DEC>",

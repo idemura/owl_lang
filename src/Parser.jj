@@ -50,6 +50,12 @@ TOKEN:
 |   <MOD: "%">
 |   <PLS: "+">
 |   <MNS: "-">
+|   <SIGNED_RSHIFT: ">>>">
+|   <RSHIFT: ">>">
+|   <LSHIFT: "<<">
+|   <BIT_AND: "&">
+|   <BIT_OR: "|">
+|   <BIT_XOR: "^">
 |   <ARROW: "=>">
 |   <OCT: "0o" (["0"-"7"])+>
 |   <DEC: (["0"-"9"])+>
@@ -289,12 +295,72 @@ AstNode additive():
     { return l; }
 }
 
+String shiftOp():
+{
+    Token tok;
+}
+{
+    tok = <LSHIFT> { return tok.image; }
+|   tok = <RSHIFT> { return tok.image; }
+|   tok = <SIGNED_RSHIFT> { return tok.image; }
+}
+
+AstNode shift():
+{
+    String op;
+    AstNode l, r;
+}
+{
+    l = additive()
+    (
+        op = shiftOp() r = additive()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+String bitwiseOp():
+{
+    Token tok;
+}
+{
+    tok = <BIT_AND> { return tok.image; }
+|   tok = <BIT_OR>  { return tok.image; }
+|   tok = <BIT_XOR> { return tok.image; }
+}
+
+AstNode bitwise():
+{
+    String op;
+    AstNode l, r;
+}
+{
+    l = shift()
+    (
+        op = bitwiseOp() r = shift()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
 AstNode expression():
 {
     AstNode n;
 }
 {
-    n = additive()
+    n = bitwise()
     { return n; }
 }
 

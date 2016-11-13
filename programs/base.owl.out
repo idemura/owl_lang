@@ -273,4 +273,43 @@ Module
           Name a
           Constant 10
       ;
+      Apply
+        Name >>
+        Apply
+          Name >>>
+          Apply
+            Name <<
+            Name a
+            Constant 10
+          Constant 8
+        Constant 1
+      ;
+      Apply
+        Name |
+        Apply
+          Name &
+          Name a
+          Apply
+            Name <<
+            Constant 1
+            Constant 8
+        Apply
+          Name <<
+          Constant 1
+          Constant 6
+      ;
+      Apply
+        Name &
+        Apply
+          Name |
+          Apply
+            Name &
+            Name a
+            Name b
+          Apply
+            Name +
+            Constant 1
+            Constant 6
+        Constant 3
+      ;
   
