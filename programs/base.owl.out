@@ -370,3 +370,102 @@ Module
             Name d
       ;
   
+  Function f8
+    returnType: Type None
+    Block
+      Apply
+        Name ==
+        Apply
+          Name >=
+          Name a
+          Name b
+        Apply
+          Name <
+          Name c
+          Name d
+      ;
+      Apply
+        Name <
+        Apply
+          Name <
+          Name a
+          Name b
+        Name c
+      ;
+      Apply
+        Name ==
+        Apply
+          Name &
+          Name a
+          Constant 10
+        Apply
+          Name &
+          Name b
+          Apply
+            Name <<
+            Constant 1
+            Constant 4
+      ;
+      Apply
+        Name is
+        Apply
+          Name ==
+          Apply
+            Name is
+            Name a
+            Constant 10
+          Name b
+        Constant 20
+      ;
+      Apply
+        Name !
+        Apply
+          Name ==
+          Name a
+          Constant 13
+      ;
+      Apply
+        Name !
+        Apply
+          Name is
+          Name a
+          Constant 13
+      ;
+      Apply
+        Name !
+        Apply
+          Name ==
+          Name a
+          Apply
+            Name +
+            Constant 12
+            Constant 1
+      ;
+      Apply
+        Name ||
+        Apply
+          Name &&
+          Apply
+            Name &
+            Name f
+            Apply
+              Name <<
+              Constant 1
+              Constant 8
+          Apply
+            Name !
+            Apply
+              Name <
+              Apply
+                Name *
+                Constant 3
+                Name y
+              Constant 7
+        Apply
+          Name !
+          Apply
+            Name ==
+            Name b
+            Name true
+      ;
+  

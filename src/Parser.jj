@@ -30,7 +30,7 @@ SKIP:
 TOKEN:
 {
     <FN: "fn">
-|   <AS: "is">
+|   <IS: "is">
 |   <NEW: "new">
 |   <DOT: ".">
 |   <COMMA: ",">
@@ -42,9 +42,9 @@ TOKEN:
 |   <RCURLY: "}">
 |   <LBRACKET: "[">
 |   <RBRACKET: "]">
-|   <ANN: "@">
+|   <AT: "@">
 |   <TILDE: "~">
-|   <NOT: "!">
+|   <EXC: "!">
 |   <MUL: "*">
 |   <DIV: "/">
 |   <MOD: "%">
@@ -53,10 +53,18 @@ TOKEN:
 |   <SIGNED_RSHIFT: ">>>">
 |   <RSHIFT: ">>">
 |   <LSHIFT: "<<">
+|   <ARROW: "=>">
+|   <EQ: "==">
+|   <NE: "!=">
+|   <LE: "<=">
+|   <LT: "<">
+|   <GE: ">=">
+|   <GT: ">">
+|   <AND: "&&">
+|   <OR: "||">
 |   <BIT_AND: "&">
 |   <BIT_XOR: "^">
 |   <BIT_OR: "|">
-|   <ARROW: "=>">
 |   <OCT: "0o" (["0"-"7"])+>
 |   <DEC: (["0"-"9"])+>
 |   <HEX: "0x" (["0"-"9", "a"-"f", "A"-"F"])+>
@@ -174,7 +182,6 @@ AstNode call():
     AstNode r, arg;
     AstName n;
     AstApply apply;
-    Token tok;
 }
 {
     r = prime()
@@ -245,35 +252,35 @@ AstNode cast():
 
 AstNode unary():
 {
-    Token tok = null;
+    Token op = null;
     AstNode n;
 }
 {
-    (tok = <TILDE> | tok = <NOT> | tok = <PLS> | tok = <MNS>)? n = cast()
+    (op = <TILDE> | op = <PLS> | op = <MNS>)? n = cast()
     {
-        if (tok == null) {
+        if (op == null) {
             return n;
         }
         AstApply apply = new AstApply();
-        apply.args.add(new AstName(tok.image));
+        apply.args.add(new AstName(op.image));
         apply.args.add(n);
         return apply;
     }
 }
 
-String multiplicativeOp():
+Token multiplicativeOp():
 {
     Token tok;
 }
 {
-    tok = <MUL> { return tok.image; }
-|   tok = <DIV> { return tok.image; }
-|   tok = <MOD> { return tok.image; }
+    tok = <MUL> { return tok; }
+|   tok = <DIV> { return tok; }
+|   tok = <MOD> { return tok; }
 }
 
 AstNode multiplicative():
 {
-    String op;
+    Token op;
     AstNode l, r;
 }
 {
@@ -282,7 +289,7 @@ AstNode multiplicative():
         op = multiplicativeOp() r = unary()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(op));
+            apply.args.add(new AstName(op.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -291,18 +298,18 @@ AstNode multiplicative():
     { return l; }
 }
 
-String additiveOp():
+Token additiveOp():
 {
     Token tok;
 }
 {
-    tok = <PLS> { return tok.image; }
-|   tok = <MNS> { return tok.image; }
+    tok = <PLS> { return tok; }
+|   tok = <MNS> { return tok; }
 }
 
 AstNode additive():
 {
-    String op;
+    Token op;
     AstNode l, r;
 }
 {
@@ -311,7 +318,7 @@ AstNode additive():
         op = additiveOp() r = multiplicative()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(op));
+            apply.args.add(new AstName(op.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -320,19 +327,19 @@ AstNode additive():
     { return l; }
 }
 
-String shiftOp():
+Token shiftOp():
 {
     Token tok;
 }
 {
-    tok = <LSHIFT> { return tok.image; }
-|   tok = <RSHIFT> { return tok.image; }
-|   tok = <SIGNED_RSHIFT> { return tok.image; }
+    tok = <LSHIFT> { return tok; }
+|   tok = <RSHIFT> { return tok; }
+|   tok = <SIGNED_RSHIFT> { return tok; }
 }
 
 AstNode shift():
 {
-    String op;
+    Token op;
     AstNode l, r;
 }
 {
@@ -341,7 +348,7 @@ AstNode shift():
         op = shiftOp() r = additive()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(op));
+            apply.args.add(new AstName(op.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -352,16 +359,16 @@ AstNode shift():
 
 AstNode bitAnd():
 {
-    Token tok;
+    Token op;
     AstNode l, r;
 }
 {
     l = shift()
     (
-        tok = <BIT_AND> r = shift()
+        op = <BIT_AND> r = shift()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(tok.image));
+            apply.args.add(new AstName(op.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -372,16 +379,16 @@ AstNode bitAnd():
 
 AstNode bitXor():
 {
-    Token tok;
+    Token op;
     AstNode l, r;
 }
 {
     l = bitAnd()
     (
-        tok = <BIT_XOR> r = bitAnd()
+        op = <BIT_XOR> r = bitAnd()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(tok.image));
+            apply.args.add(new AstName(op.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -392,16 +399,137 @@ AstNode bitXor():
 
 AstNode bitOr():
 {
-    Token tok;
+    Token op;
     AstNode l, r;
 }
 {
     l = bitXor()
     (
-        tok = <BIT_OR> r = bitXor()
+        op = <BIT_OR> r = bitXor()
         {
             AstApply apply = new AstApply();
-            apply.args.add(new AstName(tok.image));
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+Token comparisonOp():
+{
+    Token tok;
+}
+{
+    tok = <LT> { return tok; }
+|   tok = <LE> { return tok; }
+|   tok = <GT> { return tok; }
+|   tok = <GE> { return tok; }
+}
+
+AstNode comparison():
+{
+    Token op;
+    AstNode l, r;
+}
+{
+    l = bitOr()
+    (
+        op = comparisonOp() r = bitOr()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+Token equalityOp():
+{
+    Token tok;
+}
+{
+    tok = <EQ> { return tok; }
+|   tok = <NE> { return tok; }
+|   tok = <IS> { return tok; }
+}
+
+AstNode equality():
+{
+    Token op;
+    AstNode l, r;
+}
+{
+    l = comparison()
+    (
+        op = equalityOp() r = comparison()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+AstNode logicalNot():
+{
+    Token op = null;
+    AstNode l;
+}
+{
+    (op = <EXC>)? l = equality()
+    {
+        if (op == null) {
+            return l;
+        } else {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            return apply;
+        }
+    }
+}
+
+
+AstNode logicalAnd():
+{
+    Token op;
+    AstNode l, r;
+}
+{
+    l = logicalNot()
+    (
+        op = <AND> r = logicalNot()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )*
+    { return l; }
+}
+
+AstNode logicalOr():
+{
+    Token op;
+    AstNode l, r;
+}
+{
+    l = logicalAnd()
+    (
+        op = <OR> r = logicalAnd()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
             apply.args.add(l);
             apply.args.add(r);
             l = apply;
@@ -415,7 +543,7 @@ AstNode expression():
     AstNode n;
 }
 {
-    n = bitOr()
+    n = logicalOr()
     { return n; }
 }
 
