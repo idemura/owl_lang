@@ -65,3 +65,8 @@ fn f8 {
     !a == 12 + 1;
     f & 1<<8 && !3 * y < 7 || !b == true;
 }
+
+fn f9 {
+    x = width(window) * height(window) - square(r, 0) >>> 2;
+    a[i] += f(true && !b);
+}

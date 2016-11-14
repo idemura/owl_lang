@@ -469,3 +469,43 @@ Module
             Name true
       ;
   
+  Function f9
+    returnType: Type None
+    Block
+      Apply
+        Name =
+        Name x
+        Apply
+          Name >>>
+          Apply
+            Name -
+            Apply
+              Name *
+              Apply
+                Name width
+                Name window
+              Apply
+                Name height
+                Name window
+            Apply
+              Name square
+              Name r
+              Constant 0
+          Constant 2
+      ;
+      Apply
+        Name +=
+        Apply
+          Name []
+          Name a
+          Name i
+        Apply
+          Name f
+          Apply
+            Name &&
+            Name true
+            Apply
+              Name !
+              Name b
+      ;
+  

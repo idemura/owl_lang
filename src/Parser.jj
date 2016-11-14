@@ -45,14 +45,22 @@ TOKEN:
 |   <AT: "@">
 |   <TILDE: "~">
 |   <EXC: "!">
+|   <ASSIGN_MUL: "*=">
 |   <MUL: "*">
+|   <ASSIGN_DIV: "/=">
 |   <DIV: "/">
+|   <ASSIGN_MOD: "%=">
 |   <MOD: "%">
+|   <ASSIGN_PLS: "+=">
 |   <PLS: "+">
+|   <ASSIGN_MNS: "-=">
 |   <MNS: "-">
-|   <SIGNED_RSHIFT: ">>>">
-|   <RSHIFT: ">>">
+|   <ASSIGN_LSHIFT: "<<=">
 |   <LSHIFT: "<<">
+|   <ASSIGN_RSHIFT: ">>=">
+|   <RSHIFT: ">>">
+|   <SIGNED_RSHIFT: ">>>">
+|   <ASSIGN_SIGNED_RSHIFT: ">>>=">
 |   <ARROW: "=>">
 |   <EQ: "==">
 |   <NE: "!=">
@@ -62,9 +70,13 @@ TOKEN:
 |   <GT: ">">
 |   <AND: "&&">
 |   <OR: "||">
+|   <ASSIGN_BIT_AND: "&=">
 |   <BIT_AND: "&">
+|   <ASSIGN_BIT_XOR: "^=">
 |   <BIT_XOR: "^">
+|   <ASSIGN_BIT_OR: "|=">
 |   <BIT_OR: "|">
+|   <ASSIGN: "=">
 |   <OCT: "0o" (["0"-"7"])+>
 |   <DEC: (["0"-"9"])+>
 |   <HEX: "0x" (["0"-"9", "a"-"f", "A"-"F"])+>
@@ -538,21 +550,60 @@ AstNode logicalOr():
     { return l; }
 }
 
+
+Token assignmentOp():
+{
+    Token tok;
+}
+{
+    tok = <ASSIGN> { return tok; }
+|   tok = <ASSIGN_MUL> { return tok; }
+|   tok = <ASSIGN_DIV> { return tok; }
+|   tok = <ASSIGN_MOD> { return tok; }
+|   tok = <ASSIGN_PLS> { return tok; }
+|   tok = <ASSIGN_MNS> { return tok; }
+|   tok = <ASSIGN_LSHIFT> { return tok; }
+|   tok = <ASSIGN_RSHIFT> { return tok; }
+|   tok = <ASSIGN_SIGNED_RSHIFT> { return tok; }
+|   tok = <ASSIGN_BIT_AND> { return tok; }
+|   tok = <ASSIGN_BIT_XOR> { return tok; }
+|   tok = <ASSIGN_BIT_OR>  { return tok; }
+}
+
+AstNode assignment():
+{
+    Token op;
+    AstNode l, r;
+}
+{
+    l = logicalOr()
+    (
+        op = assignmentOp() r = logicalOr()
+        {
+            AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+        }
+    )?
+    { return l; }
+}
+
 AstNode expression():
 {
     AstNode n;
 }
 {
-    n = logicalOr()
-    { return n; }
+    n = assignment() { return n; }
 }
 
 AstNode statement():
 {
-    AstNode expr;
+    AstNode s;
 }
 {
-    expr = expression() { return expr; }
+    s = expression() { return s; }
 }
 
 AstType baseType():

@@ -526,9 +526,9 @@ AstApply apply = new AstApply();
     label_10:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SIGNED_RSHIFT:
+      case LSHIFT:
       case RSHIFT:
-      case LSHIFT:{
+      case SIGNED_RSHIFT:{
         ;
         break;
         }
@@ -813,15 +813,118 @@ AstApply apply = new AstApply();
     throw new Error("Missing return statement in function");
   }
 
+  final public Token assignmentOp() throws ParseException {Token tok;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case ASSIGN:{
+      tok = jj_consume_token(ASSIGN);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_MUL:{
+      tok = jj_consume_token(ASSIGN_MUL);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_DIV:{
+      tok = jj_consume_token(ASSIGN_DIV);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_MOD:{
+      tok = jj_consume_token(ASSIGN_MOD);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_PLS:{
+      tok = jj_consume_token(ASSIGN_PLS);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_MNS:{
+      tok = jj_consume_token(ASSIGN_MNS);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_LSHIFT:{
+      tok = jj_consume_token(ASSIGN_LSHIFT);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_RSHIFT:{
+      tok = jj_consume_token(ASSIGN_RSHIFT);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_SIGNED_RSHIFT:{
+      tok = jj_consume_token(ASSIGN_SIGNED_RSHIFT);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_BIT_AND:{
+      tok = jj_consume_token(ASSIGN_BIT_AND);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_BIT_XOR:{
+      tok = jj_consume_token(ASSIGN_BIT_XOR);
+{if ("" != null) return tok;}
+      break;
+      }
+    case ASSIGN_BIT_OR:{
+      tok = jj_consume_token(ASSIGN_BIT_OR);
+{if ("" != null) return tok;}
+      break;
+      }
+    default:
+      jj_la1[35] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+  }
+
+  final public AstNode assignment() throws ParseException {Token op;
+    AstNode l, r;
+    l = logicalOr();
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case ASSIGN_MUL:
+    case ASSIGN_DIV:
+    case ASSIGN_MOD:
+    case ASSIGN_PLS:
+    case ASSIGN_MNS:
+    case ASSIGN_LSHIFT:
+    case ASSIGN_RSHIFT:
+    case ASSIGN_SIGNED_RSHIFT:
+    case ASSIGN_BIT_AND:
+    case ASSIGN_BIT_XOR:
+    case ASSIGN_BIT_OR:
+    case ASSIGN:{
+      op = assignmentOp();
+      r = logicalOr();
+AstApply apply = new AstApply();
+            apply.args.add(new AstName(op.image));
+            apply.args.add(l);
+            apply.args.add(r);
+            l = apply;
+      break;
+      }
+    default:
+      jj_la1[36] = jj_gen;
+      ;
+    }
+{if ("" != null) return l;}
+    throw new Error("Missing return statement in function");
+  }
+
   final public AstNode expression() throws ParseException {AstNode n;
-    n = logicalOr();
+    n = assignment();
 {if ("" != null) return n;}
     throw new Error("Missing return statement in function");
   }
 
-  final public AstNode statement() throws ParseException {AstNode expr;
-    expr = expression();
-{if ("" != null) return expr;}
+  final public AstNode statement() throws ParseException {AstNode s;
+    s = expression();
+{if ("" != null) return s;}
     throw new Error("Missing return statement in function");
   }
 
@@ -843,7 +946,7 @@ t.args.add(arg);
             break;
             }
           default:
-            jj_la1[35] = jj_gen;
+            jj_la1[37] = jj_gen;
             break label_18;
           }
           jj_consume_token(COMMA);
@@ -867,21 +970,21 @@ AstType arrayType = new AstType("Array");
             break;
             }
           default:
-            jj_la1[36] = jj_gen;
+            jj_la1[38] = jj_gen;
             break label_19;
           }
         }
         break;
         }
       default:
-        jj_la1[37] = jj_gen;
+        jj_la1[39] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
       }
     default:
-      jj_la1[38] = jj_gen;
+      jj_la1[40] = jj_gen;
       ;
     }
 {if ("" != null) return t;}
@@ -898,7 +1001,7 @@ AstType arrayType = new AstType("Array");
         break;
         }
       default:
-        jj_la1[39] = jj_gen;
+        jj_la1[41] = jj_gen;
         break label_20;
       }
       jj_consume_token(ARROW);
@@ -923,7 +1026,7 @@ if (functionType == null) {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[40];
+  final private int[] jj_la1 = new int[42];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -931,10 +1034,10 @@ if (functionType == null) {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x40,0x200,0x400,0x0,0x2000,0x800,0x800,0x6303000,0x6302000,0x2000,0x22200,0x400,0x6302000,0x400,0x6302000,0x22200,0x800,0x6100000,0x6100000,0x1c00000,0x1c00000,0x6000000,0x6000000,0x38000000,0x38000000,0x0,0x0,0x0,0x0,0x0,0x80000080,0x80000080,0x200000,0x0,0x0,0x400,0x20000,0x22000,0x22000,0x40000000,};
+      jj_la1_0 = new int[] {0x40,0x200,0x400,0x0,0x2000,0x800,0x800,0xa0303000,0xa0302000,0x2000,0x22200,0x400,0xa0302000,0x400,0xa0302000,0x22200,0x800,0xa0100000,0xa0100000,0xa800000,0xa800000,0xa0000000,0xa0000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80,0x80,0x200000,0x0,0x0,0x55400000,0x55400000,0x400,0x20000,0x22000,0x22000,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x2000,0x0,0x0,0x0,0x3c00,0x3c00,0x3c00,0x0,0x0,0x3c00,0x0,0x3c00,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80,0x100,0x200,0x1e,0x1e,0x1,0x1,0x0,0x20,0x40,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x2000000,0x0,0x0,0x0,0x3c00000,0x3c00000,0x3c00000,0x0,0x0,0x3c00000,0x0,0x3c00000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1a,0x1a,0x10000,0x40000,0x100000,0x1e00,0x1e00,0x180,0x180,0x0,0x2000,0x4000,0x2a8025,0x2a8025,0x0,0x0,0x0,0x0,0x40,};
    }
 
   /** Constructor with InputStream. */
@@ -948,7 +1051,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 40; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 42; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -962,7 +1065,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 40; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 42; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -972,7 +1075,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 40; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 42; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -982,7 +1085,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 40; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 42; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -991,7 +1094,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 40; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 42; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1000,7 +1103,7 @@ if (functionType == null) {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 40; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 42; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -1051,12 +1154,12 @@ if (functionType == null) {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[46];
+    boolean[] la1tokens = new boolean[58];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 42; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -1068,7 +1171,7 @@ if (functionType == null) {
         }
       }
     }
-    for (int i = 0; i < 46; i++) {
+    for (int i = 0; i < 58; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

@@ -43,53 +43,77 @@ interface ParserConstants {
   /** RegularExpression Id. */
   int EXC = 21;
   /** RegularExpression Id. */
-  int MUL = 22;
+  int ASSIGN_MUL = 22;
   /** RegularExpression Id. */
-  int DIV = 23;
+  int MUL = 23;
   /** RegularExpression Id. */
-  int MOD = 24;
+  int ASSIGN_DIV = 24;
   /** RegularExpression Id. */
-  int PLS = 25;
+  int DIV = 25;
   /** RegularExpression Id. */
-  int MNS = 26;
+  int ASSIGN_MOD = 26;
   /** RegularExpression Id. */
-  int SIGNED_RSHIFT = 27;
+  int MOD = 27;
   /** RegularExpression Id. */
-  int RSHIFT = 28;
+  int ASSIGN_PLS = 28;
   /** RegularExpression Id. */
-  int LSHIFT = 29;
+  int PLS = 29;
   /** RegularExpression Id. */
-  int ARROW = 30;
+  int ASSIGN_MNS = 30;
   /** RegularExpression Id. */
-  int EQ = 31;
+  int MNS = 31;
   /** RegularExpression Id. */
-  int NE = 32;
+  int ASSIGN_LSHIFT = 32;
   /** RegularExpression Id. */
-  int LE = 33;
+  int LSHIFT = 33;
   /** RegularExpression Id. */
-  int LT = 34;
+  int ASSIGN_RSHIFT = 34;
   /** RegularExpression Id. */
-  int GE = 35;
+  int RSHIFT = 35;
   /** RegularExpression Id. */
-  int GT = 36;
+  int SIGNED_RSHIFT = 36;
   /** RegularExpression Id. */
-  int AND = 37;
+  int ASSIGN_SIGNED_RSHIFT = 37;
   /** RegularExpression Id. */
-  int OR = 38;
+  int ARROW = 38;
   /** RegularExpression Id. */
-  int BIT_AND = 39;
+  int EQ = 39;
   /** RegularExpression Id. */
-  int BIT_XOR = 40;
+  int NE = 40;
   /** RegularExpression Id. */
-  int BIT_OR = 41;
+  int LE = 41;
   /** RegularExpression Id. */
-  int OCT = 42;
+  int LT = 42;
   /** RegularExpression Id. */
-  int DEC = 43;
+  int GE = 43;
   /** RegularExpression Id. */
-  int HEX = 44;
+  int GT = 44;
   /** RegularExpression Id. */
-  int NAME = 45;
+  int AND = 45;
+  /** RegularExpression Id. */
+  int OR = 46;
+  /** RegularExpression Id. */
+  int ASSIGN_BIT_AND = 47;
+  /** RegularExpression Id. */
+  int BIT_AND = 48;
+  /** RegularExpression Id. */
+  int ASSIGN_BIT_XOR = 49;
+  /** RegularExpression Id. */
+  int BIT_XOR = 50;
+  /** RegularExpression Id. */
+  int ASSIGN_BIT_OR = 51;
+  /** RegularExpression Id. */
+  int BIT_OR = 52;
+  /** RegularExpression Id. */
+  int ASSIGN = 53;
+  /** RegularExpression Id. */
+  int OCT = 54;
+  /** RegularExpression Id. */
+  int DEC = 55;
+  /** RegularExpression Id. */
+  int HEX = 56;
+  /** RegularExpression Id. */
+  int NAME = 57;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -118,14 +142,22 @@ interface ParserConstants {
     "\"@\"",
     "\"~\"",
     "\"!\"",
+    "\"*=\"",
     "\"*\"",
+    "\"/=\"",
     "\"/\"",
+    "\"%=\"",
     "\"%\"",
+    "\"+=\"",
     "\"+\"",
+    "\"-=\"",
     "\"-\"",
-    "\">>>\"",
-    "\">>\"",
+    "\"<<=\"",
     "\"<<\"",
+    "\">>=\"",
+    "\">>\"",
+    "\">>>\"",
+    "\">>>=\"",
     "\"=>\"",
     "\"==\"",
     "\"!=\"",
@@ -135,9 +167,13 @@ interface ParserConstants {
     "\">\"",
     "\"&&\"",
     "\"||\"",
+    "\"&=\"",
     "\"&\"",
+    "\"^=\"",
     "\"^\"",
+    "\"|=\"",
     "\"|\"",
+    "\"=\"",
     "<OCT>",
     "<DEC>",
     "<HEX>",
