@@ -29,7 +29,10 @@ SKIP:
 
 TOKEN:
 {
-    <FN: "fn">
+    <ELIF: "elif">
+|   <ELSE: "else">
+|   <FN: "fn">
+|   <IF: "if">
 |   <IS: "is">
 |   <NEW: "new">
 |   <DOT: ".">
@@ -164,10 +167,7 @@ AstBlock block():
 {
     <LCURLY>
     (
-        (
-            s = statement() { b.statements.add(s); }
-        )?
-        <SEMICOLON>
+        s = statement() { b.statements.add(s); }
     )*
     <RCURLY>
     { return b; }
@@ -598,12 +598,34 @@ AstNode expression():
     n = assignment() { return n; }
 }
 
-AstNode statement():
+AstNode stmtIf():
 {
-    AstNode s;
+    AstIf stmt = new AstIf();
+    AstNode c, b;
 }
 {
-    s = expression() { return s; }
+    <IF>
+    c = expression() { stmt.cond.add(c); }
+    b = block() { stmt.thenBlock.add(b); }
+    (
+        <ELIF>
+        c = expression() { stmt.cond.add(c); }
+        b = block() { stmt.thenBlock.add(b); }
+    )*
+    (
+        <ELSE>
+        stmt.elseBlock = block()
+    )?
+    { return stmt; }
+}
+
+AstNode statement():
+{
+    AstNode n;
+}
+{
+    n = expression() <SEMICOLON> { return n; }
+|   n = stmtIf() { return n; }
 }
 
 AstType baseType():

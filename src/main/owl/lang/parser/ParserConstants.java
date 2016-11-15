@@ -11,109 +11,115 @@ interface ParserConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int FN = 6;
+  int ELIF = 6;
   /** RegularExpression Id. */
-  int IS = 7;
+  int ELSE = 7;
   /** RegularExpression Id. */
-  int NEW = 8;
+  int FN = 8;
   /** RegularExpression Id. */
-  int DOT = 9;
+  int IF = 9;
   /** RegularExpression Id. */
-  int COMMA = 10;
+  int IS = 10;
   /** RegularExpression Id. */
-  int COLON = 11;
+  int NEW = 11;
   /** RegularExpression Id. */
-  int SEMICOLON = 12;
+  int DOT = 12;
   /** RegularExpression Id. */
-  int LPAREN = 13;
+  int COMMA = 13;
   /** RegularExpression Id. */
-  int RPAREN = 14;
+  int COLON = 14;
   /** RegularExpression Id. */
-  int LCURLY = 15;
+  int SEMICOLON = 15;
   /** RegularExpression Id. */
-  int RCURLY = 16;
+  int LPAREN = 16;
   /** RegularExpression Id. */
-  int LBRACKET = 17;
+  int RPAREN = 17;
   /** RegularExpression Id. */
-  int RBRACKET = 18;
+  int LCURLY = 18;
   /** RegularExpression Id. */
-  int AT = 19;
+  int RCURLY = 19;
   /** RegularExpression Id. */
-  int TILDE = 20;
+  int LBRACKET = 20;
   /** RegularExpression Id. */
-  int EXC = 21;
+  int RBRACKET = 21;
   /** RegularExpression Id. */
-  int ASSIGN_MUL = 22;
+  int AT = 22;
   /** RegularExpression Id. */
-  int MUL = 23;
+  int TILDE = 23;
   /** RegularExpression Id. */
-  int ASSIGN_DIV = 24;
+  int EXC = 24;
   /** RegularExpression Id. */
-  int DIV = 25;
+  int ASSIGN_MUL = 25;
   /** RegularExpression Id. */
-  int ASSIGN_MOD = 26;
+  int MUL = 26;
   /** RegularExpression Id. */
-  int MOD = 27;
+  int ASSIGN_DIV = 27;
   /** RegularExpression Id. */
-  int ASSIGN_PLS = 28;
+  int DIV = 28;
   /** RegularExpression Id. */
-  int PLS = 29;
+  int ASSIGN_MOD = 29;
   /** RegularExpression Id. */
-  int ASSIGN_MNS = 30;
+  int MOD = 30;
   /** RegularExpression Id. */
-  int MNS = 31;
+  int ASSIGN_PLS = 31;
   /** RegularExpression Id. */
-  int ASSIGN_LSHIFT = 32;
+  int PLS = 32;
   /** RegularExpression Id. */
-  int LSHIFT = 33;
+  int ASSIGN_MNS = 33;
   /** RegularExpression Id. */
-  int ASSIGN_RSHIFT = 34;
+  int MNS = 34;
   /** RegularExpression Id. */
-  int RSHIFT = 35;
+  int ASSIGN_LSHIFT = 35;
   /** RegularExpression Id. */
-  int SIGNED_RSHIFT = 36;
+  int LSHIFT = 36;
   /** RegularExpression Id. */
-  int ASSIGN_SIGNED_RSHIFT = 37;
+  int ASSIGN_RSHIFT = 37;
   /** RegularExpression Id. */
-  int ARROW = 38;
+  int RSHIFT = 38;
   /** RegularExpression Id. */
-  int EQ = 39;
+  int SIGNED_RSHIFT = 39;
   /** RegularExpression Id. */
-  int NE = 40;
+  int ASSIGN_SIGNED_RSHIFT = 40;
   /** RegularExpression Id. */
-  int LE = 41;
+  int ARROW = 41;
   /** RegularExpression Id. */
-  int LT = 42;
+  int EQ = 42;
   /** RegularExpression Id. */
-  int GE = 43;
+  int NE = 43;
   /** RegularExpression Id. */
-  int GT = 44;
+  int LE = 44;
   /** RegularExpression Id. */
-  int AND = 45;
+  int LT = 45;
   /** RegularExpression Id. */
-  int OR = 46;
+  int GE = 46;
   /** RegularExpression Id. */
-  int ASSIGN_BIT_AND = 47;
+  int GT = 47;
   /** RegularExpression Id. */
-  int BIT_AND = 48;
+  int AND = 48;
   /** RegularExpression Id. */
-  int ASSIGN_BIT_XOR = 49;
+  int OR = 49;
   /** RegularExpression Id. */
-  int BIT_XOR = 50;
+  int ASSIGN_BIT_AND = 50;
   /** RegularExpression Id. */
-  int ASSIGN_BIT_OR = 51;
+  int BIT_AND = 51;
   /** RegularExpression Id. */
-  int BIT_OR = 52;
+  int ASSIGN_BIT_XOR = 52;
   /** RegularExpression Id. */
-  int ASSIGN = 53;
+  int BIT_XOR = 53;
   /** RegularExpression Id. */
-  int OCT = 54;
+  int ASSIGN_BIT_OR = 54;
   /** RegularExpression Id. */
-  int DEC = 55;
+  int BIT_OR = 55;
   /** RegularExpression Id. */
-  int HEX = 56;
+  int ASSIGN = 56;
   /** RegularExpression Id. */
-  int NAME = 57;
+  int OCT = 57;
+  /** RegularExpression Id. */
+  int DEC = 58;
+  /** RegularExpression Id. */
+  int HEX = 59;
+  /** RegularExpression Id. */
+  int NAME = 60;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -126,7 +132,10 @@ interface ParserConstants {
     "\"\\n\"",
     "\"\\t\"",
     "<token of kind 5>",
+    "\"elif\"",
+    "\"else\"",
     "\"fn\"",
+    "\"if\"",
     "\"is\"",
     "\"new\"",
     "\".\"",

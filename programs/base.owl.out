@@ -3,12 +3,6 @@ Module
     returnType: Type None
     Block
   
-  Function f2
-    returnType: Type None
-    Variable z
-      Type None
-    Block
-  
   Function f3
     returnType: Type None
     Variable x
@@ -507,5 +501,143 @@ Module
             Apply
               Name !
               Name b
+      ;
+  
+  Function f10
+    returnType: Type None
+    Block
+      If
+        Apply
+          Name =
+          Apply
+            Name &&
+            Apply
+              Name <
+              Name a
+              Name b
+            Apply
+              Name !
+              Apply
+                Name +
+                Apply
+                  Name width
+                  Name x
+                Constant 10
+          Apply
+            Name height
+            Name x
+        # elif:
+        Block
+          Apply
+            Name print
+            Constant 10
+          ;
+      ;
+      If
+        Apply
+          Name f
+          Name r
+          Apply
+            Name &
+            Name r
+            Constant 5
+        # elif:
+        Block
+          Apply
+            Name print
+            Constant 10
+          ;
+        # else:
+        Block
+          Apply
+            Name print
+            Constant 20
+          ;
+      ;
+      If
+        Apply
+          Name &&
+          Name true
+          Name false
+        # elif:
+        Block
+          Apply
+            Name print
+            Constant 10
+          ;
+        # elif condition:
+        Apply
+          Name ==
+          Apply
+            Name +
+            Name m
+            Constant 10
+          Constant 12
+        # then:
+        Block
+          Apply
+            Name print
+            Constant 11
+          ;
+        # elif condition:
+        Apply
+          Name ==
+          Apply
+            Name -
+            Name m
+            Constant 10
+          Constant 12
+        # then:
+        Block
+          Apply
+            Name print
+            Constant 12
+          ;
+      ;
+      If
+        Apply
+          Name &&
+          Name true
+          Name false
+        # elif:
+        Block
+          Apply
+            Name print
+            Constant 10
+          ;
+        # elif condition:
+        Apply
+          Name ==
+          Apply
+            Name +
+            Name m
+            Constant 10
+          Constant 12
+        # then:
+        Block
+          Apply
+            Name print
+            Constant 11
+          ;
+        # elif condition:
+        Apply
+          Name ==
+          Apply
+            Name -
+            Name m
+            Constant 10
+          Constant 12
+        # then:
+        Block
+          Apply
+            Name print
+            Constant 12
+          ;
+        # else:
+        Block
+          Apply
+            Name print
+            Constant 13
+          ;
       ;
   

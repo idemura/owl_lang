@@ -1,7 +1,6 @@
 # hello
 
 fn f1() {}
-fn f2(z) { ; }
 
 fn f3(x, y: I32) {
     f1();
@@ -69,4 +68,34 @@ fn f8 {
 fn f9 {
     x = width(window) * height(window) - square(r, 0) >>> 2;
     a[i] += f(true && !b);
+}
+
+fn f10 {
+    if a < b && !width(x) + 10 = height(x) {
+        print(10);
+    }
+
+    if f(r, r & 5) {
+        print(10);
+    } else {
+        print(20);
+    }
+
+    if true && false {
+        print(10);
+    } elif m + 10 == 12 {
+        print(11);
+    } elif m - 10 == 12 {
+        print(12);
+    }
+
+    if true && false {
+        print(10);
+    } elif m + 10 == 12 {
+        print(11);
+    } elif m - 10 == 12 {
+        print(12);
+    } else {
+        print(13);
+    }
 }

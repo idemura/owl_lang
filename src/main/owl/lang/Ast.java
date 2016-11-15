@@ -19,6 +19,7 @@ interface AstVisitor {
     default void visit(AstApply node) {}
     default void visit(AstConstant node) {}
     default void visit(AstMember node) {}
+    default void visit(AstIf node) {}
 }
 
 
@@ -170,6 +171,18 @@ class AstConstant extends AstNode {
     AstConstant(String value) {
         this.value = value;
     }
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
+
+
+class AstIf extends AstNode {
+    List<AstNode> cond = new ArrayList<>();
+    List<AstNode> thenBlock = new ArrayList<>();
+    AstNode elseBlock;
 
     @Override
     public void accept(AstVisitor v) {
