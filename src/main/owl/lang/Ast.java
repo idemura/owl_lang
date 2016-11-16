@@ -35,11 +35,11 @@ class TypeNameVisitor implements AstVisitor {
         return v.name;
     }
 
-    private String name;
+    private String name = "";
 
     @Override
     public void visit(AstName n) {
-        name = n.name;
+        name += n.name;
     }
 
     @Override
@@ -49,7 +49,7 @@ class TypeNameVisitor implements AstVisitor {
             name += "(";
             n.args.get(0).accept(this);
             for (int i = 1; i < n.args.size(); i++) {
-                name += ",";
+                name += ", ";
                 n.args.get(i).accept(this);
             }
             name += ")";
@@ -112,10 +112,6 @@ class AstModule extends AstNode {
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
-    }
-
-    final void addFunction(AstFunction f) {
-        functions.add(f);
     }
 }
 

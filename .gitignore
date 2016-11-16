@@ -1,2 +1,7 @@
 buck-out
 .buckd
+
+.idea
+out
+src/owl_lang.iml
+

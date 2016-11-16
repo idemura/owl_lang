@@ -21,7 +21,7 @@ public class Parser implements ParserConstants {
         break label_1;
       }
       f = function();
-m.addFunction(f);
+m.functions.add(f);
     }
 {if ("" != null) return m;}
     throw new Error("Missing return statement in function");

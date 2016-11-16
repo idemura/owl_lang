@@ -93,7 +93,7 @@ AstModule module():
 }
 {
     (
-        f = function() { m.addFunction(f); }
+        f = function() { m.functions.add(f); }
     )*
     { return m; }
 }
