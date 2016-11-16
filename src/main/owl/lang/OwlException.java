@@ -14,22 +14,13 @@
  */
 package owl.lang;
 
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static owl.lang.TypeNameVisitor.typeStr;
 
-public class TypeTest {
-    @Test
-    public void testGenericTypeStr() {
-        AstType t = new AstType("Foo");
-        t.args.add(AstType.I32);
-        t.args.add(AstType.F32);
-        assertEquals("Foo(I32, F32)", typeStr(t));
+public class OwlException extends Exception {
+    public OwlException(String message) {
+        super(message);
     }
 
-    @Test
-    public void testTypeStr() {
-        AstType t = new AstType("Foo");
-        assertEquals("Foo", typeStr(t));
+    public OwlException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
