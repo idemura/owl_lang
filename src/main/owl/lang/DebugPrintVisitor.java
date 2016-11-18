@@ -124,21 +124,21 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstIf n) {
         node(n);
-        for (int i = 0; i < n.cond.size(); i++) {
+        for (int i = 0; i < n.condition.size(); i++) {
             if (i != 0) {
                 printer.print("# elif condition:\n");
             }
-            n.cond.get(i).accept(this);
+            n.condition.get(i).accept(this);
             if (i != 0) {
                 printer.print("# then:\n");
             } else {
                 printer.print("# elif:\n");
             }
-            n.thenBlock.get(i).accept(this);
+            n.branch.get(i).accept(this);
         }
-        if (n.elseBlock != null) {
+        if (n.branch.size() > n.condition.size()) {
             printer.print("# else:\n");
-            n.elseBlock.accept(this);
+            n.branch.get(n.branch.size() - 1).accept(this);
         }
         endNode();
     }

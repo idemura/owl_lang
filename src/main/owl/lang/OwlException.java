@@ -20,7 +20,7 @@ public class OwlException extends Exception {
         super(message);
     }
 
-    public OwlException(String message, Throwable cause) {
-        super(message, cause);
+    public OwlException(Throwable cause) {
+        super(cause);
     }
 }

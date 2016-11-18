@@ -25,6 +25,12 @@ public class Ast {
     Ast(AstModule module) {
         this.module = module;
     }
+
+    void accept(AstVisitor v) {
+        if (module != null) {
+            module.accept(v);
+        }
+    }
 }
 
 
@@ -78,7 +84,7 @@ class TypeNameVisitor implements AstVisitor {
 
 
 class AstName extends AstNode {
-    String name;
+    String name = "";
 
     AstName() {}
     AstName(String name) {
@@ -136,7 +142,7 @@ class AstModule extends AstNode {
 
 
 class AstFunction extends AstNode {
-    String name;
+    String name = "";
     List<AstVariable> args = new ArrayList<>();
     AstType returnType = AstType.None;
     AstBlock block;
@@ -195,9 +201,8 @@ class AstConstant extends AstNode {
 
 
 class AstIf extends AstNode {
-    List<AstNode> cond = new ArrayList<>();
-    List<AstNode> thenBlock = new ArrayList<>();
-    AstNode elseBlock;
+    List<AstNode> condition = new ArrayList<>();
+    List<AstNode> branch = new ArrayList<>();
 
     @Override
     public void accept(AstVisitor v) {
@@ -208,13 +213,4 @@ class AstIf extends AstNode {
 
 final class AstUtil {
     private AstUtil() {}
-
-    static Ast parse(InputStream in) throws OwlException  {
-        ParserTokenManager tokenManager = new ParserTokenManager(new SimpleCharStream(in));
-        try {
-            return new Ast((new Parser(tokenManager)).module());
-        } catch (ParseException e) {
-            throw new OwlException("Parse error", e);
-        }
-    }
 }

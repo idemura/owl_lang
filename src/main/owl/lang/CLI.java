@@ -16,22 +16,66 @@ package owl.lang;
 
 import java.io.*;
 
-public class CLI {
-    public static void main(String[] args) {
-        boolean anyFailed = false;
-        for (String fileName : args) {
-            try (InputStream in = new FileInputStream(new File(fileName))) {
-                compile(in);
-            } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-                anyFailed = true;
-            }
-        }
-        System.exit(anyFailed ? 1 : 0);
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+
+
+class StdErrErrorListener extends BaseErrorListener {
+    private String fileName;
+
+    StdErrErrorListener(String fileName) {
+        this.fileName = fileName;
     }
 
-    private static void compile(InputStream in) throws OwlException {
-        Ast ast = AstUtil.parse(in);
-        ast.module.accept(new DebugPrintVisitor());
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer,
+            Object offendingSymbol,
+            int line,
+            int charPositionInLine,
+            String msg,
+            RecognitionException e) {
+        System.err.println(fileName + ":" + line + ": error: "  + msg);
+    }
+}
+
+public class CLI {
+    public static void main(String[] args) {
+        int succeeded = 0, total = 0;
+        for (String fileName : args) {
+            try (InputStream in = new FileInputStream(new File(fileName))) {
+                analyze(parse(new ANTLRInputStream(in), new StdErrErrorListener(fileName)));
+                succeeded++;
+            } catch (IOException | RecognitionException | OwlException e) {
+                if (e.getMessage() != null) {
+                    System.err.println("Error: " + e.getMessage());
+                }
+            }
+            total++;
+        }
+        System.exit(succeeded != total ? 1 : 0);
+    }
+
+    private static Ast parse(CharStream in, ANTLRErrorListener errorListener) throws RecognitionException {
+        Lexer lexer = new OwlLexer(in);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errorListener);
+        OwlParser parser = new OwlParser(new CommonTokenStream(lexer));
+        parser.removeErrorListeners();
+        parser.addErrorListener(errorListener);
+        OwlParser.ModuleContext moduleContext = parser.module();
+        if (moduleContext.exception != null) {
+            throw moduleContext.exception;
+        }
+        return new Ast(moduleContext.r);
+    }
+
+    private static void analyze(Ast ast) throws OwlException {
+        ast.accept(new DebugPrintVisitor());
     }
 }
