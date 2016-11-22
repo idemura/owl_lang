@@ -641,3 +641,31 @@ Module
           ;
       ;
   
+  Function f11
+    returnType: Type None
+    Block
+      Match
+        .None 
+        Block
+          Apply
+            Name print
+            Apply
+              Name s
+          ;
+        .Just x
+        Block
+          Apply
+            Name print
+            Name x
+          ;
+      ;
+      Match
+        .Blue 
+        .Green 
+        Block
+          Apply
+            Name print
+            Name color
+          ;
+      ;
+  

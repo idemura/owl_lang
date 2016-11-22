@@ -100,3 +100,21 @@ fn f10 {
         print(13);
     }
 }
+
+fn f11 {
+    match f(5) + 14 {
+        case None {
+            print(s());
+        }
+        case Just x {
+            print(x);
+        }
+    }
+
+    match f(24) {
+        case Blue
+        case Green {
+            print(color);
+        }
+    }
+}

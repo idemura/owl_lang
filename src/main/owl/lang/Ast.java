@@ -45,6 +45,7 @@ interface AstVisitor {
     default void visit(AstConstant node) {}
     default void visit(AstMember node) {}
     default void visit(AstIf node) {}
+    default void visit(AstMatch node) {}
 }
 
 
@@ -210,6 +211,23 @@ class AstIf extends AstNode {
     }
 }
 
+
+class AstMatch extends AstNode {
+    static class Label {
+        String label = "";
+        String variable = "";
+        int block;
+    }
+
+    AstNode expr;
+    List<Label> label = new ArrayList<>();
+    List<AstBlock> block = new ArrayList<>();
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
 
 final class AstUtil {
     private AstUtil() {}

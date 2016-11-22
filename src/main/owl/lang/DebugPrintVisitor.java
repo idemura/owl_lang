@@ -143,6 +143,21 @@ class DebugPrintVisitor implements AstVisitor {
         endNode();
     }
 
+    @Override
+    public void visit(AstMatch n) {
+        node(n);
+        int blockIndex = 0;
+        for (AstMatch.Label l : n.label) {
+            if (blockIndex != l.block) {
+                n.block.get(blockIndex).accept(this);
+                blockIndex = l.block;
+            }
+            printer.print("." + l.label + " " + l.variable + "\n");
+        }
+        n.block.get(blockIndex).accept(this);
+        endNode();
+    }
+
     private void prop(String name, String s) {
         printer.print(name + ": " + s + "\n");
     }

@@ -28,7 +28,7 @@ returns [AstModule r = new AstModule()]
     )*
 ;
 
-qualifiedName
+absoluteName
 returns [AstName r = new AstName()]
 :   NAME { $r.name += $NAME.text; }
     (
@@ -84,7 +84,7 @@ returns [AstNode r]
 
 exprApply
 returns [AstNode r]
-:   p = exprPrime { $r = $p.r; }
+:   x = exprPrime { $r = $x.r; }
     (
         DOT NAME
         {
@@ -151,7 +151,7 @@ returns [AstNode r]
     }
 ;
 
-exprMultiplicative
+exprMulDiv
 returns [AstNode r]
 :   x = exprUnary { $r = $x.r; }
     (
@@ -166,11 +166,11 @@ returns [AstNode r]
     )*
 ;
 
-exprAdditive
+exprAddSub
 returns [AstNode r]
-:   x = exprMultiplicative { $r = $x.r; }
+:   x = exprMulDiv { $r = $x.r; }
     (
-        op = (PLS | MNS) y = exprMultiplicative
+        op = (PLS | MNS) y = exprMulDiv
         {
             AstApply app = new AstApply();
             app.args.add(new AstName($op.text));
@@ -183,9 +183,9 @@ returns [AstNode r]
 
 exprShift
 returns [AstNode r]
-:   x = exprAdditive { $r = $x.r; }
+:   x = exprAddSub { $r = $x.r; }
     (
-        op = (LSHIFT | RSHIFT | SIGNED_RSHIFT) y = exprAdditive
+        op = (LSHIFT | RSHIFT | SIGNED_RSHIFT) y = exprAddSub
         {
             AstApply app = new AstApply();
             app.args.add(new AstName($op.text));
@@ -271,7 +271,7 @@ returns [AstNode r]
     )*
 ;
 
-exprLogicalNot
+exprNot
 returns [AstNode r]
 :   op = EXC? x = exprEquality { $r = $x.r; }
     {
@@ -284,11 +284,11 @@ returns [AstNode r]
     }
 ;
 
-exprLogicalAnd
+exprAnd
 returns [AstNode r]
-:   x = exprLogicalNot { $r = $x.r; }
+:   x = exprNot { $r = $x.r; }
     (
-        op = AND y = exprLogicalNot
+        op = AND y = exprNot
         {
             AstApply app = new AstApply();
             app.args.add(new AstName($op.text));
@@ -299,11 +299,11 @@ returns [AstNode r]
     )*
 ;
 
-exprLogicalOr
+exprOr
 returns [AstNode r]
-:   x = exprLogicalAnd { $r = $x.r; }
+:   x = exprAnd { $r = $x.r; }
     (
-        op = OR y = exprLogicalAnd
+        op = OR y = exprAnd
         {
             AstApply app = new AstApply();
             app.args.add(new AstName($op.text));
@@ -316,7 +316,7 @@ returns [AstNode r]
 
 expression
 returns [AstNode r]
-:   x = exprLogicalOr { $r = $x.r; }
+:   x = exprOr { $r = $x.r; }
     (
         op =
         (
@@ -333,7 +333,7 @@ returns [AstNode r]
         |   ASSIGN_BIT_XOR
         |   ASSIGN_BIT_OR
         )
-        y = exprLogicalOr
+        y = exprOr
         {
             AstApply app = new AstApply();
             app.args.add(new AstName($op.text));
@@ -360,16 +360,42 @@ returns [AstIf r = new AstIf()]
     )?
 ;
 
+stmtMatch
+returns [AstMatch r = new AstMatch()]
+:   MATCH e = expression { $r.expr = $e.r; }
+    LCURLY
+    (
+        (
+            CASE t = NAME (n = NAME)?
+            {
+                AstMatch.Label label = new AstMatch.Label();
+                label.label = $t.text;
+                if ($n != null) {
+                    label.variable = $n.text;
+                }
+                label.block = $r.block.size();
+                $r.label.add(label);
+            }
+        )+
+        b = block
+        {
+            $r.block.add($b.r);
+        }
+    )*
+    RCURLY
+;
+
 statement
 returns [AstNode r]
 :   e = expression SEMICOLON { $r = $e.r; }
 |   s = stmtIf { $r = $s.r; }
+|   m = stmtMatch { $r = $m.r; }
 ;
 
 // Type Instance
 typeNonFn
 returns [AstType r = new AstType()]
-:   n = qualifiedName { $r.name = $n.r; }
+:   n = absoluteName { $r.name = $n.r; }
     (
         LPAREN
         a = typeInstance { $r.args.add($a.r); }
@@ -408,11 +434,13 @@ returns [AstType r]
 
 
 // Lexer Tokens
+CASE: 'case';
 ELIF: 'elif';
 ELSE: 'else';
 FN: 'fn';
 IF: 'if';
 IS: 'is';
+MATCH: 'match';
 NEW: 'new';
 
 DOT: '.';
