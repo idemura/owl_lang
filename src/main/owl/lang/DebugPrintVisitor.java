@@ -134,11 +134,11 @@ class DebugPrintVisitor implements AstVisitor {
             } else {
                 printer.print("# elif:\n");
             }
-            n.branch.get(i).accept(this);
+            n.block.get(i).accept(this);
         }
-        if (n.branch.size() > n.condition.size()) {
+        if (n.block.size() > n.condition.size()) {
             printer.print("# else:\n");
-            n.branch.get(n.branch.size() - 1).accept(this);
+            n.block.get(n.block.size() - 1).accept(this);
         }
         endNode();
     }
@@ -155,6 +155,10 @@ class DebugPrintVisitor implements AstVisitor {
             printer.print("." + l.label + " " + l.variable + "\n");
         }
         n.block.get(blockIndex).accept(this);
+        if (n.elseBlock != null) {
+            printer.print("# Else (default)\n");
+            n.elseBlock.accept(this);
+        }
         endNode();
     }
 

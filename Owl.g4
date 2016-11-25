@@ -348,15 +348,15 @@ stmtIf
 returns [AstIf r = new AstIf()]
 :   IF
     cond = expression { $r.condition.add($cond.r); }
-    b = block { $r.branch.add($b.r); }
+    b = block { $r.block.add($b.r); }
     (
         ELIF
         cond = expression { $r.condition.add($cond.r); }
-        b = block { $r.branch.add($b.r); }
+        b = block { $r.block.add($b.r); }
     )*
     (
         ELSE
-        b = block { $r.branch.add($b.r); }
+        b = block { $r.block.add($b.r); }
     )?
 ;
 
@@ -383,6 +383,13 @@ returns [AstMatch r = new AstMatch()]
         }
     )*
     RCURLY
+    (
+        ELSE
+        b = block
+        {
+            $r.elseBlock = $b.r;
+        }
+    )?
 ;
 
 statement

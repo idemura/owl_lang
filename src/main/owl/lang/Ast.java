@@ -187,7 +187,7 @@ class AstApply extends AstNode {
 
 
 class AstConstant extends AstNode {
-    String value;
+    String value = "";
 
     AstConstant() {}
     AstConstant(String value) {
@@ -202,8 +202,9 @@ class AstConstant extends AstNode {
 
 
 class AstIf extends AstNode {
+    // N conditions each with block and optionally (N + 1)-th block for else.
     List<AstNode> condition = new ArrayList<>();
-    List<AstNode> branch = new ArrayList<>();
+    List<AstNode> block = new ArrayList<>();
 
     @Override
     public void accept(AstVisitor v) {
@@ -213,6 +214,7 @@ class AstIf extends AstNode {
 
 
 class AstMatch extends AstNode {
+    // Label is a name of union type label. Several labels might refer to the same block of index @block.
     static class Label {
         String label = "";
         String variable = "";
@@ -222,6 +224,7 @@ class AstMatch extends AstNode {
     AstNode expr;
     List<Label> label = new ArrayList<>();
     List<AstBlock> block = new ArrayList<>();
+    AstNode elseBlock;
 
     @Override
     public void accept(AstVisitor v) {

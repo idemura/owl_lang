@@ -117,4 +117,12 @@ fn f11 {
             print(color);
         }
     }
+
+    match g {
+        case Blue
+        case Yellow {
+        }
+    } else {
+        print(zzz);
+    }
 }
