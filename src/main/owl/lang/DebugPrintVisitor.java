@@ -118,7 +118,7 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstConstant n) {
-        leaf(n, n.value);
+        leaf(n, n.text);
     }
 
     @Override

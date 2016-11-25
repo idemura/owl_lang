@@ -26,35 +26,61 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 
-class StdErrErrorListener extends BaseErrorListener {
-    private String fileName;
-
-    StdErrErrorListener(String fileName) {
-        this.fileName = fileName;
-    }
-
-    @Override
-    public void syntaxError(Recognizer<?, ?> recognizer,
-            Object offendingSymbol,
-            int line,
-            int charPositionInLine,
-            String msg,
-            RecognitionException e) {
-        System.err.println(fileName + ":" + line + ": error: "  + msg);
-    }
-}
-
 public class CLI {
+    static class ErrorListener extends BaseErrorListener {
+        private String fileName;
+        int errorCount = 0;
+
+        ErrorListener(String fileName) {
+            this.fileName = fileName;
+        }
+
+        @Override
+        public void syntaxError(Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e) {
+            error(line, charPositionInLine, msg);
+        }
+
+        void error(
+                int line,
+                int charPositionInLine,
+                String msg) {
+            String position = null;
+            if (line > 0) {
+                position = String.valueOf(line);
+            }
+            if (msg == null) {
+                msg = "unknown";
+            }
+            print(position, "error: " + msg);
+            errorCount++;
+        }
+
+        private void print(String position, String text) {
+            String fileWithPosition = fileName;
+            if (position != null) {
+                fileWithPosition += ":" + position;
+            }
+            System.err.println(fileWithPosition + ": " + text);
+        }
+    }
+
     public static void main(String[] args) {
         int succeeded = 0, total = 0;
         for (String fileName : args) {
+            ErrorListener errorListener = new ErrorListener(fileName);
             try (InputStream in = new FileInputStream(new File(fileName))) {
-                analyze(parse(new ANTLRInputStream(in), new StdErrErrorListener(fileName)));
-                succeeded++;
+                analyze(parse(new ANTLRInputStream(in), errorListener));
             } catch (IOException | RecognitionException | OwlException e) {
-                if (e.getMessage() != null) {
-                    System.err.println("Error: " + e.getMessage());
-                }
+                errorListener.error(0, 0, e.getMessage());
+            }
+
+            if (errorListener.errorCount == 0) {
+                succeeded++;
             }
             total++;
         }

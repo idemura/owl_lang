@@ -76,9 +76,10 @@ returns [AstBlock r = new AstBlock()]
 exprPrime
 returns [AstNode r]
 :   NAME { $r = new AstName($NAME.text); }
-|   OCT { $r = new AstConstant($OCT.text); }
-|   DEC { $r = new AstConstant($DEC.text); }
-|   HEX { $r = new AstConstant($HEX.text); }
+|   OCT { $r = new AstConstant($OCT.text, AstConstant.OCT); }
+|   DEC { $r = new AstConstant($DEC.text, AstConstant.DEC); }
+|   HEX { $r = new AstConstant($HEX.text, AstConstant.HEX); }
+|   STR { $r = new AstConstant($STR.text, AstConstant.STR); }
 |   LPAREN e = expression RPAREN { $r = $e.r; }
 ;
 
@@ -502,6 +503,7 @@ OCT: '0o' [0-7]+;
 DEC: [0-9]+;
 HEX: '0x' [0-9a-fA-F]+;
 NAME: [a-zA-Z_] [a-zA-Z0-9_]*;
+STR: '"' ~[\t\r\n\f"]* '"';
 
 COMMENT: '#' ~[\n]* -> channel(HIDDEN);
 WS: [ \t\r\n\f]+ -> skip;

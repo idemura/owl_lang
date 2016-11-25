@@ -3,6 +3,20 @@ Module
     returnType: Type None
     Block
   
+  Function f2
+    returnType: Type None
+    Variable x
+      Type I32
+    Block
+      Apply
+        Name print
+        Constant "hello"
+      ;
+      Apply
+        Name print
+        Constant 127
+      ;
+  
   Function f3
     returnType: Type None
     Variable x
@@ -672,7 +686,7 @@ Module
         .Blue 
         .Yellow 
         Block
-        [else]
+        # Else (default)
         Block
           Apply
             Name print

@@ -3,6 +3,11 @@
 
 fn f1() {}
 
+fn f2(x: I32) {
+    print("hello");
+    print(127);
+}
+
 fn f3(x, y: I32) {
     f1();
     f2(x);

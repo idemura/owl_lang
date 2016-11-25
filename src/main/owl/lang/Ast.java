@@ -187,11 +187,18 @@ class AstApply extends AstNode {
 
 
 class AstConstant extends AstNode {
-    String value = "";
+    static final int DEC = 0;
+    static final int OCT = 1;
+    static final int HEX = 2;
+    static final int STR = 3;
+
+    String text = "";
+    int format = STR;
 
     AstConstant() {}
-    AstConstant(String value) {
-        this.value = value;
+    AstConstant(String text, int format) {
+        this.text = text;
+        this.format = format;
     }
 
     @Override
