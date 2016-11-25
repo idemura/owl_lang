@@ -4,6 +4,11 @@ prebuilt_jar(
 )
 
 prebuilt_jar(
+  name = 'lib_jcommander',
+  binary_jar = 'lib/jcommander-1.58.jar',
+)
+
+prebuilt_jar(
   name = 'lib_junit',
   binary_jar = 'lib/junit-4.12.jar',
 )
@@ -21,6 +26,7 @@ java_library(
   ]),
   deps = [
     ':lib_antlr',
+    ':lib_jcommander',
   ],
 )
 

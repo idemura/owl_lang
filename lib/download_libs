@@ -4,6 +4,7 @@ libs=(
     'junit/junit/4.12/junit-4.12.jar'
     'org/antlr/antlr4-runtime/4.5.3/antlr4-runtime-4.5.3.jar'
     'org/antlr/antlr4/4.5.3/antlr4-4.5.3.jar'
+    'com/beust/jcommander/1.58/jcommander-1.58.jar'
 )
 
 for l in "${libs[@]}"; do

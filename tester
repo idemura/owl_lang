@@ -2,7 +2,7 @@
 
 for owl in `find programs -name '*.owl'`; do
     out=`tempfile`
-    ./owl $owl > $out
+    ./owl --print_ast 1 $owl > $out
     if [ $? != 0 ]; then
         exit 1
     fi

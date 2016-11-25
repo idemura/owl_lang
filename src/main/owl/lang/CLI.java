@@ -15,7 +15,11 @@
 package owl.lang;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.JCommander;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -69,9 +73,22 @@ public class CLI {
         }
     }
 
+    @Parameter(description = "Owl Files")
+    private List<String> files = new ArrayList<>();
+    @Parameter(names={"--print_ast"}, description="Print AST")
+    int flagPrintAst = 0;
+    @Parameter(names={"--analyze"}, description="Analyze semantics")
+    int flagAnalyze = 1;
+
     public static void main(String[] args) {
+        CLI cli = new CLI();
+        new JCommander(cli, args);
+        cli.run();
+    }
+
+    private void run() {
         int succeeded = 0, total = 0;
-        for (String fileName : args) {
+        for (String fileName : files) {
             ErrorListener errorListener = new ErrorListener(fileName);
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 analyze(parse(new ANTLRInputStream(in), errorListener));
@@ -87,7 +104,7 @@ public class CLI {
         System.exit(succeeded != total ? 1 : 0);
     }
 
-    private static Ast parse(CharStream in, ANTLRErrorListener errorListener) throws RecognitionException {
+    private Ast parse(CharStream in, ANTLRErrorListener errorListener) throws RecognitionException {
         Lexer lexer = new OwlLexer(in);
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);
@@ -101,7 +118,12 @@ public class CLI {
         return new Ast(moduleContext.r);
     }
 
-    private static void analyze(Ast ast) throws OwlException {
-        ast.accept(new DebugPrintVisitor());
+    private void analyze(Ast ast) throws OwlException {
+        if (flagPrintAst != 0) {
+            ast.accept(new DebugPrintVisitor());
+        }
+        if (flagAnalyze != 0) {
+            Analyzer.analyze(ast);
+        }
     }
 }
