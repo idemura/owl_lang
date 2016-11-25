@@ -14,11 +14,71 @@
  */
 package owl.lang;
 
-public class Analyzer {
-    static void analyze(Ast ast) throws OwlException {
 
+public class Analyzer {
+    static void analyze(Ast ast, ErrorListener errorListener) throws OwlException {
+        Analyzer analyzer = new Analyzer(errorListener);
+        analyzer.run(ast);
     }
 
-    private Analyzer() {}
+    private ErrorListener errorListener;
 
+    private Analyzer(ErrorListener listener) {
+        this.errorListener = listener;
+    }
+
+    private void run(Ast ast) throws OwlException {
+        AstVisitor v = new Visitor();
+        ast.module.accept(v);
+    }
+
+    private final class Visitor implements AstVisitor {
+        @Override
+        public void visit(AstName n) {
+        }
+
+        @Override
+        public void visit(AstType n) {
+        }
+
+        @Override
+        public void visit(AstMember n) {
+        }
+
+        @Override
+        public void visit(AstModule n) {
+        }
+
+        @Override
+        public void visit(AstFunction n) {
+        }
+
+        @Override
+        public void visit(AstVariable n) {
+        }
+
+        @Override
+        public void visit(AstBlock n) {
+        }
+
+        @Override
+        public void visit(AstApply n) {
+        }
+
+        @Override
+        public void visit(AstConstant n) {
+        }
+
+        @Override
+        public void visit(AstIf n) {
+        }
+
+        @Override
+        public void visit(AstMatch n) {
+        }
+
+        @Override
+        public void visit(AstReturn n) {
+        }
+    }
 }

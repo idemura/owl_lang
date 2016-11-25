@@ -31,12 +31,11 @@ import org.antlr.v4.runtime.Recognizer;
 
 
 public class CLI {
-    static class ErrorListener extends BaseErrorListener {
-        private String fileName;
-        int errorCount = 0;
+    static class ParserErrorListener extends BaseErrorListener {
+        private ErrorListener listener;
 
-        ErrorListener(String fileName) {
-            this.fileName = fileName;
+        ParserErrorListener(ErrorListener listener) {
+            this.listener = listener;
         }
 
         @Override
@@ -46,38 +45,17 @@ public class CLI {
                 int charPositionInLine,
                 String msg,
                 RecognitionException e) {
-            error(line, charPositionInLine, msg);
-        }
-
-        void error(
-                int line,
-                int charPositionInLine,
-                String msg) {
-            String position = null;
-            if (line > 0) {
-                position = String.valueOf(line);
-            }
-            if (msg == null) {
-                msg = "unknown";
-            }
-            print(position, "error: " + msg);
-            errorCount++;
-        }
-
-        private void print(String position, String text) {
-            String fileWithPosition = fileName;
-            if (position != null) {
-                fileWithPosition += ":" + position;
-            }
-            System.err.println(fileWithPosition + ": " + text);
+            listener.error(line, charPositionInLine, msg);
         }
     }
 
     @Parameter(description = "Owl Files")
     private List<String> files = new ArrayList<>();
-    @Parameter(names={"--print_ast"}, description="Print AST")
+    @Parameter(names = "--help", help = true)
+    private boolean help;
+    @Parameter(names = {"--print_ast"}, description = "Print AST")
     int flagPrintAst = 0;
-    @Parameter(names={"--analyze"}, description="Analyze semantics")
+    @Parameter(names = {"--analyze"}, description = "Analyze semantics")
     int flagAnalyze = 1;
 
     public static void main(String[] args) {
@@ -87,16 +65,21 @@ public class CLI {
     }
 
     private void run() {
+        if (help) {
+            System.out.println("owl_lang <files> [parameters...]");
+            return;
+        }
         int succeeded = 0, total = 0;
         for (String fileName : files) {
             ErrorListener errorListener = new ErrorListener(fileName);
             try (InputStream in = new FileInputStream(new File(fileName))) {
-                analyze(parse(new ANTLRInputStream(in), errorListener));
+                Ast ast = parse(new ANTLRInputStream(in), new ParserErrorListener(errorListener));
+                analyze(ast, errorListener);
             } catch (IOException | RecognitionException | OwlException e) {
                 errorListener.error(0, 0, e.getMessage());
             }
 
-            if (errorListener.errorCount == 0) {
+            if (errorListener.getErrorCount() == 0) {
                 succeeded++;
             }
             total++;
@@ -118,12 +101,12 @@ public class CLI {
         return new Ast(moduleContext.r);
     }
 
-    private void analyze(Ast ast) throws OwlException {
+    private void analyze(Ast ast, ErrorListener errorListener) throws OwlException {
         if (flagPrintAst != 0) {
             ast.accept(new DebugPrintVisitor());
         }
         if (flagAnalyze != 0) {
-            Analyzer.analyze(ast);
+            Analyzer.analyze(ast, errorListener);
         }
     }
 }
