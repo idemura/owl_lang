@@ -2058,7 +2058,7 @@ public class OwlParser extends Parser {
 				((StatementContext)_localctx).e = expression();
 				setState(382);
 				match(SEMICOLON);
-				 ((StatementContext)_localctx).r =  ((StatementContext)_localctx).e.r; 
+				 ((StatementContext)_localctx).r =  new AstExpr(((StatementContext)_localctx).e.r); 
 				}
 				break;
 			case IF:

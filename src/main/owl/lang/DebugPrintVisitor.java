@@ -171,6 +171,13 @@ class DebugPrintVisitor implements AstVisitor {
         endNode();
     }
 
+    @Override
+    public void visit(AstExpr n) {
+        node(n);
+        n.expr.accept(this);
+        endNode();
+    }
+
     private void prop(String name, String s) {
         printer.print(name + ": " + s + "\n");
     }

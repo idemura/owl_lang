@@ -47,6 +47,7 @@ interface AstVisitor {
     default void visit(AstIf node) {}
     default void visit(AstMatch node) {}
     default void visit(AstReturn node) {}
+    default void visit(AstExpr node) {}
 }
 
 
@@ -240,14 +241,36 @@ class AstMatch extends AstNode {
     }
 }
 
+
 class AstReturn extends AstNode {
     AstNode expr;
+
+    AstReturn() {}
+    AstReturn(AstNode expr) {
+        this.expr = expr;
+    }
 
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
     }
 }
+
+
+class AstExpr extends AstNode {
+    AstNode expr;
+
+    AstExpr() {}
+    AstExpr(AstNode expr) {
+        this.expr = expr;
+    }
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
+
 
 final class AstUtil {
     private AstUtil() {}

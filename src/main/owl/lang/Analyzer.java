@@ -80,5 +80,9 @@ public class Analyzer {
         @Override
         public void visit(AstReturn n) {
         }
+
+        @Override
+        public void visit(AstExpr n) {
+        }
     }
 }

@@ -315,6 +315,8 @@ returns [AstNode r]
     )*
 ;
 
+// TODO:
+//  - Comma assignment x, y =  10 + 12, 10 * 12;
 expression
 returns [AstNode r]
 :   x = exprOr { $r = $x.r; }
@@ -408,7 +410,7 @@ returns [AstReturn r = new AstReturn()]
 //  - Yield (add to return)
 statement
 returns [AstNode r]
-:   e = expression SEMICOLON { $r = $e.r; }
+:   e = expression SEMICOLON { $r = new AstExpr($e.r); }
 |   s = stmtIf { $r = $s.r; }
 |   m = stmtMatch { $r = $m.r; }
 |   ret = stmtReturn { $r = $ret.r; }
