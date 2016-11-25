@@ -1,6 +1,6 @@
 #! /bin/bash
 
-for owl in `find . -name '*.owl'`; do
+for owl in `find programs -name '*.owl'`; do
     out=`tempfile`
     ./owl $owl > $out
     if [ $? != 0 ]; then

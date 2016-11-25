@@ -694,3 +694,30 @@ Module
           ;
       ;
   
+  Function f12
+    returnType: Type I32
+    Variable x
+      Type None
+    Variable y
+      Type I32
+    Block
+      Return
+        Apply
+          Name +
+          Name x
+          Name y
+      ;
+      Return
+        Apply
+          Name +
+          Member
+            Apply
+              Name []
+              Name a
+              Name x
+            Name numberInt
+          Name y
+      ;
+      Return
+      ;
+  

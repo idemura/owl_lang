@@ -46,6 +46,7 @@ interface AstVisitor {
     default void visit(AstMember node) {}
     default void visit(AstIf node) {}
     default void visit(AstMatch node) {}
+    default void visit(AstReturn node) {}
 }
 
 
@@ -221,7 +222,7 @@ class AstIf extends AstNode {
 
 
 class AstMatch extends AstNode {
-    // Label is a name of union type label. Several labels might refer to the same block of index @block.
+    // Label is a name of enum type label. Several labels might refer to the same block of index @block.
     static class Label {
         String label = "";
         String variable = "";
@@ -232,6 +233,15 @@ class AstMatch extends AstNode {
     List<Label> label = new ArrayList<>();
     List<AstBlock> block = new ArrayList<>();
     AstNode elseBlock;
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
+
+class AstReturn extends AstNode {
+    AstNode expr;
 
     @Override
     public void accept(AstVisitor v) {

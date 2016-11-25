@@ -393,11 +393,25 @@ returns [AstMatch r = new AstMatch()]
     )?
 ;
 
+stmtReturn
+returns [AstReturn r = new AstReturn()]
+:   RETURN
+    (
+        e = expression { $r.expr = $e.r; }
+    )?
+    SEMICOLON
+;
+
+// TODO:
+//  - While
+//  - For
+//  - Yield (add to return)
 statement
 returns [AstNode r]
 :   e = expression SEMICOLON { $r = $e.r; }
 |   s = stmtIf { $r = $s.r; }
 |   m = stmtMatch { $r = $m.r; }
+|   ret = stmtReturn { $r = $ret.r; }
 ;
 
 // Type Instance
@@ -450,6 +464,7 @@ IF: 'if';
 IS: 'is';
 MATCH: 'match';
 NEW: 'new';
+RETURN: 'return';
 
 DOT: '.';
 COMMA: ',';

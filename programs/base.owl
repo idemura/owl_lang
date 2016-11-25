@@ -131,3 +131,9 @@ fn f11 {
         print(zzz);
     }
 }
+
+fn f12(x, y: I32): I32 {
+    return x + y;
+    return a[x].numberInt + y;
+    return;
+}
