@@ -1,6 +1,8 @@
 #hello
 # Owl Language
 
+zzz = "world";
+
 fn f1() {}
 
 fn f2(x: I32) {
@@ -137,3 +139,6 @@ fn f12(x, y: I32): I32 {
     return a[x].numberInt + y;
     return;
 }
+
+PI = 3;
+

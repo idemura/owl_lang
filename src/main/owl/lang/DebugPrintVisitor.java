@@ -72,7 +72,7 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstModule n) {
         node(n);
-        for (AstFunction f : n.functions) {
+        for (AstNode f : n.members) {
             f.accept(this);
             printer.print("\n");
         }
@@ -83,7 +83,7 @@ class DebugPrintVisitor implements AstVisitor {
     public void visit(AstFunction n) {
         node(n, n.name);
         prop("returnType", n.returnType);
-        for (AstVariable a : n.args) {
+        for (AstArgument a : n.args) {
             a.accept(this);
         }
         n.block.accept(this);
@@ -91,9 +91,16 @@ class DebugPrintVisitor implements AstVisitor {
     }
 
     @Override
-    public void visit(AstVariable n) {
+    public void visit(AstArgument n) {
         node(n, n.name);
         n.type.accept(this);
+        endNode();
+    }
+
+    @Override
+    public void visit(AstVariable n) {
+        node(n, n.name);
+        n.expr.accept(this);
         endNode();
     }
 

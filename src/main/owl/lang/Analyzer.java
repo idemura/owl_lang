@@ -54,6 +54,10 @@ public class Analyzer {
         }
 
         @Override
+        public void visit(AstArgument n) {
+        }
+
+        @Override
         public void visit(AstVariable n) {
         }
 

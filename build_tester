@@ -1,5 +1,5 @@
 #! /bin/bash
 
-for owl in `find . -name '*.owl'`; do
-    ./owl $owl > $owl.out
+for owl in `find programs -name '*.owl'`; do
+    ./owl --print_ast 1 $owl > $owl.out
 done

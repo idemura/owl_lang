@@ -24,7 +24,11 @@ package owl.lang;
 module
 returns [AstModule r = new AstModule()]
 :   (
-        f = function { $r.functions.add($f.r); }
+        f = function { $r.members.add($f.r); }
+    |   NAME ASSIGN e = expression SEMICOLON
+        {
+            $r.members.add(new AstVariable($NAME.text, $e.r));
+        }
     )*
 ;
 
@@ -42,9 +46,9 @@ returns [AstFunction r = new AstFunction()]
     (
         LPAREN
         (
-            a = variable { $r.args.add($a.r); }
+            a = argument { $r.args.add($a.r); }
             (
-                COMMA a = variable { $r.args.add($a.r); }
+                COMMA a = argument { $r.args.add($a.r); }
             )*
         )?
         RPAREN
@@ -55,8 +59,8 @@ returns [AstFunction r = new AstFunction()]
     b = block { $r.block = $b.r; }
 ;
 
-variable
-returns [AstVariable r = new AstVariable()]
+argument
+returns [AstArgument r = new AstArgument()]
 :   NAME { $r.name = $NAME.text; }
     (
         COLON t = typeInstance { $r.type = $t.r; }
@@ -317,6 +321,7 @@ returns [AstNode r]
 
 // TODO:
 //  - Comma assignment x, y =  10 + 12, 10 * 12;
+//  - Lambda expression
 expression
 returns [AstNode r]
 :   x = exprOr { $r = $x.r; }

@@ -1,126 +1,146 @@
 Module
+  Variable zzz
+    Constant "world"
+  
   Function f1
     returnType: Type None
     Block
   
   Function f2
     returnType: Type None
-    Variable x
+    Argument x
       Type I32
     Block
-      Apply
-        Name print
-        Constant "hello"
+      Expr
+        Apply
+          Name print
+          Constant "hello"
       ;
-      Apply
-        Name print
-        Constant 127
+      Expr
+        Apply
+          Name print
+          Constant 127
       ;
   
   Function f3
     returnType: Type None
-    Variable x
+    Argument x
       Type None
-    Variable y
+    Argument y
       Type I32
     Block
-      Apply
-        Name f1
+      Expr
+        Apply
+          Name f1
       ;
-      Apply
-        Name f2
-        Name x
+      Expr
+        Apply
+          Name f2
+          Name x
       ;
-      Apply
-        Name f3
-        Name x
-        Name y
-      ;
-      Apply
-        Member
-          Name module
+      Expr
+        Apply
           Name f3
-        Member
-          Name mod
           Name x
-        Name y
+          Name y
       ;
-      Apply
-        Name []
-        Name arr
-        Name x
-      ;
-      Apply
-        Name []
-        Name map
-        Name x
-        Name z
-      ;
-      Apply
-        Name []
+      Expr
         Apply
-          Apply
-            Name f4
-          Name x
-        Constant 10
+          Member
+            Name module
+            Name f3
+          Member
+            Name mod
+            Name x
+          Name y
       ;
-      Apply
-        Name f2
-        Name x
-      ;
-      Member
-        Apply
-          Name f2
-        Name x
-      ;
-      Apply
-        Name []
-        Apply
-          Name f2
-        Constant 10
-      ;
-      Member
+      Expr
         Apply
           Name []
-          Name a
-          Name i
-        Name y
+          Name arr
+          Name x
       ;
-      Member
+      Expr
+        Apply
+          Name []
+          Name map
+          Name x
+          Name z
+      ;
+      Expr
+        Apply
+          Name []
+          Apply
+            Apply
+              Name f4
+            Name x
+          Constant 10
+      ;
+      Expr
+        Apply
+          Name f2
+          Name x
+      ;
+      Expr
+        Member
+          Apply
+            Name f2
+          Name x
+      ;
+      Expr
+        Apply
+          Name []
+          Apply
+            Name f2
+          Constant 10
+      ;
+      Expr
         Member
           Apply
             Name []
             Name a
             Name i
           Name y
-        Name z
+      ;
+      Expr
+        Member
+          Member
+            Apply
+              Name []
+              Name a
+              Name i
+            Name y
+          Name z
       ;
   
   Function f4
     returnType: Type None
     Block
-      Apply
-        Name :
+      Expr
+        Apply
+          Name :
+          Apply
+            Name g
+            Constant 10
+            Constant 20
+          Type I32
+      ;
+      Expr
         Apply
           Name g
-          Constant 10
-          Constant 20
-        Type I32
+          Apply
+            Name :
+            Constant 10
+            Type owl.lang.String
       ;
-      Apply
-        Name g
+      Expr
         Apply
-          Name :
-          Constant 10
-          Type owl.lang.String
-      ;
-      Apply
-        Name g
-        Apply
-          Name :
-          Constant 50
-          Type Array
-            Type I32
+          Name g
+          Apply
+            Name :
+            Constant 50
+            Type Array
+              Type I32
       ;
   
   Function f5
@@ -129,150 +149,155 @@ Module
       Type Char
       Type Bool
     Block
-      Apply
-        Name :
-        Constant 50
-        Type Fn
-          Type I32
-          Type Bool
-      ;
-      Apply
-        Name :
-        Constant 12
-        Type Generic
-          Type I32
-      ;
-      Apply
-        Name :
-        Constant 13
-        Type Generic
-          Type I32
-          Type String
-          Type Bool
-      ;
-      Apply
-        Name :
-        Constant 14
-        Type Generic
+      Expr
+        Apply
+          Name :
+          Constant 50
           Type Fn
             Type I32
             Type Bool
-          Type Array
-            Type String
-          Type Fn
-            Type Bool
-            Type Array
-              Type owl.lang.Char
       ;
-      Apply
-        Name :
-        Constant 15
-        Type Fn
-          Type Array
-            Type Array
+      Expr
+        Apply
+          Name :
+          Constant 12
+          Type Generic
+            Type I32
+      ;
+      Expr
+        Apply
+          Name :
+          Constant 13
+          Type Generic
+            Type I32
+            Type String
+            Type Bool
+      ;
+      Expr
+        Apply
+          Name :
+          Constant 14
+          Type Generic
+            Type Fn
               Type I32
-          Type I64
-          Type Bool
+              Type Bool
+            Type Array
+              Type String
+            Type Fn
+              Type Bool
+              Type Array
+                Type owl.lang.Char
+      ;
+      Expr
+        Apply
+          Name :
+          Constant 15
+          Type Fn
+            Type Array
+              Type Array
+                Type I32
+            Type I64
+            Type Bool
       ;
   
   Function f6
     returnType: Type None
     Block
-      Apply
-        Name f
-        Apply
-          Name ~
-          Constant 10
-      ;
-      Apply
-        Name f
-        Apply
-          Name ~
-          Apply
-            Name :
-            Constant 10
-            Type I32
-      ;
-      Apply
-        Name f
-        Apply
-          Name -
-          Constant 100
-      ;
-      Apply
-        Name f
-        Apply
-          Name -
-          Constant 100
-        Apply
-          Name !
-          Apply
-            Name :
-            Name a
-            Type I32
-      ;
-      Apply
-        Name f
-        Apply
-          Name -
-          Constant 100
-        Apply
-          Name !
-          Apply
-            Name :
-            Name a
-            Type I32
-      ;
-      Apply
-        Name f
-        Apply
-          Name -
-          Constant 100
-        Apply
-          Name :
-          Apply
-            Name !
-            Name a
-          Type I32
-      ;
-      Apply
-        Name +
+      Expr
         Apply
           Name f
-          Constant 10
+          Apply
+            Name ~
+            Constant 10
       ;
-      Apply
-        Name +
+      Expr
         Apply
-          Name :
+          Name f
+          Apply
+            Name ~
+            Apply
+              Name :
+              Constant 10
+              Type I32
+      ;
+      Expr
+        Apply
+          Name f
+          Apply
+            Name -
+            Constant 100
+      ;
+      Expr
+        Apply
+          Name f
+          Apply
+            Name -
+            Constant 100
+          Apply
+            Name !
+            Apply
+              Name :
+              Name a
+              Type I32
+      ;
+      Expr
+        Apply
+          Name f
+          Apply
+            Name -
+            Constant 100
+          Apply
+            Name !
+            Apply
+              Name :
+              Name a
+              Type I32
+      ;
+      Expr
+        Apply
+          Name f
+          Apply
+            Name -
+            Constant 100
+          Apply
+            Name :
+            Apply
+              Name !
+              Name a
+            Type I32
+      ;
+      Expr
+        Apply
+          Name +
           Apply
             Name f
             Constant 10
-          Type I32
       ;
-      Apply
-        Name +
-        Apply
-          Name -
-          Constant 3
+      Expr
         Apply
           Name +
-          Constant 6
+          Apply
+            Name :
+            Apply
+              Name f
+              Constant 10
+            Type I32
+      ;
+      Expr
+        Apply
+          Name +
+          Apply
+            Name -
+            Constant 3
+          Apply
+            Name +
+            Constant 6
       ;
   
   Function f7
     returnType: Type None
     Block
-      Apply
-        Name /
-        Apply
-          Name *
-          Constant 2
-          Constant 3
-        Constant 5
-      ;
-      Apply
-        Name %
+      Expr
         Apply
           Name /
           Apply
@@ -280,241 +305,268 @@ Module
             Constant 2
             Constant 3
           Constant 5
-        Constant 9
       ;
-      Apply
-        Name %
+      Expr
         Apply
-          Name /
+          Name %
           Apply
-            Name *
+            Name /
             Apply
-              Name -
-              Constant 2
-            Apply
-              Name +
-              Constant 4
-          Apply
-            Name -
-            Constant 5
-        Apply
-          Name +
-          Constant 6
-      ;
-      Apply
-        Name -
-        Apply
-          Name +
-          Apply
-            Name *
-            Apply
-              Name foo
+              Name *
               Constant 2
               Constant 3
+            Constant 5
+          Constant 9
+      ;
+      Expr
+        Apply
+          Name %
+          Apply
+            Name /
+            Apply
+              Name *
+              Apply
+                Name -
+                Constant 2
+              Apply
+                Name +
+                Constant 4
             Apply
               Name -
-              Constant 10
-          Apply
-            Name *
-            Constant 80
-            Apply
-              Name +
-              Constant 2
-              Apply
-                Name g
-        Apply
-          Name []
-          Name a
-          Constant 10
-      ;
-      Apply
-        Name >>
-        Apply
-          Name >>>
-          Apply
-            Name <<
-            Name a
-            Constant 10
-          Constant 8
-        Constant 1
-      ;
-      Apply
-        Name |
-        Apply
-          Name &
-          Name a
-          Apply
-            Name <<
-            Constant 1
-            Constant 8
-        Apply
-          Name <<
-          Constant 1
-          Constant 6
-      ;
-      Apply
-        Name |
-        Apply
-          Name &
-          Name a
-          Name b
-        Apply
-          Name &
+              Constant 5
           Apply
             Name +
-            Constant 1
             Constant 6
-          Constant 3
       ;
-      Apply
-        Name |
-        Name a
+      Expr
         Apply
-          Name ^
-          Name b
-          Apply
-            Name &
-            Name c
-            Name d
-      ;
-  
-  Function f8
-    returnType: Type None
-    Block
-      Apply
-        Name ==
-        Apply
-          Name >=
-          Name a
-          Name b
-        Apply
-          Name <
-          Name c
-          Name d
-      ;
-      Apply
-        Name <
-        Apply
-          Name <
-          Name a
-          Name b
-        Name c
-      ;
-      Apply
-        Name ==
-        Apply
-          Name &
-          Name a
-          Constant 10
-        Apply
-          Name &
-          Name b
-          Apply
-            Name <<
-            Constant 1
-            Constant 4
-      ;
-      Apply
-        Name is
-        Apply
-          Name ==
-          Apply
-            Name is
-            Name a
-            Constant 10
-          Name b
-        Constant 20
-      ;
-      Apply
-        Name !
-        Apply
-          Name ==
-          Name a
-          Constant 13
-      ;
-      Apply
-        Name !
-        Apply
-          Name is
-          Name a
-          Constant 13
-      ;
-      Apply
-        Name !
-        Apply
-          Name ==
-          Name a
+          Name -
           Apply
             Name +
-            Constant 12
-            Constant 1
+            Apply
+              Name *
+              Apply
+                Name foo
+                Constant 2
+                Constant 3
+              Apply
+                Name -
+                Constant 10
+            Apply
+              Name *
+              Constant 80
+              Apply
+                Name +
+                Constant 2
+                Apply
+                  Name g
+          Apply
+            Name []
+            Name a
+            Constant 10
       ;
-      Apply
-        Name ||
+      Expr
         Apply
-          Name &&
+          Name >>
+          Apply
+            Name >>>
+            Apply
+              Name <<
+              Name a
+              Constant 10
+            Constant 8
+          Constant 1
+      ;
+      Expr
+        Apply
+          Name |
           Apply
             Name &
-            Name f
+            Name a
             Apply
               Name <<
               Constant 1
               Constant 8
           Apply
-            Name !
+            Name <<
+            Constant 1
+            Constant 6
+      ;
+      Expr
+        Apply
+          Name |
+          Apply
+            Name &
+            Name a
+            Name b
+          Apply
+            Name &
             Apply
-              Name <
-              Apply
-                Name *
-                Constant 3
-                Name y
-              Constant 7
+              Name +
+              Constant 1
+              Constant 6
+            Constant 3
+      ;
+      Expr
+        Apply
+          Name |
+          Name a
+          Apply
+            Name ^
+            Name b
+            Apply
+              Name &
+              Name c
+              Name d
+      ;
+  
+  Function f8
+    returnType: Type None
+    Block
+      Expr
+        Apply
+          Name ==
+          Apply
+            Name >=
+            Name a
+            Name b
+          Apply
+            Name <
+            Name c
+            Name d
+      ;
+      Expr
+        Apply
+          Name <
+          Apply
+            Name <
+            Name a
+            Name b
+          Name c
+      ;
+      Expr
+        Apply
+          Name ==
+          Apply
+            Name &
+            Name a
+            Constant 10
+          Apply
+            Name &
+            Name b
+            Apply
+              Name <<
+              Constant 1
+              Constant 4
+      ;
+      Expr
+        Apply
+          Name is
+          Apply
+            Name ==
+            Apply
+              Name is
+              Name a
+              Constant 10
+            Name b
+          Constant 20
+      ;
+      Expr
         Apply
           Name !
           Apply
             Name ==
-            Name b
-            Name true
+            Name a
+            Constant 13
+      ;
+      Expr
+        Apply
+          Name !
+          Apply
+            Name is
+            Name a
+            Constant 13
+      ;
+      Expr
+        Apply
+          Name !
+          Apply
+            Name ==
+            Name a
+            Apply
+              Name +
+              Constant 12
+              Constant 1
+      ;
+      Expr
+        Apply
+          Name ||
+          Apply
+            Name &&
+            Apply
+              Name &
+              Name f
+              Apply
+                Name <<
+                Constant 1
+                Constant 8
+            Apply
+              Name !
+              Apply
+                Name <
+                Apply
+                  Name *
+                  Constant 3
+                  Name y
+                Constant 7
+          Apply
+            Name !
+            Apply
+              Name ==
+              Name b
+              Name true
       ;
   
   Function f9
     returnType: Type None
     Block
-      Apply
-        Name =
-        Name x
+      Expr
         Apply
-          Name >>>
+          Name =
+          Name x
           Apply
-            Name -
+            Name >>>
             Apply
-              Name *
+              Name -
               Apply
-                Name width
-                Name window
+                Name *
+                Apply
+                  Name width
+                  Name window
+                Apply
+                  Name height
+                  Name window
               Apply
-                Name height
-                Name window
-            Apply
-              Name square
-              Name r
-              Constant 0
-          Constant 2
+                Name square
+                Name r
+                Constant 0
+            Constant 2
       ;
-      Apply
-        Name +=
+      Expr
         Apply
-          Name []
-          Name a
-          Name i
-        Apply
-          Name f
+          Name +=
           Apply
-            Name &&
-            Name true
+            Name []
+            Name a
+            Name i
+          Apply
+            Name f
             Apply
-              Name !
-              Name b
+              Name &&
+              Name true
+              Apply
+                Name !
+                Name b
       ;
   
   Function f10
@@ -542,9 +594,10 @@ Module
             Name x
         # elif:
         Block
-          Apply
-            Name print
-            Constant 10
+          Expr
+            Apply
+              Name print
+              Constant 10
           ;
       ;
       If
@@ -557,15 +610,17 @@ Module
             Constant 5
         # elif:
         Block
-          Apply
-            Name print
-            Constant 10
+          Expr
+            Apply
+              Name print
+              Constant 10
           ;
         # else:
         Block
-          Apply
-            Name print
-            Constant 20
+          Expr
+            Apply
+              Name print
+              Constant 20
           ;
       ;
       If
@@ -575,9 +630,10 @@ Module
           Name false
         # elif:
         Block
-          Apply
-            Name print
-            Constant 10
+          Expr
+            Apply
+              Name print
+              Constant 10
           ;
         # elif condition:
         Apply
@@ -589,9 +645,10 @@ Module
           Constant 12
         # then:
         Block
-          Apply
-            Name print
-            Constant 11
+          Expr
+            Apply
+              Name print
+              Constant 11
           ;
         # elif condition:
         Apply
@@ -603,9 +660,10 @@ Module
           Constant 12
         # then:
         Block
-          Apply
-            Name print
-            Constant 12
+          Expr
+            Apply
+              Name print
+              Constant 12
           ;
       ;
       If
@@ -615,9 +673,10 @@ Module
           Name false
         # elif:
         Block
-          Apply
-            Name print
-            Constant 10
+          Expr
+            Apply
+              Name print
+              Constant 10
           ;
         # elif condition:
         Apply
@@ -629,9 +688,10 @@ Module
           Constant 12
         # then:
         Block
-          Apply
-            Name print
-            Constant 11
+          Expr
+            Apply
+              Name print
+              Constant 11
           ;
         # elif condition:
         Apply
@@ -643,15 +703,17 @@ Module
           Constant 12
         # then:
         Block
-          Apply
-            Name print
-            Constant 12
+          Expr
+            Apply
+              Name print
+              Constant 12
           ;
         # else:
         Block
-          Apply
-            Name print
-            Constant 13
+          Expr
+            Apply
+              Name print
+              Constant 13
           ;
       ;
   
@@ -661,25 +723,28 @@ Module
       Match
         .None 
         Block
-          Apply
-            Name print
+          Expr
             Apply
-              Name s
+              Name print
+              Apply
+                Name s
           ;
         .Just x
         Block
-          Apply
-            Name print
-            Name x
+          Expr
+            Apply
+              Name print
+              Name x
           ;
       ;
       Match
         .Blue 
         .Green 
         Block
-          Apply
-            Name print
-            Name color
+          Expr
+            Apply
+              Name print
+              Name color
           ;
       ;
       Match
@@ -688,17 +753,18 @@ Module
         Block
         # Else (default)
         Block
-          Apply
-            Name print
-            Name zzz
+          Expr
+            Apply
+              Name print
+              Name zzz
           ;
       ;
   
   Function f12
     returnType: Type I32
-    Variable x
+    Argument x
       Type None
-    Variable y
+    Argument y
       Type I32
     Block
       Return
@@ -720,4 +786,7 @@ Module
       ;
       Return
       ;
+  
+  Variable PI
+    Constant 3
   
