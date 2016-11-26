@@ -30,6 +30,9 @@ public class ErrorListener {
         String position = null;
         if (line > 0) {
             position = String.valueOf(line);
+            if (charPositionInLine > 0) {
+                position += ":" + String.valueOf(charPositionInLine);
+            }
         }
         if (msg == null) {
             msg = "unknown";

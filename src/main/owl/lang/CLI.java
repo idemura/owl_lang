@@ -57,6 +57,8 @@ public class CLI {
     int flagPrintAst = 0;
     @Parameter(names = {"--analyze"}, description = "Analyze semantics")
     int flagAnalyze = 1;
+    @Parameter(names = {"--print_name_map"}, description = "Print module name map")
+    int flagPrintNameMap = 0;
 
     public static void main(String[] args) {
         CLI cli = new CLI();
@@ -106,7 +108,10 @@ public class CLI {
             ast.accept(new DebugPrintVisitor());
         }
         if (flagAnalyze != 0) {
-            Analyzer.analyze(ast, errorListener);
+            Analyzer.Context ctx = Analyzer.analyze(ast, errorListener);
+            if (flagPrintNameMap != 0) {
+                ctx.printNameMap(System.out);
+            }
         }
     }
 }

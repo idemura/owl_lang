@@ -1,0 +1,15 @@
+# No name
+fn(x, y: I32) {}
+
+# No y type
+fn f10(x: I32, y) {}
+
+# Duplicate argument
+fn f11(x: I32, y: I32, x: I32) {}
+
+# Duplicate entry
+fn f10(x: I32) {}
+
+# Duplicate vars
+x = 10;
+x = 11;

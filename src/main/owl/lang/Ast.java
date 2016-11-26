@@ -14,9 +14,9 @@
  */
 package owl.lang;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class Ast {
@@ -53,6 +53,9 @@ interface AstVisitor {
 
 
 abstract class AstNode {
+    int line;
+    int charPositionInLine;
+
     abstract void accept(AstVisitor visitor);
 }
 
@@ -96,6 +99,20 @@ class AstName extends AstNode {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof AstName) {
+            AstName otherName = (AstName)other;
+            return Objects.equals(name, otherName.name);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
     public void accept(AstVisitor v) {
         v.visit(this);
     }
@@ -116,6 +133,30 @@ class AstType extends AstNode {
 
     AstName name;
     List<AstType> args = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof AstType) {
+            AstType otherType = (AstType)other;
+            if (!Objects.equals(name, otherType.name)) {
+                return false;
+            }
+            if (!Objects.equals(args, otherType.args)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int h = name.hashCode();
+        for (AstType t : args) {
+            h = Objects.hash(h, t.hashCode());
+        }
+        return h;
+    }
 
     @Override
     public void accept(AstVisitor v) {

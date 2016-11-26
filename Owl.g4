@@ -42,7 +42,14 @@ returns [AstName r = new AstName()]
 
 function
 returns [AstFunction r = new AstFunction()]
-:   FN (NAME { $r.name = $NAME.text; })?
+:   FN
+    {
+        $r.line = $FN.line;
+        $r.charPositionInLine = $FN.pos;
+    }
+    (
+        NAME { $r.name = $NAME.text; }
+    )?
     (
         LPAREN
         (
@@ -61,7 +68,12 @@ returns [AstFunction r = new AstFunction()]
 
 argument
 returns [AstArgument r = new AstArgument()]
-:   NAME { $r.name = $NAME.text; }
+:   NAME
+    {
+        $r.name = $NAME.text;
+        $r.line = $NAME.line;
+        $r.charPositionInLine = $NAME.pos;
+    }
     (
         COLON t = typeInstance { $r.type = $t.r; }
     )?

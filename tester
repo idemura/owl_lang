@@ -2,13 +2,18 @@
 
 for owl in `find programs -name '*.owl'`; do
     out=`tempfile`
-    ./owl --print_ast 1 $owl > $out
-    if [ $? != 0 ]; then
-        exit 1
-    fi
-    diff -ZBu $owl.out $out
-    if [ $? != 0 ]; then
-        exit 1
+    err=`tempfile`
+    ./owl --print_ast 1 $owl 1> $out 2> $err
+    if [ $? == 0 ]; then
+        diff -ZBu $owl.out $out
+        if [ $? != 0 ]; then
+            exit 1
+        fi
+    else
+        diff -ZBu $owl.err $err
+        if [ $? != 0 ]; then
+            exit 1
+        fi
     fi
 done
 echo "ALL TESTS PASSED"

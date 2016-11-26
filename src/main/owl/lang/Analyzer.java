@@ -14,22 +14,47 @@
  */
 package owl.lang;
 
+import java.io.PrintStream;
+import java.util.HashMap;
+
 
 public class Analyzer {
-    static void analyze(Ast ast, ErrorListener errorListener) throws OwlException {
-        Analyzer analyzer = new Analyzer(errorListener);
-        analyzer.run(ast);
+    static class Context {
+        HashMap<String, AstNode> nameMap;
+
+        void printNameMap(PrintStream out) {
+            for (String name : nameMap.keySet()) {
+                out.println(name);
+            }
+        }
+    }
+
+    static Context analyze(Ast ast, ErrorListener errorListener) throws OwlException {
+        return (new Analyzer(errorListener)).run(ast);
     }
 
     private ErrorListener errorListener;
+    private int errorCount = 0;
+    private HashMap<String, AstNode> nameMap = new HashMap<>();
 
     private Analyzer(ErrorListener listener) {
         this.errorListener = listener;
     }
 
-    private void run(Ast ast) throws OwlException {
+    private void error(AstNode n, String msg) {
+        errorListener.error(n.line, n.charPositionInLine, msg);
+        errorCount++;
+    }
+
+    private Context run(Ast ast) throws OwlException {
         AstVisitor v = new Visitor();
         ast.module.accept(v);
+        if (errorCount > 0) {
+            throw new OwlException("analysis failed");
+        }
+        Context ctx = new Context();
+        ctx.nameMap = nameMap;
+        return ctx;
     }
 
     private final class Visitor implements AstVisitor {
@@ -47,10 +72,45 @@ public class Analyzer {
 
         @Override
         public void visit(AstModule n) {
+            for (AstNode m : n.members) {
+                m.accept(this);
+            }
         }
 
         @Override
         public void visit(AstFunction n) {
+            // TODO: Lambda
+            if (!n.args.isEmpty()) {
+                HashMap<String, AstArgument> arguments = new HashMap<>();
+                AstType t = AstType.None;
+                for (int i = n.args.size(); i > 0; ) {
+                    AstArgument a = n.args.get(--i);
+                    if (arguments.containsKey(a.name)) {
+                        error(n, "function " + n.name + " argument " + a.name + " duplicated, first at line " +
+                                arguments.get(a.name).line);
+                        continue;
+                    }
+                    arguments.put(a.name, a);
+                    if (a.type == AstType.None) {
+                        if (t == AstType.None) {
+                            error(n, "function " + n.name + " argument " + a.name + " type None");
+                        } else {
+                            a.type = t;
+                        }
+                    } else {
+                        t = a.type;
+                    }
+                }
+            }
+            if (n.name.isEmpty()) {
+                error(n, "function unnamed");
+            } else {
+                if (nameMap.containsKey(n.name)) {
+                    errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
+                } else {
+                    nameMap.put(n.name, n);
+                }
+            }
         }
 
         @Override
@@ -59,6 +119,11 @@ public class Analyzer {
 
         @Override
         public void visit(AstVariable n) {
+            if (nameMap.containsKey(n.name)) {
+                errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
+            } else {
+                nameMap.put(n.name, n);
+            }
         }
 
         @Override
