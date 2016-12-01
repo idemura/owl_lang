@@ -16,7 +16,6 @@ package owl.lang;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static owl.lang.TypeNameVisitor.typeStr;
 
 public class TypeTest {
     @Test
@@ -24,12 +23,12 @@ public class TypeTest {
         AstType t = new AstType("Foo");
         t.args.add(AstType.I32);
         t.args.add(AstType.F32);
-        assertEquals("Foo(I32, F32)", typeStr(t));
+        assertEquals("Foo(I32, F32)", t.toString());
     }
 
     @Test
     public void testTypeStr() {
         AstType t = new AstType("Foo");
-        assertEquals("Foo", typeStr(t));
+        assertEquals("Foo", t.toString());
     }
 }

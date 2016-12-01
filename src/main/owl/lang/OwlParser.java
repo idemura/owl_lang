@@ -539,7 +539,7 @@ public class OwlParser extends Parser {
 				{
 				setState(131);
 				((ExprPrimeContext)_localctx).OCT = match(OCT);
-				 ((ExprPrimeContext)_localctx).r =  new AstConstant((((ExprPrimeContext)_localctx).OCT!=null?((ExprPrimeContext)_localctx).OCT.getText():null), AstConstant.OCT); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).OCT!=null?((ExprPrimeContext)_localctx).OCT.getText():null), AstLiteral.OCT); 
 				}
 				break;
 			case DEC:
@@ -547,7 +547,7 @@ public class OwlParser extends Parser {
 				{
 				setState(133);
 				((ExprPrimeContext)_localctx).DEC = match(DEC);
-				 ((ExprPrimeContext)_localctx).r =  new AstConstant((((ExprPrimeContext)_localctx).DEC!=null?((ExprPrimeContext)_localctx).DEC.getText():null), AstConstant.DEC); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).DEC!=null?((ExprPrimeContext)_localctx).DEC.getText():null), AstLiteral.DEC); 
 				}
 				break;
 			case HEX:
@@ -555,7 +555,7 @@ public class OwlParser extends Parser {
 				{
 				setState(135);
 				((ExprPrimeContext)_localctx).HEX = match(HEX);
-				 ((ExprPrimeContext)_localctx).r =  new AstConstant((((ExprPrimeContext)_localctx).HEX!=null?((ExprPrimeContext)_localctx).HEX.getText():null), AstConstant.HEX); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).HEX!=null?((ExprPrimeContext)_localctx).HEX.getText():null), AstLiteral.HEX); 
 				}
 				break;
 			case STR:
@@ -563,7 +563,7 @@ public class OwlParser extends Parser {
 				{
 				setState(137);
 				((ExprPrimeContext)_localctx).STR = match(STR);
-				 ((ExprPrimeContext)_localctx).r =  new AstConstant((((ExprPrimeContext)_localctx).STR!=null?((ExprPrimeContext)_localctx).STR.getText():null), AstConstant.STR); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).STR!=null?((ExprPrimeContext)_localctx).STR.getText():null), AstLiteral.STR); 
 				}
 				break;
 			case LPAREN:

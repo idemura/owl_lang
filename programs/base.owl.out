@@ -1,6 +1,6 @@
 Module
   Variable zzz
-    Constant "world"
+    Literal "world"
   
   Function f1
     returnType: Type None
@@ -14,12 +14,12 @@ Module
       Expr
         Apply
           Name print
-          Constant "hello"
+          Literal "hello"
       ;
       Expr
         Apply
           Name print
-          Constant 127
+          Literal 127
       ;
   
   Function f3
@@ -74,7 +74,7 @@ Module
             Apply
               Name f4
             Name x
-          Constant 10
+          Literal 10
       ;
       Expr
         Apply
@@ -92,7 +92,7 @@ Module
           Name []
           Apply
             Name f2
-          Constant 10
+          Literal 10
       ;
       Expr
         Member
@@ -121,8 +121,8 @@ Module
           Name :
           Apply
             Name g
-            Constant 10
-            Constant 20
+            Literal 10
+            Literal 20
           Type I32
       ;
       Expr
@@ -130,7 +130,7 @@ Module
           Name g
           Apply
             Name :
-            Constant 10
+            Literal 10
             Type owl.lang.String
       ;
       Expr
@@ -138,7 +138,7 @@ Module
           Name g
           Apply
             Name :
-            Constant 50
+            Literal 50
             Type Array
               Type I32
       ;
@@ -152,7 +152,7 @@ Module
       Expr
         Apply
           Name :
-          Constant 50
+          Literal 50
           Type Fn
             Type I32
             Type Bool
@@ -160,14 +160,14 @@ Module
       Expr
         Apply
           Name :
-          Constant 12
+          Literal 12
           Type Generic
             Type I32
       ;
       Expr
         Apply
           Name :
-          Constant 13
+          Literal 13
           Type Generic
             Type I32
             Type String
@@ -176,7 +176,7 @@ Module
       Expr
         Apply
           Name :
-          Constant 14
+          Literal 14
           Type Generic
             Type Fn
               Type I32
@@ -191,7 +191,7 @@ Module
       Expr
         Apply
           Name :
-          Constant 15
+          Literal 15
           Type Fn
             Type Array
               Type Array
@@ -208,7 +208,7 @@ Module
           Name f
           Apply
             Name ~
-            Constant 10
+            Literal 10
       ;
       Expr
         Apply
@@ -217,7 +217,7 @@ Module
             Name ~
             Apply
               Name :
-              Constant 10
+              Literal 10
               Type I32
       ;
       Expr
@@ -225,14 +225,14 @@ Module
           Name f
           Apply
             Name -
-            Constant 100
+            Literal 100
       ;
       Expr
         Apply
           Name f
           Apply
             Name -
-            Constant 100
+            Literal 100
           Apply
             Name !
             Apply
@@ -245,7 +245,7 @@ Module
           Name f
           Apply
             Name -
-            Constant 100
+            Literal 100
           Apply
             Name !
             Apply
@@ -258,7 +258,7 @@ Module
           Name f
           Apply
             Name -
-            Constant 100
+            Literal 100
           Apply
             Name :
             Apply
@@ -271,7 +271,7 @@ Module
           Name +
           Apply
             Name f
-            Constant 10
+            Literal 10
       ;
       Expr
         Apply
@@ -280,7 +280,7 @@ Module
             Name :
             Apply
               Name f
-              Constant 10
+              Literal 10
             Type I32
       ;
       Expr
@@ -288,10 +288,10 @@ Module
           Name +
           Apply
             Name -
-            Constant 3
+            Literal 3
           Apply
             Name +
-            Constant 6
+            Literal 6
       ;
   
   Function f7
@@ -302,9 +302,9 @@ Module
           Name /
           Apply
             Name *
-            Constant 2
-            Constant 3
-          Constant 5
+            Literal 2
+            Literal 3
+          Literal 5
       ;
       Expr
         Apply
@@ -313,10 +313,10 @@ Module
             Name /
             Apply
               Name *
-              Constant 2
-              Constant 3
-            Constant 5
-          Constant 9
+              Literal 2
+              Literal 3
+            Literal 5
+          Literal 9
       ;
       Expr
         Apply
@@ -327,16 +327,16 @@ Module
               Name *
               Apply
                 Name -
-                Constant 2
+                Literal 2
               Apply
                 Name +
-                Constant 4
+                Literal 4
             Apply
               Name -
-              Constant 5
+              Literal 5
           Apply
             Name +
-            Constant 6
+            Literal 6
       ;
       Expr
         Apply
@@ -347,23 +347,23 @@ Module
               Name *
               Apply
                 Name foo
-                Constant 2
-                Constant 3
+                Literal 2
+                Literal 3
               Apply
                 Name -
-                Constant 10
+                Literal 10
             Apply
               Name *
-              Constant 80
+              Literal 80
               Apply
                 Name +
-                Constant 2
+                Literal 2
                 Apply
                   Name g
           Apply
             Name []
             Name a
-            Constant 10
+            Literal 10
       ;
       Expr
         Apply
@@ -373,9 +373,9 @@ Module
             Apply
               Name <<
               Name a
-              Constant 10
-            Constant 8
-          Constant 1
+              Literal 10
+            Literal 8
+          Literal 1
       ;
       Expr
         Apply
@@ -385,12 +385,12 @@ Module
             Name a
             Apply
               Name <<
-              Constant 1
-              Constant 8
+              Literal 1
+              Literal 8
           Apply
             Name <<
-            Constant 1
-            Constant 6
+            Literal 1
+            Literal 6
       ;
       Expr
         Apply
@@ -403,9 +403,9 @@ Module
             Name &
             Apply
               Name +
-              Constant 1
-              Constant 6
-            Constant 3
+              Literal 1
+              Literal 6
+            Literal 3
       ;
       Expr
         Apply
@@ -450,14 +450,14 @@ Module
           Apply
             Name &
             Name a
-            Constant 10
+            Literal 10
           Apply
             Name &
             Name b
             Apply
               Name <<
-              Constant 1
-              Constant 4
+              Literal 1
+              Literal 4
       ;
       Expr
         Apply
@@ -467,9 +467,9 @@ Module
             Apply
               Name is
               Name a
-              Constant 10
+              Literal 10
             Name b
-          Constant 20
+          Literal 20
       ;
       Expr
         Apply
@@ -477,7 +477,7 @@ Module
           Apply
             Name ==
             Name a
-            Constant 13
+            Literal 13
       ;
       Expr
         Apply
@@ -485,7 +485,7 @@ Module
           Apply
             Name is
             Name a
-            Constant 13
+            Literal 13
       ;
       Expr
         Apply
@@ -495,8 +495,8 @@ Module
             Name a
             Apply
               Name +
-              Constant 12
-              Constant 1
+              Literal 12
+              Literal 1
       ;
       Expr
         Apply
@@ -508,17 +508,17 @@ Module
               Name f
               Apply
                 Name <<
-                Constant 1
-                Constant 8
+                Literal 1
+                Literal 8
             Apply
               Name !
               Apply
                 Name <
                 Apply
                   Name *
-                  Constant 3
+                  Literal 3
                   Name y
-                Constant 7
+                Literal 7
           Apply
             Name !
             Apply
@@ -549,8 +549,8 @@ Module
               Apply
                 Name square
                 Name r
-                Constant 0
-            Constant 2
+                Literal 0
+            Literal 2
       ;
       Expr
         Apply
@@ -588,7 +588,7 @@ Module
                 Apply
                   Name width
                   Name x
-                Constant 10
+                Literal 10
           Apply
             Name height
             Name x
@@ -597,7 +597,7 @@ Module
           Expr
             Apply
               Name print
-              Constant 10
+              Literal 10
           ;
       ;
       If
@@ -607,20 +607,20 @@ Module
           Apply
             Name &
             Name r
-            Constant 5
+            Literal 5
         # elif:
         Block
           Expr
             Apply
               Name print
-              Constant 10
+              Literal 10
           ;
         # else:
         Block
           Expr
             Apply
               Name print
-              Constant 20
+              Literal 20
           ;
       ;
       If
@@ -633,7 +633,7 @@ Module
           Expr
             Apply
               Name print
-              Constant 10
+              Literal 10
           ;
         # elif condition:
         Apply
@@ -641,14 +641,14 @@ Module
           Apply
             Name +
             Name m
-            Constant 10
-          Constant 12
+            Literal 10
+          Literal 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Constant 11
+              Literal 11
           ;
         # elif condition:
         Apply
@@ -656,14 +656,14 @@ Module
           Apply
             Name -
             Name m
-            Constant 10
-          Constant 12
+            Literal 10
+          Literal 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Constant 12
+              Literal 12
           ;
       ;
       If
@@ -676,7 +676,7 @@ Module
           Expr
             Apply
               Name print
-              Constant 10
+              Literal 10
           ;
         # elif condition:
         Apply
@@ -684,14 +684,14 @@ Module
           Apply
             Name +
             Name m
-            Constant 10
-          Constant 12
+            Literal 10
+          Literal 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Constant 11
+              Literal 11
           ;
         # elif condition:
         Apply
@@ -699,21 +699,21 @@ Module
           Apply
             Name -
             Name m
-            Constant 10
-          Constant 12
+            Literal 10
+          Literal 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Constant 12
+              Literal 12
           ;
         # else:
         Block
           Expr
             Apply
               Name print
-              Constant 13
+              Literal 13
           ;
       ;
   
@@ -788,5 +788,5 @@ Module
       ;
   
   Variable PI
-    Constant 3
+    Literal 3
   

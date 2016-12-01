@@ -92,10 +92,10 @@ returns [AstBlock r = new AstBlock()]
 exprPrime
 returns [AstNode r]
 :   NAME { $r = new AstName($NAME.text); }
-|   OCT { $r = new AstConstant($OCT.text, AstConstant.OCT); }
-|   DEC { $r = new AstConstant($DEC.text, AstConstant.DEC); }
-|   HEX { $r = new AstConstant($HEX.text, AstConstant.HEX); }
-|   STR { $r = new AstConstant($STR.text, AstConstant.STR); }
+|   OCT { $r = new AstLiteral($OCT.text, AstLiteral.OCT); }
+|   DEC { $r = new AstLiteral($DEC.text, AstLiteral.DEC); }
+|   HEX { $r = new AstLiteral($HEX.text, AstLiteral.HEX); }
+|   STR { $r = new AstLiteral($STR.text, AstLiteral.STR); }
 |   LPAREN e = expression RPAREN { $r = $e.r; }
 ;
 

@@ -14,7 +14,6 @@
  */
 package owl.lang;
 
-
 final class DebugPrinter {
     private int tab = 0;
     private boolean newLine = true;
@@ -42,7 +41,6 @@ final class DebugPrinter {
         System.out.print(s);
     }
 }
-
 
 class DebugPrintVisitor implements AstVisitor {
     private DebugPrinter printer = new DebugPrinter();
@@ -125,6 +123,13 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstConstant n) {
+        node(n, n.name);
+        n.expr.accept(this);
+        endNode();
+    }
+
+    @Override
+    public void visit(AstLiteral n) {
         leaf(n, n.text);
     }
 

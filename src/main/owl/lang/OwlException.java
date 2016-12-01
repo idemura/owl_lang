@@ -14,7 +14,6 @@
  */
 package owl.lang;
 
-
 public class OwlException extends Exception {
     public OwlException(String message) {
         super(message);

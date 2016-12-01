@@ -17,27 +17,24 @@ package owl.lang;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-
-public class Analyzer {
+public class MetaAnalyzer {
     static class Context {
-        HashMap<String, AstNode> nameMap;
+        HashMap<Symbol, AstNode> symbolMap;
 
-        void printNameMap(PrintStream out) {
-            for (String name : nameMap.keySet()) {
-                out.println(name);
-            }
+        void printSymbolMap(PrintStream out) {
+            symbolMap.keySet().forEach(out::println);
         }
     }
 
     static Context analyze(Ast ast, ErrorListener errorListener) throws OwlException {
-        return (new Analyzer(errorListener)).run(ast);
+        return (new MetaAnalyzer(errorListener)).run(ast);
     }
 
     private ErrorListener errorListener;
     private int errorCount = 0;
-    private HashMap<String, AstNode> nameMap = new HashMap<>();
+    private HashMap<Symbol, AstNode> symbolMap = new HashMap<>();
 
-    private Analyzer(ErrorListener listener) {
+    private MetaAnalyzer(ErrorListener listener) {
         this.errorListener = listener;
     }
 
@@ -47,29 +44,17 @@ public class Analyzer {
     }
 
     private Context run(Ast ast) throws OwlException {
-        AstVisitor v = new Visitor();
+        AstVisitor v = new NameMapVisitor();
         ast.module.accept(v);
         if (errorCount > 0) {
-            throw new OwlException("analysis failed");
+            throw new OwlException("meta analysis failed");
         }
         Context ctx = new Context();
-        ctx.nameMap = nameMap;
+        ctx.symbolMap = symbolMap;
         return ctx;
     }
 
-    private final class Visitor implements AstVisitor {
-        @Override
-        public void visit(AstName n) {
-        }
-
-        @Override
-        public void visit(AstType n) {
-        }
-
-        @Override
-        public void visit(AstMember n) {
-        }
-
+    private final class NameMapVisitor implements AstVisitor {
         @Override
         public void visit(AstModule n) {
             for (AstNode m : n.members) {
@@ -80,6 +65,7 @@ public class Analyzer {
         @Override
         public void visit(AstFunction n) {
             // TODO: Lambda
+            boolean err = false;
             if (!n.args.isEmpty()) {
                 HashMap<String, AstArgument> arguments = new HashMap<>();
                 AstType t = AstType.None;
@@ -88,12 +74,14 @@ public class Analyzer {
                     if (arguments.containsKey(a.name)) {
                         error(n, "function " + n.name + " argument " + a.name + " duplicated, first at line " +
                                 arguments.get(a.name).line);
+                        err = true;
                         continue;
                     }
                     arguments.put(a.name, a);
                     if (a.type == AstType.None) {
                         if (t == AstType.None) {
                             error(n, "function " + n.name + " argument " + a.name + " type None");
+                            err = true;
                         } else {
                             a.type = t;
                         }
@@ -104,54 +92,25 @@ public class Analyzer {
             }
             if (n.name.isEmpty()) {
                 error(n, "function unnamed");
-            } else {
-                if (nameMap.containsKey(n.name)) {
+            } else if (!err) {
+                // Add only if no errors during function signature analysis.
+                Symbol s = n.getSymbol();
+                if (symbolMap.containsKey(s)) {
                     errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
                 } else {
-                    nameMap.put(n.name, n);
+                    symbolMap.put(s, n);
                 }
             }
         }
 
         @Override
-        public void visit(AstArgument n) {
-        }
-
-        @Override
         public void visit(AstVariable n) {
-            if (nameMap.containsKey(n.name)) {
+            Symbol s = n.getSymbol();
+            if (symbolMap.containsKey(s)) {
                 errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
             } else {
-                nameMap.put(n.name, n);
+                symbolMap.put(s, n);
             }
-        }
-
-        @Override
-        public void visit(AstBlock n) {
-        }
-
-        @Override
-        public void visit(AstApply n) {
-        }
-
-        @Override
-        public void visit(AstConstant n) {
-        }
-
-        @Override
-        public void visit(AstIf n) {
-        }
-
-        @Override
-        public void visit(AstMatch n) {
-        }
-
-        @Override
-        public void visit(AstReturn n) {
-        }
-
-        @Override
-        public void visit(AstExpr n) {
         }
     }
 }

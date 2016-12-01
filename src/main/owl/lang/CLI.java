@@ -29,7 +29,6 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
-
 public class CLI {
     static class ParserErrorListener extends BaseErrorListener {
         private ErrorListener listener;
@@ -57,8 +56,8 @@ public class CLI {
     int flagPrintAst = 0;
     @Parameter(names = {"--analyze"}, description = "Analyze semantics")
     int flagAnalyze = 1;
-    @Parameter(names = {"--print_name_map"}, description = "Print module name map")
-    int flagPrintNameMap = 0;
+    @Parameter(names = {"--print_symbol_map"}, description = "Print module symbol map")
+    int flagPrintSymbolMap = 0;
 
     public static void main(String[] args) {
         CLI cli = new CLI();
@@ -89,7 +88,7 @@ public class CLI {
         System.exit(succeeded != total ? 1 : 0);
     }
 
-    private Ast parse(CharStream in, ANTLRErrorListener errorListener) throws RecognitionException {
+    private static Ast parse(CharStream in, ANTLRErrorListener errorListener) throws RecognitionException {
         Lexer lexer = new OwlLexer(in);
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);
@@ -108,9 +107,9 @@ public class CLI {
             ast.accept(new DebugPrintVisitor());
         }
         if (flagAnalyze != 0) {
-            Analyzer.Context ctx = Analyzer.analyze(ast, errorListener);
-            if (flagPrintNameMap != 0) {
-                ctx.printNameMap(System.out);
+            MetaAnalyzer.Context ctx = MetaAnalyzer.analyze(ast, errorListener);
+            if (flagPrintSymbolMap != 0) {
+                ctx.printSymbolMap(System.out);
             }
         }
     }

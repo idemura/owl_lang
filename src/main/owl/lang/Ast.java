@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.stream.Collectors.toList;
 
 public class Ast {
     AstModule module;
@@ -33,7 +34,6 @@ public class Ast {
     }
 }
 
-
 interface AstVisitor {
     default void visit(AstName node) {}
     default void visit(AstType node) {}
@@ -44,6 +44,7 @@ interface AstVisitor {
     default void visit(AstBlock node) {}
     default void visit(AstApply node) {}
     default void visit(AstConstant node) {}
+    default void visit(AstLiteral node) {}
     default void visit(AstMember node) {}
     default void visit(AstIf node) {}
     default void visit(AstMatch node) {}
@@ -51,44 +52,12 @@ interface AstVisitor {
     default void visit(AstExpr node) {}
 }
 
-
 abstract class AstNode {
     int line;
     int charPositionInLine;
 
     abstract void accept(AstVisitor visitor);
 }
-
-
-class TypeNameVisitor implements AstVisitor {
-    static String typeStr(AstType type) {
-        TypeNameVisitor v = new TypeNameVisitor();
-        type.accept(v);
-        return v.name;
-    }
-
-    private String name = "";
-
-    @Override
-    public void visit(AstName n) {
-        name += n.name;
-    }
-
-    @Override
-    public void visit(AstType n) {
-        n.name.accept(this);
-        if (!n.args.isEmpty()) {
-            name += "(";
-            n.args.get(0).accept(this);
-            for (int i = 1; i < n.args.size(); i++) {
-                name += ", ";
-                n.args.get(i).accept(this);
-            }
-            name += ")";
-        }
-    }
-}
-
 
 class AstName extends AstNode {
     String name = "";
@@ -101,7 +70,7 @@ class AstName extends AstNode {
     @Override
     public boolean equals(Object other) {
         if (other instanceof AstName) {
-            AstName otherName = (AstName)other;
+            AstName otherName = (AstName) other;
             return Objects.equals(name, otherName.name);
         }
         return false;
@@ -135,18 +104,8 @@ class AstType extends AstNode {
     List<AstType> args = new ArrayList<>();
 
     @Override
-    public boolean equals(Object other) {
-        if (other instanceof AstType) {
-            AstType otherType = (AstType)other;
-            if (!Objects.equals(name, otherType.name)) {
-                return false;
-            }
-            if (!Objects.equals(args, otherType.args)) {
-                return false;
-            }
-            return true;
-        }
-        return false;
+    public String toString() {
+        return TypeNameVisitor.run(this);
     }
 
     @Override
@@ -159,11 +118,54 @@ class AstType extends AstNode {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof AstType) {
+            AstType otherType = (AstType) other;
+            if (!Objects.equals(name, otherType.name)) {
+                return false;
+            }
+            if (!Objects.equals(args, otherType.args)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void accept(AstVisitor v) {
         v.visit(this);
     }
-}
 
+    private static class TypeNameVisitor implements AstVisitor {
+        static String run(AstType type) {
+            TypeNameVisitor v = new TypeNameVisitor();
+            type.accept(v);
+            return v.name;
+        }
+
+        private String name = "";
+
+        @Override
+        public void visit(AstName n) {
+            name += n.name;
+        }
+
+        @Override
+        public void visit(AstType n) {
+            n.name.accept(this);
+            if (!n.args.isEmpty()) {
+                name += "(";
+                n.args.get(0).accept(this);
+                for (int i = 1; i < n.args.size(); i++) {
+                    name += ", ";
+                    n.args.get(i).accept(this);
+                }
+                name += ")";
+            }
+        }
+    }
+}
 
 class AstMember extends AstNode {
     AstNode left;
@@ -175,7 +177,6 @@ class AstMember extends AstNode {
     }
 }
 
-
 class AstModule extends AstNode {
     List<AstNode> members = new ArrayList<>();
 
@@ -184,7 +185,6 @@ class AstModule extends AstNode {
         v.visit(this);
     }
 }
-
 
 class AstFunction extends AstNode {
     String name = "";
@@ -196,8 +196,16 @@ class AstFunction extends AstNode {
     public void accept(AstVisitor v) {
         v.visit(this);
     }
-}
 
+    Symbol getSymbol() {
+        FunctionSymbol symbol = new FunctionSymbol(name);
+        symbol.argumentTypes.addAll(
+                args.stream().map(a -> a.type).collect(toList())
+        );
+        symbol.returnType = returnType;
+        return symbol;
+    }
+}
 
 class AstArgument extends AstNode {
     String name;
@@ -208,7 +216,6 @@ class AstArgument extends AstNode {
         v.visit(this);
     }
 }
-
 
 class AstVariable extends AstNode {
     String name;
@@ -224,8 +231,11 @@ class AstVariable extends AstNode {
     public void accept(AstVisitor v) {
         v.visit(this);
     }
-}
 
+    Symbol getSymbol() {
+        return new VariableSymbol(name);
+    }
+}
 
 class AstBlock extends AstNode {
     List<AstNode> statements = new ArrayList<>();
@@ -236,7 +246,6 @@ class AstBlock extends AstNode {
     }
 }
 
-
 class AstApply extends AstNode {
     List<AstNode> args = new ArrayList<>();
 
@@ -246,8 +255,17 @@ class AstApply extends AstNode {
     }
 }
 
-
 class AstConstant extends AstNode {
+    String name;
+    AstNode expr;
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visit(this);
+    }
+}
+
+class AstLiteral extends AstNode {
     static final int DEC = 0;
     static final int OCT = 1;
     static final int HEX = 2;
@@ -256,8 +274,8 @@ class AstConstant extends AstNode {
     String text = "";
     int format = STR;
 
-    AstConstant() {}
-    AstConstant(String text, int format) {
+    AstLiteral() {}
+    AstLiteral(String text, int format) {
         this.text = text;
         this.format = format;
     }
@@ -267,7 +285,6 @@ class AstConstant extends AstNode {
         v.visit(this);
     }
 }
-
 
 class AstIf extends AstNode {
     // N conditions each with block and optionally (N + 1)-th block for else.
@@ -279,7 +296,6 @@ class AstIf extends AstNode {
         v.visit(this);
     }
 }
-
 
 class AstMatch extends AstNode {
     // Label is a name of enum type label. Several labels might refer to the same block of index @block.
@@ -300,7 +316,6 @@ class AstMatch extends AstNode {
     }
 }
 
-
 class AstReturn extends AstNode {
     AstNode expr;
 
@@ -315,7 +330,6 @@ class AstReturn extends AstNode {
     }
 }
 
-
 class AstExpr extends AstNode {
     AstNode expr;
 
@@ -329,7 +343,6 @@ class AstExpr extends AstNode {
         v.visit(this);
     }
 }
-
 
 final class AstUtil {
     private AstUtil() {}

@@ -14,7 +14,6 @@
  */
 package owl.lang;
 
-
 public class ErrorListener {
     private String fileName;
     private int errorCount = 0;
