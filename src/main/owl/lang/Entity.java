@@ -35,7 +35,7 @@ abstract class Entity {
 // Basically function signature.
 class FunctionEntity extends Entity {
     List<AstType> argumentTypes = new ArrayList<>();
-    AstType returnType = AstType.None;
+    AstType type = AstType.None;
 
     FunctionEntity(String moduleName, String name) {
         this.moduleName = moduleName;
@@ -46,7 +46,7 @@ class FunctionEntity extends Entity {
     public String toString() {
         return "Function " + moduleName + " " + name + "(" +
                 String.join(", ", argumentTypes.stream().map(AstType::toString).collect(toList())) +
-                "): " + returnType;
+                "): " + type;
     }
 
     @Override
@@ -80,14 +80,17 @@ class FunctionEntity extends Entity {
 }
 
 class VariableEntity extends Entity {
-    VariableEntity(String moduleName, String name) {
+    AstType type;
+
+    VariableEntity(String moduleName, String name, AstType type) {
         this.moduleName = moduleName;
         this.name = name;
+        this.type = type;
     }
 
     @Override
     public String toString() {
-        return "Variable " + moduleName + " " + name;
+        return "Variable " + moduleName + " " + name + ": " + type;
     }
 
     @Override

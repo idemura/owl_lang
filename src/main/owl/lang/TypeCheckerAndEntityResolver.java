@@ -14,14 +14,15 @@
  */
 package owl.lang;
 
+// Check types of function applications. Resolves entity names and function overloads.
 class TypeCheckerAndEntityResolver {
     static void analyze(Ast ast, EntityMap entityMap, ErrorListener errorListener) throws OwlException {
         new TypeCheckerAndEntityResolver(ast, entityMap, errorListener).run();
     }
 
-    private Ast ast;
-    private EntityMap entityMap;
+    private final Ast ast;
     private CountErrorListener errorListener;
+    private EntityMap entityMap;
 
     private TypeCheckerAndEntityResolver(Ast ast, EntityMap entityMap, ErrorListener errorListener) {
         this.ast = ast;
@@ -39,21 +40,25 @@ class TypeCheckerAndEntityResolver {
     }
 
     private final class AnalyzerVisitor implements AstVisitor {
+        EntityMap locals = null;
+
         @Override
         public void visit(AstName n) {
         }
 
         @Override
         public void visit(AstType n) {
-            for (AstType t : n.args) {
-                t.accept(this);
-            }
+            throw new UnsupportedOperationException("type checker");
+//            for (AstType t : n.args) {
+//                t.accept(this);
+//            }
         }
 
         @Override
         public void visit(AstMember n) {
-            n.left.accept(this);
-            n.name.accept(this);
+            throw new UnsupportedOperationException("type checker");
+//            n.left.accept(this);
+//            n.name.accept(this);
         }
 
         @Override
@@ -65,15 +70,19 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public void visit(AstFunction n) {
+            locals = entityMap.clone();
             for (AstArgument a : n.args) {
-                a.accept(this);
+                locals.replace(a.getEntity(ast.module.name));
             }
+//            System.out.println(n.name + " locals:");
+//            locals.print(System.out);
             n.block.accept(this);
         }
 
         @Override
         public void visit(AstArgument n) {
-            n.type.accept(this);
+            throw new UnsupportedOperationException("type checker");
+//            n.type.accept(this);
         }
 
         @Override
@@ -106,35 +115,38 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public void visit(AstIf n) {
-            for (int i = 0; i < n.condition.size(); i++) {
-                n.condition.get(i).accept(this);
-                n.block.get(i).accept(this);
-            }
-            if (n.block.size() > n.condition.size()) {
-                n.block.get(n.block.size() - 1).accept(this);
-            }
+            throw new UnsupportedOperationException("type checker");
+//            for (int i = 0; i < n.condition.size(); i++) {
+//                n.condition.get(i).accept(this);
+//                n.block.get(i).accept(this);
+//            }
+//            if (n.block.size() > n.condition.size()) {
+//                n.block.get(n.block.size() - 1).accept(this);
+//            }
         }
 
         @Override
         public void visit(AstMatch n) {
-            int blockIndex = 0;
-            for (AstMatch.Label l : n.label) {
-                if (blockIndex != l.block) {
-                    n.block.get(blockIndex).accept(this);
-                    blockIndex = l.block;
-                }
-            }
-            n.block.get(blockIndex).accept(this);
-            if (n.elseBlock != null) {
-                n.elseBlock.accept(this);
-            }
+            throw new UnsupportedOperationException("type checker");
+//            int blockIndex = 0;
+//            for (AstMatch.Label l : n.label) {
+//                if (blockIndex != l.block) {
+//                    n.block.get(blockIndex).accept(this);
+//                    blockIndex = l.block;
+//                }
+//            }
+//            n.block.get(blockIndex).accept(this);
+//            if (n.elseBlock != null) {
+//                n.elseBlock.accept(this);
+//            }
         }
 
         @Override
         public void visit(AstReturn n) {
-            if (n.expr != null) {
-                n.expr.accept(this);
-            }
+            throw new UnsupportedOperationException("type checker");
+//            if (n.expr != null) {
+//                n.expr.accept(this);
+//            }
         }
 
         @Override

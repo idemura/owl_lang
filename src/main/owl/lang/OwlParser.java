@@ -366,7 +366,7 @@ public class OwlParser extends Parser {
 				match(COLON);
 				setState(102);
 				((FunctionContext)_localctx).type = typeInstance();
-				 _localctx.r.returnType = ((FunctionContext)_localctx).type.r; 
+				 _localctx.r.type = ((FunctionContext)_localctx).type.r; 
 				}
 			}
 

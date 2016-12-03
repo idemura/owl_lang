@@ -16,14 +16,16 @@ package owl.lang;
 
 import java.util.HashMap;
 
+// Collects module level entities (functions, variables). Checks function signature (infers argument types and checks
+// no duplicates).
 class EntityCollector {
     static EntityMap analyze(Ast ast, ErrorListener errorListener) throws OwlException {
         return new EntityCollector(ast, errorListener).run();
     }
 
-    private Ast ast;
+    private final Ast ast;
     private CountErrorListener errorListener;
-    private EntityMap entityMap = (EntityMap) Prelude.ENTITY_MAP.clone();
+    private EntityMap entityMap = Prelude.ENTITY_MAP.clone();
 
     private EntityCollector(Ast ast, ErrorListener errorListener) {
         this.ast = ast;

@@ -28,19 +28,19 @@ final class Prelude {
             f = new FunctionEntity(PRELUDE_MODULE_NAME, "+");
             f.argumentTypes.add(AstType.I32);
             f.argumentTypes.add(AstType.I32);
-            f.returnType = AstType.I32;
+            f.type = AstType.I32;
             ENTITY_MAP.put(f);
 
             f = new FunctionEntity(PRELUDE_MODULE_NAME, "+");
             f.argumentTypes.add(AstType.I64);
             f.argumentTypes.add(AstType.I64);
-            f.returnType = AstType.I64;
+            f.type = AstType.I64;
             ENTITY_MAP.put(f);
 
             f = new FunctionEntity(PRELUDE_MODULE_NAME, "*");
             f.argumentTypes.add(AstType.I32);
             f.argumentTypes.add(AstType.I32);
-            f.returnType = AstType.I32;
+            f.type = AstType.I32;
             ENTITY_MAP.put(f);
 
             f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");

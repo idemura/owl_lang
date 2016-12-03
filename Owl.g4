@@ -61,7 +61,7 @@ returns [AstFunction r = new AstFunction()]
         RPAREN
     )?
     (
-        COLON type = typeInstance { $r.returnType = $type.r; }
+        COLON type = typeInstance { $r.type = $type.r; }
     )?
     b = block { $r.block = $b.r; }
 ;

@@ -80,7 +80,7 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstFunction n) {
         node(n, n.name);
-        prop("returnType", n.returnType);
+        prop("type", n.type);
         for (AstArgument a : n.args) {
             a.accept(this);
         }

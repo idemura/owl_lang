@@ -192,7 +192,7 @@ class AstModule extends AstNode {
 class AstFunction extends AstNode {
     String name = "";
     List<AstArgument> args = new ArrayList<>();
-    AstType returnType = AstType.None;
+    AstType type = AstType.None;
     AstBlock block;
 
     @Override
@@ -205,7 +205,7 @@ class AstFunction extends AstNode {
         entity.argumentTypes.addAll(
                 args.stream().map(a -> a.type).collect(toList())
         );
-        entity.returnType = returnType;
+        entity.type = type;
         return entity;
     }
 }
@@ -217,6 +217,10 @@ class AstArgument extends AstNode {
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
+    }
+
+    Entity getEntity(String moduleName) {
+        return new VariableEntity(moduleName, name, type);
     }
 }
 
@@ -236,7 +240,7 @@ class AstVariable extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name);
+        return new VariableEntity(moduleName, name, AstType.None);
     }
 }
 

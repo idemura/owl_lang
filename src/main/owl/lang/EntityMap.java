@@ -25,8 +25,9 @@ class EntityMap implements Cloneable {
 
     EntityMap() {}
 
+    // Returns mutable entity map.
     @Override
-    public Object clone() {
+    public EntityMap clone() {
         EntityMap other = new EntityMap();
         other.ents = new ArrayList<>(ents);
         return other;
@@ -36,6 +37,17 @@ class EntityMap implements Cloneable {
         for (Entity existing : ents) {
             if (s.equals(existing)) {
                 throw new OwlException("duplicated entity");
+            }
+        }
+        ents.add(s);
+    }
+
+    void replace(Entity s) {
+        for (int i = 0; i < ents.size(); i++) {
+            Entity existing = ents.get(i);
+            if (s.equals(existing)) {
+                ents.set(i, s);
+                return;
             }
         }
         ents.add(s);
