@@ -71,10 +71,14 @@ public class CLI {
         }
         int succeeded = 0, total = 0;
         for (String fileName : files) {
-            ErrorListener errorListener = new ErrorListener(fileName);
+            CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 Ast ast = parse(in, new ParserErrorListener(errorListener));
-                analyze(ast, errorListener);
+                try {
+                    analyze(ast, errorListener);
+                } catch (OwlException e) {
+                    // Skip, error listener took care.
+                }
             } catch (IOException | OwlException e) {
                 errorListener.error(0, 0, e.getMessage());
             }

@@ -14,11 +14,19 @@
  */
 package owl.lang;
 
-public class ErrorListener {
-    private String fileName;
-    private int errorCount = 0;
+interface ErrorListener {
+    void error(int line, int charPositionInLine, String msg);
 
-    public ErrorListener(String fileName) {
+    default void error(int line, int charPositionInLine, OwlException e) {
+        error(line, charPositionInLine, e.getMessage());
+    }
+}
+
+class PrintErrorListener
+        implements ErrorListener {
+    private String fileName;
+
+    PrintErrorListener(String fileName) {
         this.fileName = fileName;
     }
 
@@ -37,18 +45,6 @@ public class ErrorListener {
             msg = "unknown";
         }
         print(position, "error: " + msg);
-        errorCount++;
-    }
-
-    public void error(
-            int line,
-            int charPositionInLine,
-            Exception e) {
-        error(line, charPositionInLine, e.getMessage());
-    }
-
-    public int getErrorCount() {
-        return errorCount;
     }
 
     private void print(String position, String text) {
@@ -57,5 +53,28 @@ public class ErrorListener {
             fileWithPosition += ":" + position;
         }
         System.err.println(fileWithPosition + ": " + text);
+    }
+}
+
+
+class CountErrorListener
+        implements ErrorListener {
+    private ErrorListener sink;
+    private int errorCount = 0;
+
+    CountErrorListener(ErrorListener sink) {
+        this.sink = sink;
+    }
+
+    public void error(
+            int line,
+            int charPositionInLine,
+            String msg) {
+        sink.error(line, charPositionInLine, msg);
+        errorCount++;
+    }
+
+    int getErrorCount() {
+        return errorCount;
     }
 }

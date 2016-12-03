@@ -2,4 +2,3 @@ programs/signatures_err.owl:2: error: function unnamed
 programs/signatures_err.owl:5: error: function f10 argument y type None
 programs/signatures_err.owl:8: error: function f11 argument x duplicated, first at line 8
 programs/signatures_err.owl: error: duplicated module member x
-programs/signatures_err.owl: error: meta analysis failed

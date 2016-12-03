@@ -31,24 +31,22 @@ class MetadataCollector {
     }
 
     private Ast ast;
-    private ErrorListener errorListener;
-    private int errorCount = 0;
+    private CountErrorListener errorListener;
     private HashMap<Symbol, AstNode> symbolMap = new HashMap<>();
 
     private MetadataCollector(Ast ast, ErrorListener errorListener) {
         this.ast = ast;
-        this.errorListener = errorListener;
+        this.errorListener = new CountErrorListener(errorListener);
     }
 
     private void error(AstNode n, String msg) {
         errorListener.error(n.line, n.charPositionInLine, msg);
-        errorCount++;
     }
 
     private Metadata run() throws OwlException {
         AstVisitor v = new AnalyzerVisitor();
         ast.module.accept(v);
-        if (errorCount > 0) {
+        if (errorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
         Metadata ctx = new Metadata();
