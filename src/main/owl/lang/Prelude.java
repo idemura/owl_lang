@@ -17,48 +17,46 @@ package owl.lang;
 final class Prelude {
     private Prelude() {}
 
-    static final EntityMap entities = new EntityMap();
-    {
-        FunctionEntity f;
+    static final String PRELUDE_MODULE_NAME = "<prelude>";
+
+    static final EntityMap ENTITY_MAP;
+    static {
+        ENTITY_MAP = new EntityMap();
         try {
-            f = new FunctionEntity();
-            f.name = "+";
+            FunctionEntity f;
+
+            f = new FunctionEntity(PRELUDE_MODULE_NAME, "+");
             f.argumentTypes.add(AstType.I32);
             f.argumentTypes.add(AstType.I32);
             f.returnType = AstType.I32;
-            entities.put(f);
+            ENTITY_MAP.put(f);
 
-            f = new FunctionEntity();
-            f.name = "+";
+            f = new FunctionEntity(PRELUDE_MODULE_NAME, "+");
             f.argumentTypes.add(AstType.I64);
             f.argumentTypes.add(AstType.I64);
             f.returnType = AstType.I64;
-            entities.put(f);
+            ENTITY_MAP.put(f);
 
-            f = new FunctionEntity();
-            f.name = "*";
+            f = new FunctionEntity(PRELUDE_MODULE_NAME, "*");
             f.argumentTypes.add(AstType.I32);
             f.argumentTypes.add(AstType.I32);
             f.returnType = AstType.I32;
-            entities.put(f);
+            ENTITY_MAP.put(f);
 
-            f = new FunctionEntity();
-            f.name = "print";
+            f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");
             f.argumentTypes.add(AstType.I32);
-            entities.put(f);
+            ENTITY_MAP.put(f);
 
-            f = new FunctionEntity();
-            f.name = "print";
+            f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");
             f.argumentTypes.add(AstType.I64);
-            entities.put(f);
+            ENTITY_MAP.put(f);
 
-            f = new FunctionEntity();
-            f.name = "print";
+            f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");
             f.argumentTypes.add(AstType.String);
-            entities.put(f);
+            ENTITY_MAP.put(f);
         } catch (OwlException e) {
             throw new IllegalArgumentException(e);
         }
-        entities.freeze();
+        ENTITY_MAP.freeze();
     }
 }

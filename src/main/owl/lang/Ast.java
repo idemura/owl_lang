@@ -180,6 +180,7 @@ class AstMember extends AstNode {
 }
 
 class AstModule extends AstNode {
+    String name = "<main>";
     List<AstNode> members = new ArrayList<>();
 
     @Override
@@ -199,8 +200,8 @@ class AstFunction extends AstNode {
         v.visit(this);
     }
 
-    Entity getEntity() {
-        FunctionEntity entity = new FunctionEntity(name);
+    Entity getEntity(String moduleName) {
+        FunctionEntity entity = new FunctionEntity(moduleName, name);
         entity.argumentTypes.addAll(
                 args.stream().map(a -> a.type).collect(toList())
         );
@@ -234,8 +235,8 @@ class AstVariable extends AstNode {
         v.visit(this);
     }
 
-    Entity getEntity() {
-        return new VariableEntity(name);
+    Entity getEntity(String moduleName) {
+        return new VariableEntity(moduleName, name);
     }
 }
 

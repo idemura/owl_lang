@@ -20,28 +20,31 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 abstract class Entity {
-    abstract String getName();
+    protected String moduleName;
+    protected String name;
+
+    String getModuleName() {
+        return moduleName;
+    }
+
+    String getName() {
+        return name;
+    }
 }
 
 // Basically function signature.
 class FunctionEntity extends Entity {
-    String name;
     List<AstType> argumentTypes = new ArrayList<>();
     AstType returnType = AstType.None;
 
-    FunctionEntity() {}
-    FunctionEntity(String name) {
+    FunctionEntity(String moduleName, String name) {
+        this.moduleName = moduleName;
         this.name = name;
     }
 
     @Override
-    String getName() {
-        return name;
-    }
-
-    @Override
     public String toString() {
-        return "FunctionEntity " + name + "(" +
+        return "Function " + moduleName + " " + name + "(" +
                 String.join(", ", argumentTypes.stream().map(AstType::toString).collect(toList())) +
                 "): " + returnType;
     }
@@ -54,7 +57,7 @@ class FunctionEntity extends Entity {
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof Entity)) {
-            throw new IllegalArgumentException("Entity expected");
+            throw new IllegalArgumentException("entity expected");
         }
         if (other instanceof FunctionEntity) {
             FunctionEntity otherFun = (FunctionEntity) other;
@@ -77,20 +80,14 @@ class FunctionEntity extends Entity {
 }
 
 class VariableEntity extends Entity {
-    private String name;
-
-    VariableEntity(String name) {
+    VariableEntity(String moduleName, String name) {
+        this.moduleName = moduleName;
         this.name = name;
     }
 
     @Override
-    String getName() {
-        return name;
-    }
-
-    @Override
     public String toString() {
-        return "VariableEntity " + name;
+        return "Variable " + moduleName + " " + name;
     }
 
     @Override
@@ -101,7 +98,7 @@ class VariableEntity extends Entity {
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof Entity)) {
-            throw new IllegalArgumentException("Entity expected");
+            throw new IllegalArgumentException("entity expected");
         }
         if (other instanceof VariableEntity) {
             VariableEntity otherVar = (VariableEntity) other;

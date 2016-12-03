@@ -23,7 +23,7 @@ class EntityCollector {
 
     private Ast ast;
     private CountErrorListener errorListener;
-    private EntityMap entityMap = new EntityMap();
+    private EntityMap entityMap = (EntityMap) Prelude.ENTITY_MAP.clone();
 
     private EntityCollector(Ast ast, ErrorListener errorListener) {
         this.ast = ast;
@@ -40,6 +40,7 @@ class EntityCollector {
         if (errorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
+        entityMap.freeze();
         return entityMap;
     }
 
@@ -83,7 +84,7 @@ class EntityCollector {
                 error(n, "function unnamed");
             } else if (!err) {
                 // Add only if no errors during function signature analysis.
-                Entity s = n.getEntity();
+                Entity s = n.getEntity(ast.module.name);
                 try {
                     entityMap.put(s);
                 } catch (OwlException e) {
@@ -94,7 +95,7 @@ class EntityCollector {
 
         @Override
         public void visit(AstVariable n) {
-            Entity s = n.getEntity();
+            Entity s = n.getEntity(ast.module.name);
             try {
                 entityMap.put(s);
             } catch (OwlException e) {
