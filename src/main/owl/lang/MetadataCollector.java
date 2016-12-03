@@ -17,25 +17,27 @@ package owl.lang;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-public class MetaAnalyzer {
-    static class Context {
-        HashMap<Symbol, AstNode> symbolMap;
+class Metadata {
+    HashMap<Symbol, AstNode> symbolMap;
 
-        void printSymbolMap(PrintStream out) {
-            symbolMap.keySet().forEach(out::println);
-        }
+    void printSymbolMap(PrintStream out) {
+        symbolMap.keySet().forEach(out::println);
+    }
+}
+
+class MetadataCollector {
+    static Metadata analyze(Ast ast, ErrorListener errorListener) throws OwlException {
+        return new MetadataCollector(ast, errorListener).run();
     }
 
-    static Context analyze(Ast ast, ErrorListener errorListener) throws OwlException {
-        return (new MetaAnalyzer(errorListener)).run(ast);
-    }
-
+    private Ast ast;
     private ErrorListener errorListener;
     private int errorCount = 0;
     private HashMap<Symbol, AstNode> symbolMap = new HashMap<>();
 
-    private MetaAnalyzer(ErrorListener listener) {
-        this.errorListener = listener;
+    private MetadataCollector(Ast ast, ErrorListener errorListener) {
+        this.ast = ast;
+        this.errorListener = errorListener;
     }
 
     private void error(AstNode n, String msg) {
@@ -43,18 +45,18 @@ public class MetaAnalyzer {
         errorCount++;
     }
 
-    private Context run(Ast ast) throws OwlException {
-        AstVisitor v = new NameMapVisitor();
+    private Metadata run() throws OwlException {
+        AstVisitor v = new AnalyzerVisitor();
         ast.module.accept(v);
         if (errorCount > 0) {
-            throw new OwlException("meta analysis failed");
+            throw new OwlException("metadata analysis error");
         }
-        Context ctx = new Context();
+        Metadata ctx = new Metadata();
         ctx.symbolMap = symbolMap;
         return ctx;
     }
 
-    private final class NameMapVisitor implements AstVisitor {
+    private final class AnalyzerVisitor implements AstVisitor {
         @Override
         public void visit(AstModule n) {
             for (AstNode m : n.members) {

@@ -23,7 +23,6 @@ import com.beust.jcommander.JCommander;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RecognitionException;
@@ -74,9 +73,9 @@ public class CLI {
         for (String fileName : files) {
             ErrorListener errorListener = new ErrorListener(fileName);
             try (InputStream in = new FileInputStream(new File(fileName))) {
-                Ast ast = parse(new ANTLRInputStream(in), new ParserErrorListener(errorListener));
+                Ast ast = parse(in, new ParserErrorListener(errorListener));
                 analyze(ast, errorListener);
-            } catch (IOException | RecognitionException | OwlException e) {
+            } catch (IOException | OwlException e) {
                 errorListener.error(0, 0, e.getMessage());
             }
 
@@ -88,18 +87,27 @@ public class CLI {
         System.exit(succeeded != total ? 1 : 0);
     }
 
-    private static Ast parse(CharStream in, ANTLRErrorListener errorListener) throws RecognitionException {
-        Lexer lexer = new OwlLexer(in);
+    private static Ast parse(InputStream in, ANTLRErrorListener errorListener) throws OwlException {
+        Lexer lexer;
+        try {
+            lexer = new OwlLexer(new ANTLRInputStream(in));
+        } catch (IOException e) {
+            throw new OwlException(e);
+        }
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);
         OwlParser parser = new OwlParser(new CommonTokenStream(lexer));
         parser.removeErrorListeners();
         parser.addErrorListener(errorListener);
-        OwlParser.ModuleContext moduleContext = parser.module();
-        if (moduleContext.exception != null) {
-            throw moduleContext.exception;
+        try {
+            OwlParser.ModuleContext context = parser.module();
+            if (context.exception != null) {
+                throw context.exception;
+            }
+            return new Ast(context.r);
+        } catch (RecognitionException e) {
+            throw new OwlException(e);
         }
-        return new Ast(moduleContext.r);
     }
 
     private void analyze(Ast ast, ErrorListener errorListener) throws OwlException {
@@ -107,7 +115,7 @@ public class CLI {
             ast.accept(new DebugPrintVisitor());
         }
         if (flagAnalyze != 0) {
-            MetaAnalyzer.Context ctx = MetaAnalyzer.analyze(ast, errorListener);
+            Metadata ctx = MetadataCollector.analyze(ast, errorListener);
             if (flagPrintSymbolMap != 0) {
                 ctx.printSymbolMap(System.out);
             }
