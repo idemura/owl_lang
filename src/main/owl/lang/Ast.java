@@ -272,10 +272,10 @@ class AstLiteral extends AstNode {
     static final int DEC = 0;
     static final int OCT = 1;
     static final int HEX = 2;
-    static final int STR = 3;
+    static final int STRING = 3;
 
     String text = "";
-    int format = STR;
+    int format = STRING;
 
     AstLiteral() {}
     AstLiteral(String text, int format) {

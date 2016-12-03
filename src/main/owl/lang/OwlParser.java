@@ -28,7 +28,7 @@ public class OwlParser extends Parser {
 		LT=40, GE=41, GT=42, AND=43, OR=44, ASSIGN=45, ASSIGN_MUL=46, ASSIGN_DIV=47, 
 		ASSIGN_MOD=48, ASSIGN_PLS=49, ASSIGN_MNS=50, ASSIGN_LSHIFT=51, ASSIGN_RSHIFT=52, 
 		ASSIGN_SIGNED_RSHIFT=53, ASSIGN_BIT_AND=54, ASSIGN_BIT_XOR=55, ASSIGN_BIT_OR=56, 
-		OCT=57, DEC=58, HEX=59, NAME=60, STR=61, COMMENT=62, WS=63;
+		OCT=57, DEC=58, HEX=59, NAME=60, STRING=61, COMMENT=62, WS=63;
 	public static final int
 		RULE_module = 0, RULE_absoluteName = 1, RULE_function = 2, RULE_argument = 3, 
 		RULE_block = 4, RULE_exprPrime = 5, RULE_exprApply = 6, RULE_exprCoerce = 7, 
@@ -63,7 +63,7 @@ public class OwlParser extends Parser {
 		"OR", "ASSIGN", "ASSIGN_MUL", "ASSIGN_DIV", "ASSIGN_MOD", "ASSIGN_PLS", 
 		"ASSIGN_MNS", "ASSIGN_LSHIFT", "ASSIGN_RSHIFT", "ASSIGN_SIGNED_RSHIFT", 
 		"ASSIGN_BIT_AND", "ASSIGN_BIT_XOR", "ASSIGN_BIT_OR", "OCT", "DEC", "HEX", 
-		"NAME", "STR", "COMMENT", "WS"
+		"NAME", "STRING", "COMMENT", "WS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -469,7 +469,7 @@ public class OwlParser extends Parser {
 			setState(124);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IF) | (1L << MATCH) | (1L << RETURN) | (1L << LPAREN) | (1L << TILDE) | (1L << EXC) | (1L << PLS) | (1L << MNS) | (1L << OCT) | (1L << DEC) | (1L << HEX) | (1L << NAME) | (1L << STR))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IF) | (1L << MATCH) | (1L << RETURN) | (1L << LPAREN) | (1L << TILDE) | (1L << EXC) | (1L << PLS) | (1L << MNS) | (1L << OCT) | (1L << DEC) | (1L << HEX) | (1L << NAME) | (1L << STRING))) != 0)) {
 				{
 				{
 				setState(119);
@@ -502,13 +502,13 @@ public class OwlParser extends Parser {
 		public Token OCT;
 		public Token DEC;
 		public Token HEX;
-		public Token STR;
+		public Token STRING;
 		public ExpressionContext e;
 		public TerminalNode NAME() { return getToken(OwlParser.NAME, 0); }
 		public TerminalNode OCT() { return getToken(OwlParser.OCT, 0); }
 		public TerminalNode DEC() { return getToken(OwlParser.DEC, 0); }
 		public TerminalNode HEX() { return getToken(OwlParser.HEX, 0); }
-		public TerminalNode STR() { return getToken(OwlParser.STR, 0); }
+		public TerminalNode STRING() { return getToken(OwlParser.STRING, 0); }
 		public TerminalNode LPAREN() { return getToken(OwlParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(OwlParser.RPAREN, 0); }
 		public ExpressionContext expression() {
@@ -558,12 +558,12 @@ public class OwlParser extends Parser {
 				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).HEX!=null?((ExprPrimeContext)_localctx).HEX.getText():null), AstLiteral.HEX); 
 				}
 				break;
-			case STR:
+			case STRING:
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(137);
-				((ExprPrimeContext)_localctx).STR = match(STR);
-				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).STR!=null?((ExprPrimeContext)_localctx).STR.getText():null), AstLiteral.STR); 
+				((ExprPrimeContext)_localctx).STRING = match(STRING);
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).STRING!=null?((ExprPrimeContext)_localctx).STRING.getText():null), AstLiteral.STRING); 
 				}
 				break;
 			case LPAREN:
@@ -683,7 +683,7 @@ public class OwlParser extends Parser {
 					match(LPAREN);
 					setState(164);
 					_la = _input.LA(1);
-					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << TILDE) | (1L << EXC) | (1L << PLS) | (1L << MNS) | (1L << OCT) | (1L << DEC) | (1L << HEX) | (1L << NAME) | (1L << STR))) != 0)) {
+					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << TILDE) | (1L << EXC) | (1L << PLS) | (1L << MNS) | (1L << OCT) | (1L << DEC) | (1L << HEX) | (1L << NAME) | (1L << STRING))) != 0)) {
 						{
 						setState(153);
 						((ExprApplyContext)_localctx).a = expression();
@@ -2039,7 +2039,7 @@ public class OwlParser extends Parser {
 			match(RETURN);
 			setState(384);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << TILDE) | (1L << EXC) | (1L << PLS) | (1L << MNS) | (1L << OCT) | (1L << DEC) | (1L << HEX) | (1L << NAME) | (1L << STR))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << TILDE) | (1L << EXC) | (1L << PLS) | (1L << MNS) | (1L << OCT) | (1L << DEC) | (1L << HEX) | (1L << NAME) | (1L << STRING))) != 0)) {
 				{
 				setState(381);
 				((StmtReturnContext)_localctx).e = expression();
@@ -2102,7 +2102,7 @@ public class OwlParser extends Parser {
 			case DEC:
 			case HEX:
 			case NAME:
-			case STR:
+			case STRING:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(388);

@@ -95,7 +95,7 @@ returns [AstNode r]
 |   OCT { $r = new AstLiteral($OCT.text, AstLiteral.OCT); }
 |   DEC { $r = new AstLiteral($DEC.text, AstLiteral.DEC); }
 |   HEX { $r = new AstLiteral($HEX.text, AstLiteral.HEX); }
-|   STR { $r = new AstLiteral($STR.text, AstLiteral.STR); }
+|   STRING { $r = new AstLiteral($STRING.text, AstLiteral.STRING); }
 |   LPAREN e = expression RPAREN { $r = $e.r; }
 ;
 
@@ -537,7 +537,7 @@ OCT: '0o' [0-7]+;
 DEC: [0-9]+;
 HEX: '0x' [0-9a-fA-F]+;
 NAME: [a-zA-Z_] [a-zA-Z0-9_]*;
-STR: '"' ~[\t\r\n\f"]* '"';
+STRING: '"' ~[\t\r\n\f"]* '"';
 
 COMMENT: '#' ~[\n]* -> channel(HIDDEN);
 WS: [ \t\r\n\f]+ -> skip;
