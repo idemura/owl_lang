@@ -40,15 +40,40 @@ class TypeCheckerAndEntityResolver {
 
     private final class AnalyzerVisitor implements AstVisitor {
         @Override
+        public void visit(AstName n) {
+        }
+
+        @Override
+        public void visit(AstType n) {
+            for (AstType t : n.args) {
+                t.accept(this);
+            }
+        }
+
+        @Override
+        public void visit(AstMember n) {
+            n.left.accept(this);
+            n.name.accept(this);
+        }
+
+        @Override
         public void visit(AstModule n) {
-            for (AstNode m : n.members) {
-                m.accept(this);
+            for (AstNode f : n.members) {
+                f.accept(this);
             }
         }
 
         @Override
         public void visit(AstFunction n) {
+            for (AstArgument a : n.args) {
+                a.accept(this);
+            }
             n.block.accept(this);
+        }
+
+        @Override
+        public void visit(AstArgument n) {
+            n.type.accept(this);
         }
 
         @Override
@@ -65,7 +90,56 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public void visit(AstApply n) {
+            for (AstNode e : n.args) {
+                e.accept(this);
+            }
+        }
 
+        @Override
+        public void visit(AstConstant n) {
+            n.expr.accept(this);
+        }
+
+        @Override
+        public void visit(AstLiteral n) {
+        }
+
+        @Override
+        public void visit(AstIf n) {
+            for (int i = 0; i < n.condition.size(); i++) {
+                n.condition.get(i).accept(this);
+                n.block.get(i).accept(this);
+            }
+            if (n.block.size() > n.condition.size()) {
+                n.block.get(n.block.size() - 1).accept(this);
+            }
+        }
+
+        @Override
+        public void visit(AstMatch n) {
+            int blockIndex = 0;
+            for (AstMatch.Label l : n.label) {
+                if (blockIndex != l.block) {
+                    n.block.get(blockIndex).accept(this);
+                    blockIndex = l.block;
+                }
+            }
+            n.block.get(blockIndex).accept(this);
+            if (n.elseBlock != null) {
+                n.elseBlock.accept(this);
+            }
+        }
+
+        @Override
+        public void visit(AstReturn n) {
+            if (n.expr != null) {
+                n.expr.accept(this);
+            }
+        }
+
+        @Override
+        public void visit(AstExpr n) {
+            n.expr.accept(this);
         }
     }
 }
