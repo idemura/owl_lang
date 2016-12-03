@@ -14,27 +14,18 @@
  */
 package owl.lang;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 
-class Metadata {
-    HashMap<Symbol, AstNode> symbolMap;
-
-    void printSymbolMap(PrintStream out) {
-        symbolMap.keySet().forEach(out::println);
-    }
-}
-
-class MetadataCollector {
-    static Metadata analyze(Ast ast, ErrorListener errorListener) throws OwlException {
-        return new MetadataCollector(ast, errorListener).run();
+class EntityCollector {
+    static EntityMap analyze(Ast ast, ErrorListener errorListener) throws OwlException {
+        return new EntityCollector(ast, errorListener).run();
     }
 
     private Ast ast;
     private CountErrorListener errorListener;
-    private HashMap<Symbol, AstNode> symbolMap = new HashMap<>();
+    private EntityMap entityMap = new EntityMap();
 
-    private MetadataCollector(Ast ast, ErrorListener errorListener) {
+    private EntityCollector(Ast ast, ErrorListener errorListener) {
         this.ast = ast;
         this.errorListener = new CountErrorListener(errorListener);
     }
@@ -43,15 +34,13 @@ class MetadataCollector {
         errorListener.error(n.line, n.charPositionInLine, msg);
     }
 
-    private Metadata run() throws OwlException {
+    private EntityMap run() throws OwlException {
         AstVisitor v = new AnalyzerVisitor();
         ast.module.accept(v);
         if (errorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
-        Metadata ctx = new Metadata();
-        ctx.symbolMap = symbolMap;
-        return ctx;
+        return entityMap;
     }
 
     private final class AnalyzerVisitor implements AstVisitor {
@@ -94,22 +83,22 @@ class MetadataCollector {
                 error(n, "function unnamed");
             } else if (!err) {
                 // Add only if no errors during function signature analysis.
-                Symbol s = n.getSymbol();
-                if (symbolMap.containsKey(s)) {
+                Entity s = n.getEntity();
+                try {
+                    entityMap.put(s);
+                } catch (OwlException e) {
                     errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
-                } else {
-                    symbolMap.put(s, n);
                 }
             }
         }
 
         @Override
         public void visit(AstVariable n) {
-            Symbol s = n.getSymbol();
-            if (symbolMap.containsKey(s)) {
+            Entity s = n.getEntity();
+            try {
+                entityMap.put(s);
+            } catch (OwlException e) {
                 errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
-            } else {
-                symbolMap.put(s, n);
             }
         }
     }

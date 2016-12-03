@@ -93,7 +93,9 @@ class AstType extends AstNode {
     static final AstType Char = new AstType("Char");
     static final AstType F32 = new AstType("F32");
     static final AstType I32 = new AstType("I32");
+    static final AstType I64 = new AstType("I64");
     static final AstType None = new AstType("None");
+    static final AstType String = new AstType("String");
 
     AstType() {}
     AstType(String name) {
@@ -197,13 +199,13 @@ class AstFunction extends AstNode {
         v.visit(this);
     }
 
-    Symbol getSymbol() {
-        FunctionSymbol symbol = new FunctionSymbol(name);
-        symbol.argumentTypes.addAll(
+    Entity getEntity() {
+        FunctionEntity entity = new FunctionEntity(name);
+        entity.argumentTypes.addAll(
                 args.stream().map(a -> a.type).collect(toList())
         );
-        symbol.returnType = returnType;
-        return symbol;
+        entity.returnType = returnType;
+        return entity;
     }
 }
 
@@ -232,8 +234,8 @@ class AstVariable extends AstNode {
         v.visit(this);
     }
 
-    Symbol getSymbol() {
-        return new VariableSymbol(name);
+    Entity getEntity() {
+        return new VariableEntity(name);
     }
 }
 

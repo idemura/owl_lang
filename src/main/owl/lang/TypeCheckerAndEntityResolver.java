@@ -14,25 +14,23 @@
  */
 package owl.lang;
 
-class TypeCheckerAndSymbolResolver {
-    static void analyze(Ast ast, Metadata metadata, ErrorListener errorListener) throws OwlException {
-        new TypeCheckerAndSymbolResolver(ast, metadata, errorListener).run();
+class TypeCheckerAndEntityResolver {
+    static void analyze(Ast ast, EntityMap entityMap, ErrorListener errorListener) throws OwlException {
+        new TypeCheckerAndEntityResolver(ast, entityMap, errorListener).run();
     }
 
     private Ast ast;
-    private Metadata metadata;
-    private ErrorListener errorListener;
-    private int errorCount = 0;
+    private EntityMap entityMap;
+    private CountErrorListener errorListener;
 
-    private TypeCheckerAndSymbolResolver(Ast ast, Metadata metadata, ErrorListener errorListener) {
+    private TypeCheckerAndEntityResolver(Ast ast, EntityMap entityMap, ErrorListener errorListener) {
         this.ast = ast;
-        this.metadata = metadata;
-        this.errorListener = errorListener;
+        this.entityMap = entityMap;
+        this.errorListener = new CountErrorListener(errorListener);
     }
 
     private void error(AstNode n, String msg) {
         errorListener.error(n.line, n.charPositionInLine, msg);
-        errorCount++;
     }
 
     private void run() throws OwlException {
@@ -50,10 +48,24 @@ class TypeCheckerAndSymbolResolver {
 
         @Override
         public void visit(AstFunction n) {
+            n.block.accept(this);
         }
 
         @Override
         public void visit(AstVariable n) {
+            n.expr.accept(this);
+        }
+
+        @Override
+        public void visit(AstBlock n) {
+            for (AstNode s : n.statements) {
+                s.accept(this);
+            }
+        }
+
+        @Override
+        public void visit(AstApply n) {
+
         }
     }
 }

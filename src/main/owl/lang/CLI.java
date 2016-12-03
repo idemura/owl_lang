@@ -38,7 +38,7 @@ public class CLI {
 
         @Override
         public void syntaxError(Recognizer<?, ?> recognizer,
-                Object offendingSymbol,
+                Object offendingEntity,
                 int line,
                 int charPositionInLine,
                 String msg,
@@ -50,13 +50,13 @@ public class CLI {
     @Parameter(description = "Owl Files")
     private List<String> files = new ArrayList<>();
     @Parameter(names = "--help", help = true)
-    private boolean help;
-    @Parameter(names = {"--print_ast"}, description = "Print AST")
-    int flagPrintAst = 0;
+    private boolean flagHelp = false;
     @Parameter(names = {"--analyze"}, description = "Analyze semantics")
     int flagAnalyze = 1;
-    @Parameter(names = {"--print_symbol_map"}, description = "Print module symbol map")
-    int flagPrintSymbolMap = 0;
+    @Parameter(names = {"--print_ast"}, description = "Print AST")
+    int flagPrintAst = 0;
+    @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
+    int flagPrintEntityMap = 0;
 
     public static void main(String[] args) {
         CLI cli = new CLI();
@@ -65,7 +65,7 @@ public class CLI {
     }
 
     private void run() {
-        if (help) {
+        if (flagHelp) {
             System.out.println("owl_lang <files> [parameters...]");
             return;
         }
@@ -119,10 +119,11 @@ public class CLI {
             ast.accept(new DebugPrintVisitor());
         }
         if (flagAnalyze != 0) {
-            Metadata ctx = MetadataCollector.analyze(ast, errorListener);
-            if (flagPrintSymbolMap != 0) {
-                ctx.printSymbolMap(System.out);
+            EntityMap entityMap = EntityCollector.analyze(ast, errorListener);
+            if (flagPrintEntityMap != 0) {
+                entityMap.print(System.out);
             }
+            TypeCheckerAndEntityResolver.analyze(ast, entityMap, errorListener);
         }
     }
 }

@@ -19,17 +19,18 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-abstract class Symbol {
+abstract class Entity {
     abstract String getName();
 }
 
 // Basically function signature.
-class FunctionSymbol extends Symbol {
+class FunctionEntity extends Entity {
     String name;
     List<AstType> argumentTypes = new ArrayList<>();
     AstType returnType = AstType.None;
 
-    FunctionSymbol(String name) {
+    FunctionEntity() {}
+    FunctionEntity(String name) {
         this.name = name;
     }
 
@@ -40,7 +41,7 @@ class FunctionSymbol extends Symbol {
 
     @Override
     public String toString() {
-        return "FunctionSymbol " + name + "(" +
+        return "FunctionEntity " + name + "(" +
                 String.join(", ", argumentTypes.stream().map(AstType::toString).collect(toList())) +
                 "): " + returnType;
     }
@@ -52,11 +53,11 @@ class FunctionSymbol extends Symbol {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Symbol)) {
-            throw new IllegalArgumentException("Symbol expected");
+        if (!(other instanceof Entity)) {
+            throw new IllegalArgumentException("Entity expected");
         }
-        if (other instanceof FunctionSymbol) {
-            FunctionSymbol otherFun = (FunctionSymbol) other;
+        if (other instanceof FunctionEntity) {
+            FunctionEntity otherFun = (FunctionEntity) other;
             if (!name.equals(otherFun.name)) {
                 return false;
             }
@@ -71,14 +72,14 @@ class FunctionSymbol extends Symbol {
             // Return type does not participate in equality resolution.
             return true;
         }
-        return name.equals(((Symbol) other).getName());
+        return name.equals(((Entity) other).getName());
     }
 }
 
-class VariableSymbol extends Symbol {
+class VariableEntity extends Entity {
     private String name;
 
-    VariableSymbol(String name) {
+    VariableEntity(String name) {
         this.name = name;
     }
 
@@ -89,7 +90,7 @@ class VariableSymbol extends Symbol {
 
     @Override
     public String toString() {
-        return "VariableSymbol " + name;
+        return "VariableEntity " + name;
     }
 
     @Override
@@ -99,13 +100,13 @@ class VariableSymbol extends Symbol {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Symbol)) {
-            throw new IllegalArgumentException("Symbol expected");
+        if (!(other instanceof Entity)) {
+            throw new IllegalArgumentException("Entity expected");
         }
-        if (other instanceof VariableSymbol) {
-            VariableSymbol otherVar = (VariableSymbol) other;
+        if (other instanceof VariableEntity) {
+            VariableEntity otherVar = (VariableEntity) other;
             return name.equals(otherVar.name);
         }
-        return name.equals(((Symbol) other).getName());
+        return name.equals(((Entity) other).getName());
     }
 }

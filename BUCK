@@ -6,6 +6,7 @@ java_library(
     ]),
     deps = [
         '//lib:antlr4-runtime',
+        '//lib:guava',
         '//lib:jcommander',
     ],
 )
