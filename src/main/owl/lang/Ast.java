@@ -20,17 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Ast {
-    AstModule module;
+final class Ast {
+    AstNode root;
 
-    Ast(AstModule module) {
-        this.module = module;
+    Ast(AstNode root) {
+        this.root = root;
     }
 
     void accept(AstVisitor v) {
-        if (module != null) {
-            module.accept(v);
+        if (root != null) {
+            root.accept(v);
         }
+    }
+
+    <T> T getRootAs() {
+        return (T) root;
     }
 }
 
@@ -50,6 +54,12 @@ interface AstVisitor {
     default void visit(AstMatch node) {}
     default void visit(AstReturn node) {}
     default void visit(AstExpr node) {}
+
+    default void accept(AstNode node) {
+        if (node != null) {
+            node.accept(this);
+        }
+    }
 }
 
 abstract class AstNode {
@@ -164,13 +174,13 @@ class AstType extends AstNode {
 
         @Override
         public void visit(AstType n) {
-            n.name.accept(this);
+            accept(n.name);
             if (!n.args.isEmpty()) {
                 name += "(";
-                n.args.get(0).accept(this);
+                accept(n.args.get(0));
                 for (int i = 1; i < n.args.size(); i++) {
                     name += ", ";
-                    n.args.get(i).accept(this);
+                    accept(n.args.get(i));
                 }
                 name += ")";
             }
@@ -244,7 +254,7 @@ class AstArgument extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name, getType());
+        return new VariableEntity(moduleName, name, getType(), VariableScope.FUNCTION);
     }
 
     @Override
@@ -269,7 +279,7 @@ class AstVariable extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name, AstType.None);
+        return new VariableEntity(moduleName, name, AstType.None, VariableScope.MODULE);
     }
 
     @Override

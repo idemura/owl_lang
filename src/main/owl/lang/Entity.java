@@ -76,11 +76,19 @@ class FunctionEntity extends Entity {
     }
 }
 
+enum VariableScope {
+    MODULE,
+    FUNCTION,
+}
+
 class VariableEntity extends Entity {
-    VariableEntity(String moduleName, String name, AstType type) {
+    VariableScope scope;
+
+    VariableEntity(String moduleName, String name, AstType type, VariableScope scope) {
         this.moduleName = moduleName;
         this.name = name;
         this.type = type;
+        this.scope = scope;
     }
 
     @Override

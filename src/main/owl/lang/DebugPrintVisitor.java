@@ -46,7 +46,7 @@ class DebugPrintVisitor implements AstVisitor {
     public void visit(AstType n) {
         node(n, n.name.name);
         for (AstType t : n.args) {
-            t.accept(this);
+            accept(t);
         }
         endNode();
     }
@@ -54,8 +54,8 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstMember n) {
         node(n);
-        n.left.accept(this);
-        n.name.accept(this);
+        accept(n.left);
+        accept(n.name);
         endNode();
     }
 
@@ -63,7 +63,7 @@ class DebugPrintVisitor implements AstVisitor {
     public void visit(AstModule n) {
         node(n);
         for (AstNode f : n.members) {
-            f.accept(this);
+            accept(f);
             printer.print("");
         }
         endNode();
@@ -74,9 +74,9 @@ class DebugPrintVisitor implements AstVisitor {
         node(n, n.name);
         prop("returnType", n.returnType.toString());
         for (AstArgument a : n.args) {
-            a.accept(this);
+            accept(a);
         }
-        n.block.accept(this);
+        accept(n.block);
         endNode();
     }
 
@@ -88,7 +88,7 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstVariable n) {
         node(n, n.name);
-        n.expr.accept(this);
+        accept(n.expr);
         endNode();
     }
 
@@ -96,7 +96,7 @@ class DebugPrintVisitor implements AstVisitor {
     public void visit(AstBlock n) {
         node(n);
         for (AstNode s : n.statements) {
-            s.accept(this);
+            accept(s);
             printer.print(";");
         }
         endNode();
@@ -107,7 +107,7 @@ class DebugPrintVisitor implements AstVisitor {
     public void visit(AstApply n) {
         node(n);
         for (AstNode e : n.args) {
-            e.accept(this);
+            accept(e);
         }
         endNode();
     }
@@ -115,7 +115,7 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstConstant n) {
         node(n, n.name);
-        n.expr.accept(this);
+        accept(n.expr);
         endNode();
     }
 
@@ -131,17 +131,17 @@ class DebugPrintVisitor implements AstVisitor {
             if (i != 0) {
                 printer.print("# elif condition:");
             }
-            n.condition.get(i).accept(this);
+            accept(n.condition.get(i));
             if (i != 0) {
                 printer.print("# then:");
             } else {
                 printer.print("# elif:");
             }
-            n.block.get(i).accept(this);
+            accept(n.block.get(i));
         }
         if (n.block.size() > n.condition.size()) {
             printer.print("# else:");
-            n.block.get(n.block.size() - 1).accept(this);
+            accept(n.block.get(n.block.size() - 1));
         }
         endNode();
     }
@@ -152,15 +152,15 @@ class DebugPrintVisitor implements AstVisitor {
         int blockIndex = 0;
         for (AstMatch.Label l : n.label) {
             if (blockIndex != l.block) {
-                n.block.get(blockIndex).accept(this);
+                accept(n.block.get(blockIndex));
                 blockIndex = l.block;
             }
             printer.print("." + l.label + " " + l.variable);
         }
-        n.block.get(blockIndex).accept(this);
+        accept(n.block.get(blockIndex));
         if (n.elseBlock != null) {
             printer.print("# else (default)");
-            n.elseBlock.accept(this);
+            accept(n.elseBlock);
         }
         endNode();
     }
@@ -168,16 +168,14 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstReturn n) {
         node(n);
-        if (n.expr != null) {
-            n.expr.accept(this);
-        }
+        accept(n.expr);
         endNode();
     }
 
     @Override
     public void visit(AstExpr n) {
         node(n);
-        n.expr.accept(this);
+        accept(n.expr);
         endNode();
     }
 

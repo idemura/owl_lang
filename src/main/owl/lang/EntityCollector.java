@@ -37,8 +37,7 @@ class EntityCollector {
     }
 
     private EntityMap run() throws OwlException {
-        AstVisitor v = new AnalyzerVisitor();
-        ast.accept(v);
+        ast.accept(new AnalyzerVisitor());
         if (errorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
@@ -50,7 +49,7 @@ class EntityCollector {
         @Override
         public void visit(AstModule n) {
             for (AstNode m : n.members) {
-                m.accept(this);
+                accept(m);
             }
         }
 
@@ -86,7 +85,7 @@ class EntityCollector {
                 error(n, "function unnamed");
             } else if (!err) {
                 // Add only if no errors during function signature analysis.
-                Entity s = n.getEntity(ast.module.name);
+                Entity s = n.getEntity(ast.<AstModule>getRootAs().name);
                 try {
                     entityMap.put(s);
                 } catch (OwlException e) {
@@ -97,7 +96,7 @@ class EntityCollector {
 
         @Override
         public void visit(AstVariable n) {
-            Entity s = n.getEntity(ast.module.name);
+            Entity s = n.getEntity(ast.<AstModule>getRootAs().name);
             try {
                 entityMap.put(s);
             } catch (OwlException e) {
