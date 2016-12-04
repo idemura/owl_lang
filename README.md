@@ -4,7 +4,7 @@ _I am providing code in this repository to you under an open source license. Bec
 _the license you receive to my code is from me and not from my employer (Facebook)._
 
 ## Build
-Go to `lib` and run `python download_libs.py lib_list`, then:
+Go to `lib` and run `python download_libs.py lib_list`, then from the project root:
 
 ```
 ./antlr && ./build
