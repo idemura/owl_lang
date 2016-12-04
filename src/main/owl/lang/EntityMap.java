@@ -14,54 +14,118 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
+import static owl.lang.Utils.joinLines;
 
 class EntityMap implements Cloneable {
-    private List<Entity> ents = new ArrayList<>();
+    private HashMap<String, List<Entity>> ents = new HashMap<>();
 
     EntityMap() {}
 
-    // Returns mutable entity map.
     @Override
     public EntityMap clone() {
         EntityMap other = new EntityMap();
-        other.ents = new ArrayList<>(ents);
+        for (Map.Entry<String, List<Entity>> entry : ents.entrySet()) {
+            other.ents.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
         return other;
     }
 
-    void put(Entity s) throws OwlException {
-        for (Entity existing : ents) {
-            if (s.equals(existing)) {
-                throw new OwlException("duplicated entity");
+    void put(Entity e) throws OwlException {
+        int j = findInsertIfMissing(e);
+        if (j >= 0) {
+            throw new OwlException("duplicated entity");
+        }
+    }
+
+    void replace(Entity e) {
+        int j = findInsertIfMissing(e);
+        if (j >= 0) {
+            ents.get(e.getName()).set(j, e);
+        }
+    }
+
+    private int findInsertIfMissing(Entity e) {
+        if (ents.containsKey(e.getName())) {
+            int i = 0;
+            for (Entity existing : ents.get(e.getName())) {
+                if (e.equals(existing)) {
+                    return i;
+                }
+                i++;
+            }
+        } else {
+            ents.put(e.getName(), new ArrayList<>());
+        }
+        ents.get(e.getName()).add(e);
+        return -1;
+    }
+
+    void freeze() {}
+
+    boolean isFunction(String name) {
+        return ents.containsKey(name) && ents.get(name).get(0) instanceof FunctionEntity;
+    }
+
+    Entity resolveVariable(String name) throws OwlException {
+        if (ents.containsKey(name)) {
+            List<Entity> entList = ents.get(name);
+            if (entList.size() == 1 && entList.get(0) instanceof VariableEntity) {
+                return entList.get(0);
             }
         }
-        ents.add(s);
+        throw new OwlException("variable entity not found " + name);
     }
 
-    void replace(Entity s) {
-        for (int i = 0; i < ents.size(); i++) {
-            Entity existing = ents.get(i);
-            if (s.equals(existing)) {
-                ents.set(i, s);
-                return;
+    Entity resolveFunction(String name, List<AstType> argTypes) throws OwlException {
+        if (ents.containsKey(name)) {
+            List<Entity> matched = ents.get(name).stream()
+                    .filter(e -> fnMatchesArgs(e, argTypes))
+                    .collect(toList());
+            if (matched.size() == 1) {
+                return matched.get(0);
+            }
+            if (matched.size() == 0) {
+                throw new OwlException("no candidates for call " + name);
+            }
+            throw new OwlException("ambiguous call to " + name + "; candidates:\n" + joinLines(matched));
+        }
+        throw new OwlException("function entity not found: " + name);
+    }
+
+    private static boolean fnMatchesArgs(Entity e, List<AstType> argTypes) {
+        if (!(e instanceof FunctionEntity)) {
+            return false;
+        }
+        AstType fnType = e.getType();
+        // Do not count return type.
+        if (fnType.args.size() - 1 == argTypes.size()) {
+            for (int i = 0; i < argTypes.size(); i++) {
+                if (!fnType.args.get(i).equals(argTypes.get(i))) {
+                    return false;
+                }
             }
         }
-        ents.add(s);
-    }
-
-    void freeze() {
-        ents = ImmutableList.copyOf(ents);
-    }
-
-    Entity resolve(String name) {
-        throw new UnsupportedOperationException("resolve");
+        return true;
     }
 
     void print(PrintStream out) {
-        ents.forEach(out::println);
+        for (String name : ents.keySet()) {
+            List<Entity> entList = ents.get(name);
+            if (entList.size() == 1) {
+                out.println(entList.get(0));
+            } else {
+                out.println(name);
+                for (Entity e : entList) {
+                    out.println("  " + e);
+                }
+            }
+        }
     }
 }

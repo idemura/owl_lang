@@ -38,7 +38,7 @@ class EntityCollector {
 
     private EntityMap run() throws OwlException {
         AstVisitor v = new AnalyzerVisitor();
-        ast.module.accept(v);
+        ast.accept(v);
         if (errorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
@@ -72,7 +72,7 @@ class EntityCollector {
                     arguments.put(a.name, a);
                     if (a.type == AstType.None) {
                         if (t == AstType.None) {
-                            error(n, "function " + n.name + " argument " + a.name + " type None");
+                            error(n, "function " + n.name + " argument " + a.name + " returnType None");
                             err = true;
                         } else {
                             a.type = t;

@@ -61,7 +61,7 @@ returns [AstFunction r = new AstFunction()]
         RPAREN
     )?
     (
-        COLON type = typeInstance { $r.type = $type.r; }
+        COLON type = typeInstance { $r.returnType = $type.r; }
     )?
     b = block { $r.block = $b.r; }
 ;
@@ -92,10 +92,10 @@ returns [AstBlock r = new AstBlock()]
 exprPrime
 returns [AstNode r]
 :   NAME { $r = new AstName($NAME.text); }
-|   OCT { $r = new AstLiteral($OCT.text, AstLiteral.OCT); }
-|   DEC { $r = new AstLiteral($DEC.text, AstLiteral.DEC); }
-|   HEX { $r = new AstLiteral($HEX.text, AstLiteral.HEX); }
-|   STRING { $r = new AstLiteral($STRING.text, AstLiteral.STRING); }
+|   OCT { $r = new AstLiteral($OCT.text, AstLiteral.Format.OCT); }
+|   DEC { $r = new AstLiteral($DEC.text, AstLiteral.Format.DEC); }
+|   HEX { $r = new AstLiteral($HEX.text, AstLiteral.Format.HEX); }
+|   STRING { $r = new AstLiteral($STRING.text, AstLiteral.Format.STRING); }
 |   LPAREN e = expression RPAREN { $r = $e.r; }
 ;
 

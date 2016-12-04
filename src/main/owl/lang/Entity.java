@@ -14,74 +14,69 @@
  */
 package owl.lang;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
-import static java.util.stream.Collectors.toList;
+import static owl.lang.TypeUtil.fnEqualSignatures;
 
 abstract class Entity {
-    protected String moduleName;
     protected String name;
+    protected String moduleName;
+    protected AstType type;
+
+    String getName() {
+        return name;
+    }
 
     String getModuleName() {
         return moduleName;
     }
 
-    String getName() {
-        return name;
+    AstType getType() {
+        return type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, moduleName);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Entity) {
+            Entity otherEnt = (Entity) other;
+            return name.equals(otherEnt.name) && moduleName.equals(otherEnt.moduleName);
+        } else {
+            throw new IllegalArgumentException("entity expected");
+        }
     }
 }
 
 // Basically function signature.
 class FunctionEntity extends Entity {
-    List<AstType> argumentTypes = new ArrayList<>();
-    AstType type = AstType.None;
-
-    FunctionEntity(String moduleName, String name) {
+    FunctionEntity(String moduleName, String name, AstType type) {
         this.moduleName = moduleName;
         this.name = name;
+        this.type = type;
     }
 
     @Override
     public String toString() {
-        return "Function " + moduleName + " " + name + "(" +
-                String.join(", ", argumentTypes.stream().map(AstType::toString).collect(toList())) +
-                "): " + type;
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
+        return "Function " + moduleName + " " + name + ": " + type;
     }
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Entity)) {
-            throw new IllegalArgumentException("entity expected");
-        }
-        if (other instanceof FunctionEntity) {
-            FunctionEntity otherFun = (FunctionEntity) other;
-            if (!name.equals(otherFun.name)) {
-                return false;
+        if (super.equals(other)) {
+            if (other instanceof FunctionEntity) {
+                return fnEqualSignatures(type, ((Entity) other).type);
             }
-            if (argumentTypes.size() != otherFun.argumentTypes.size()) {
-                return false;
-            }
-            for (int i = 0; i < argumentTypes.size(); i++) {
-                if (!argumentTypes.get(i).equals(otherFun.argumentTypes.get(i))) {
-                    return false;
-                }
-            }
-            // Return type does not participate in equality resolution.
             return true;
         }
-        return name.equals(((Entity) other).getName());
+        return false;
     }
 }
 
 class VariableEntity extends Entity {
-    AstType type;
-
     VariableEntity(String moduleName, String name, AstType type) {
         this.moduleName = moduleName;
         this.name = name;
@@ -91,22 +86,5 @@ class VariableEntity extends Entity {
     @Override
     public String toString() {
         return "Variable " + moduleName + " " + name + ": " + type;
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof Entity)) {
-            throw new IllegalArgumentException("entity expected");
-        }
-        if (other instanceof VariableEntity) {
-            VariableEntity otherVar = (VariableEntity) other;
-            return name.equals(otherVar.name);
-        }
-        return name.equals(((Entity) other).getName());
     }
 }

@@ -14,6 +14,8 @@
  */
 package owl.lang;
 
+import static owl.lang.TypeUtil.makeFnType;
+
 final class Prelude {
     private Prelude() {}
 
@@ -22,38 +24,15 @@ final class Prelude {
     static final EntityMap ENTITY_MAP;
     static {
         ENTITY_MAP = new EntityMap();
+        AstType binaryI32 = makeFnType(AstType.I32, AstType.I32, AstType.I32);
+        AstType binaryI64 = makeFnType(AstType.I64, AstType.I64, AstType.I64);
         try {
-            FunctionEntity f;
-
-            f = new FunctionEntity(PRELUDE_MODULE_NAME, "+");
-            f.argumentTypes.add(AstType.I32);
-            f.argumentTypes.add(AstType.I32);
-            f.type = AstType.I32;
-            ENTITY_MAP.put(f);
-
-            f = new FunctionEntity(PRELUDE_MODULE_NAME, "+");
-            f.argumentTypes.add(AstType.I64);
-            f.argumentTypes.add(AstType.I64);
-            f.type = AstType.I64;
-            ENTITY_MAP.put(f);
-
-            f = new FunctionEntity(PRELUDE_MODULE_NAME, "*");
-            f.argumentTypes.add(AstType.I32);
-            f.argumentTypes.add(AstType.I32);
-            f.type = AstType.I32;
-            ENTITY_MAP.put(f);
-
-            f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");
-            f.argumentTypes.add(AstType.I32);
-            ENTITY_MAP.put(f);
-
-            f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");
-            f.argumentTypes.add(AstType.I64);
-            ENTITY_MAP.put(f);
-
-            f = new FunctionEntity(PRELUDE_MODULE_NAME, "print");
-            f.argumentTypes.add(AstType.String);
-            ENTITY_MAP.put(f);
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "+", binaryI32));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "+", binaryI64));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "*", binaryI32));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.I32, AstType.None)));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.I64, AstType.None)));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.String, AstType.None)));
         } catch (OwlException e) {
             throw new IllegalArgumentException(e);
         }

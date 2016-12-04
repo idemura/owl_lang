@@ -15,30 +15,22 @@
 package owl.lang;
 
 final class DebugPrinter {
+    private static final String TAB = "  ";
     private int tab = 0;
-    private boolean newLine = true;
+
+    void indent() {
+        tab++;
+    }
+
+    void unindent() {
+        tab--;
+    }
 
     void print(String s) {
-        int t = tab;
-        if (s.endsWith("{\n")) {
-            tab++;
-            s = s.substring(0, s.length() - 2) + "\n";
+        for (int i = 0; i < tab; i++) {
+            System.out.print(TAB);
         }
-        if (s.endsWith("}\n")) {
-            tab--;
-            if (s.length() == 2) {
-                newLine = true;
-                return;
-            }
-            s = s.substring(0, s.length() - 2) + "\n";
-        }
-        if (newLine) {
-            for (int i = 0; i < t; i++) {
-                System.out.print("  ");
-            }
-        }
-        newLine = s.endsWith("\n");
-        System.out.print(s);
+        System.out.println(s);
     }
 }
 
@@ -72,7 +64,7 @@ class DebugPrintVisitor implements AstVisitor {
         node(n);
         for (AstNode f : n.members) {
             f.accept(this);
-            printer.print("\n");
+            printer.print("");
         }
         endNode();
     }
@@ -80,7 +72,7 @@ class DebugPrintVisitor implements AstVisitor {
     @Override
     public void visit(AstFunction n) {
         node(n, n.name);
-        prop("type", n.type);
+        prop("returnType", n.returnType.toString());
         for (AstArgument a : n.args) {
             a.accept(this);
         }
@@ -90,9 +82,7 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstArgument n) {
-        node(n, n.name);
-        n.type.accept(this);
-        endNode();
+        leaf(n, n.name + ": " + n.type);
     }
 
     @Override
@@ -107,9 +97,10 @@ class DebugPrintVisitor implements AstVisitor {
         node(n);
         for (AstNode s : n.statements) {
             s.accept(this);
-            printer.print(";\n");
+            printer.print(";");
         }
         endNode();
+        printer.print(";;");
     }
 
     @Override
@@ -130,7 +121,7 @@ class DebugPrintVisitor implements AstVisitor {
 
     @Override
     public void visit(AstLiteral n) {
-        leaf(n, n.text);
+        leaf(n, n.format + " " + n.text);
     }
 
     @Override
@@ -138,18 +129,18 @@ class DebugPrintVisitor implements AstVisitor {
         node(n);
         for (int i = 0; i < n.condition.size(); i++) {
             if (i != 0) {
-                printer.print("# elif condition:\n");
+                printer.print("# elif condition:");
             }
             n.condition.get(i).accept(this);
             if (i != 0) {
-                printer.print("# then:\n");
+                printer.print("# then:");
             } else {
-                printer.print("# elif:\n");
+                printer.print("# elif:");
             }
             n.block.get(i).accept(this);
         }
         if (n.block.size() > n.condition.size()) {
-            printer.print("# else:\n");
+            printer.print("# else:");
             n.block.get(n.block.size() - 1).accept(this);
         }
         endNode();
@@ -164,11 +155,11 @@ class DebugPrintVisitor implements AstVisitor {
                 n.block.get(blockIndex).accept(this);
                 blockIndex = l.block;
             }
-            printer.print("." + l.label + " " + l.variable + "\n");
+            printer.print("." + l.label + " " + l.variable);
         }
         n.block.get(blockIndex).accept(this);
         if (n.elseBlock != null) {
-            printer.print("# Else (default)\n");
+            printer.print("# else (default)");
             n.elseBlock.accept(this);
         }
         endNode();
@@ -191,32 +182,29 @@ class DebugPrintVisitor implements AstVisitor {
     }
 
     private void prop(String name, String s) {
-        printer.print(name + ": " + s + "\n");
-    }
-
-    private void prop(String name, AstNode node) {
-        printer.print(name + ": ");
-        node.accept(this);
+        printer.print(name + ": " + s);
     }
 
     private void leaf(AstNode n) {
-        printer.print(getClassName(n) + "\n");
+        printer.print(getClassName(n));
     }
 
     private void leaf(AstNode n, String s) {
-        printer.print(getClassName(n) + " " + s + "\n");
+        printer.print(getClassName(n) + " " + s);
     }
 
     private void node(AstNode n) {
-        printer.print(getClassName(n) + "{\n");
+        printer.print(getClassName(n));
+        printer.indent();
     }
 
     private void node(AstNode n, String s) {
-        printer.print(getClassName(n) + " " + s + "{\n");
+        printer.print(getClassName(n) + " " + s);
+        printer.indent();
     }
 
     private void endNode() {
-        printer.print("}\n");
+        printer.unindent();
     }
 
     private static String getClassName(AstNode node) {

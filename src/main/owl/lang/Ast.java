@@ -14,11 +14,11 @@
  */
 package owl.lang;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.stream.Collectors.toList;
 
 public class Ast {
     AstModule module;
@@ -57,10 +57,14 @@ abstract class AstNode {
     int charPositionInLine;
 
     abstract void accept(AstVisitor visitor);
+    AstType getType() {
+        throw new UnsupportedOperationException("getType on " + getClass().getSimpleName());
+    }
 }
 
 class AstName extends AstNode {
     String name = "";
+    Entity entity = null;
 
     AstName() {}
     AstName(String name) {
@@ -71,9 +75,9 @@ class AstName extends AstNode {
     public boolean equals(Object other) {
         if (other instanceof AstName) {
             AstName otherName = (AstName) other;
-            return Objects.equals(name, otherName.name);
+            return name.equals(otherName.name);
         }
-        return false;
+        return name.equals(other);
     }
 
     @Override
@@ -85,9 +89,14 @@ class AstName extends AstNode {
     public void accept(AstVisitor v) {
         v.visit(this);
     }
+
+    @Override
+    AstType getType() {
+        return entity.getType();
+    }
 }
 
-// Generic type with parameters.
+// Generic returnType with parameters.
 class AstType extends AstNode {
     static final AstType Bool = new AstType("Bool");
     static final AstType Char = new AstType("Char");
@@ -172,10 +181,16 @@ class AstType extends AstNode {
 class AstMember extends AstNode {
     AstNode left;
     AstName name;
+    AstType type = AstType.None;
 
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
+    }
+
+    @Override
+    AstType getType() {
+        return type;
     }
 }
 
@@ -192,7 +207,7 @@ class AstModule extends AstNode {
 class AstFunction extends AstNode {
     String name = "";
     List<AstArgument> args = new ArrayList<>();
-    AstType type = AstType.None;
+    AstType returnType = AstType.None;
     AstBlock block;
 
     @Override
@@ -201,17 +216,26 @@ class AstFunction extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        FunctionEntity entity = new FunctionEntity(moduleName, name);
-        entity.argumentTypes.addAll(
-                args.stream().map(a -> a.type).collect(toList())
-        );
-        entity.type = type;
-        return entity;
+        return new FunctionEntity(moduleName, name, getType());
+    }
+
+    @Override
+    AstType getType() {
+        // Shouldn't be called multiple times.
+        AstType t = new AstType("Fn");
+        for (AstArgument a : args) {
+            if (a.type.equals(AstType.None)) {
+                throw new IllegalStateException("argument type is None");
+            }
+            t.args.add(a.getType());
+        }
+        t.args.add(returnType);
+        return t;
     }
 }
 
 class AstArgument extends AstNode {
-    String name;
+    String name = "";
     AstType type = AstType.None;
 
     @Override
@@ -220,12 +244,17 @@ class AstArgument extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name, type);
+        return new VariableEntity(moduleName, name, getType());
+    }
+
+    @Override
+    AstType getType() {
+        return type;
     }
 }
 
 class AstVariable extends AstNode {
-    String name;
+    String name = "";
     AstNode expr;
 
     AstVariable() {}
@@ -242,6 +271,11 @@ class AstVariable extends AstNode {
     Entity getEntity(String moduleName) {
         return new VariableEntity(moduleName, name, AstType.None);
     }
+
+    @Override
+    AstType getType() {
+        return expr.getType();
+    }
 }
 
 class AstBlock extends AstNode {
@@ -255,34 +289,59 @@ class AstBlock extends AstNode {
 
 class AstApply extends AstNode {
     List<AstNode> args = new ArrayList<>();
+    // We can't take apply type as function return type because function return type is the result of deduction on
+    // function type parameters given argument types. Consider: fn f(x, y: T): T {}. So type may vary in different
+    // function application contexts.
+    AstType type = AstType.None;
 
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
     }
+
+    @Override
+    AstType getType() {
+        return type;
+    }
+
+    List<AstType> getArgTypes() {
+        List<AstType> types = new ArrayList<>();
+        for (int i = 1; i < args.size(); i++) {
+            types.add(args.get(i).getType());
+        }
+        return ImmutableList.copyOf(types);
+    }
 }
 
 class AstConstant extends AstNode {
-    String name;
+    String name = "";
     AstNode expr;
 
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
     }
+
+    @Override
+    AstType getType() {
+        return expr.getType();
+    }
 }
 
 class AstLiteral extends AstNode {
-    static final int DEC = 0;
-    static final int OCT = 1;
-    static final int HEX = 2;
-    static final int STRING = 3;
+    enum Format {
+        DEC,
+        OCT,
+        HEX,
+        STRING,
+    }
 
     String text = "";
-    int format = STRING;
+    Format format = null;
+    AstType type = AstType.None;
 
     AstLiteral() {}
-    AstLiteral(String text, int format) {
+    AstLiteral(String text, Format format) {
         this.text = text;
         this.format = format;
     }
@@ -290,6 +349,11 @@ class AstLiteral extends AstNode {
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
+    }
+
+    @Override
+    AstType getType() {
+        return type;
     }
 }
 
@@ -305,7 +369,7 @@ class AstIf extends AstNode {
 }
 
 class AstMatch extends AstNode {
-    // Label is a name of enum type label. Several labels might refer to the same block of index @block.
+    // Label is a name of enum returnType label. Several labels might refer to the same block of index @block.
     static class Label {
         String label = "";
         String variable = "";
@@ -326,11 +390,6 @@ class AstMatch extends AstNode {
 class AstReturn extends AstNode {
     AstNode expr;
 
-    AstReturn() {}
-    AstReturn(AstNode expr) {
-        this.expr = expr;
-    }
-
     @Override
     public void accept(AstVisitor v) {
         v.visit(this);
@@ -349,8 +408,9 @@ class AstExpr extends AstNode {
     public void accept(AstVisitor v) {
         v.visit(this);
     }
-}
 
-final class AstUtil {
-    private AstUtil() {}
+    @Override
+    AstType getType() {
+        return expr.getType();
+    }
 }

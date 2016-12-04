@@ -366,7 +366,7 @@ public class OwlParser extends Parser {
 				match(COLON);
 				setState(102);
 				((FunctionContext)_localctx).type = typeInstance();
-				 _localctx.r.type = ((FunctionContext)_localctx).type.r; 
+				 _localctx.r.returnType = ((FunctionContext)_localctx).type.r; 
 				}
 			}
 
@@ -539,7 +539,7 @@ public class OwlParser extends Parser {
 				{
 				setState(131);
 				((ExprPrimeContext)_localctx).OCT = match(OCT);
-				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).OCT!=null?((ExprPrimeContext)_localctx).OCT.getText():null), AstLiteral.OCT); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).OCT!=null?((ExprPrimeContext)_localctx).OCT.getText():null), AstLiteral.Format.OCT); 
 				}
 				break;
 			case DEC:
@@ -547,7 +547,7 @@ public class OwlParser extends Parser {
 				{
 				setState(133);
 				((ExprPrimeContext)_localctx).DEC = match(DEC);
-				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).DEC!=null?((ExprPrimeContext)_localctx).DEC.getText():null), AstLiteral.DEC); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).DEC!=null?((ExprPrimeContext)_localctx).DEC.getText():null), AstLiteral.Format.DEC); 
 				}
 				break;
 			case HEX:
@@ -555,7 +555,7 @@ public class OwlParser extends Parser {
 				{
 				setState(135);
 				((ExprPrimeContext)_localctx).HEX = match(HEX);
-				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).HEX!=null?((ExprPrimeContext)_localctx).HEX.getText():null), AstLiteral.HEX); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).HEX!=null?((ExprPrimeContext)_localctx).HEX.getText():null), AstLiteral.Format.HEX); 
 				}
 				break;
 			case STRING:
@@ -563,7 +563,7 @@ public class OwlParser extends Parser {
 				{
 				setState(137);
 				((ExprPrimeContext)_localctx).STRING = match(STRING);
-				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).STRING!=null?((ExprPrimeContext)_localctx).STRING.getText():null), AstLiteral.STRING); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral((((ExprPrimeContext)_localctx).STRING!=null?((ExprPrimeContext)_localctx).STRING.getText():null), AstLiteral.Format.STRING); 
 				}
 				break;
 			case LPAREN:

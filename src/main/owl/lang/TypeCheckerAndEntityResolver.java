@@ -36,7 +36,7 @@ class TypeCheckerAndEntityResolver {
 
     private void run() throws OwlException {
         AstVisitor v = new AnalyzerVisitor();
-        ast.module.accept(v);
+        ast.accept(v);
     }
 
     private final class AnalyzerVisitor implements AstVisitor {
@@ -44,6 +44,14 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public void visit(AstName n) {
+            // Should not resolve named function here, but in apply.
+            if (!locals.isFunction(n.name)) {
+                try {
+                    n.entity = locals.resolveVariable(n.name);
+                } catch (OwlException e) {
+                    error(n, e.getMessage());
+                }
+            }
         }
 
         @Override
@@ -82,7 +90,7 @@ class TypeCheckerAndEntityResolver {
         @Override
         public void visit(AstArgument n) {
             throw new UnsupportedOperationException("type checker");
-//            n.type.accept(this);
+//            n.returnType.accept(this);
         }
 
         @Override
@@ -102,6 +110,20 @@ class TypeCheckerAndEntityResolver {
             for (AstNode e : n.args) {
                 e.accept(this);
             }
+            // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
+            if (n.args.get(0) instanceof AstName) {
+                AstName fn = (AstName) n.args.get(0);
+                try {
+                    fn.entity = entityMap.resolveFunction(fn.name, n.getArgTypes());
+                } catch (OwlException e) {
+                    error(n, e.getMessage());
+                    return;
+                }
+                AstType fnType = fn.entity.getType();
+                n.type = fnType.args.get(fnType.args.size() - 1);
+            } else {
+                throw new UnsupportedOperationException("apply function expr");
+            }
         }
 
         @Override
@@ -111,6 +133,18 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public void visit(AstLiteral n) {
+            switch (n.format) {
+                case DEC:
+                case HEX:
+                case OCT:
+                    n.type = AstType.I32;
+                    break;
+                case STRING:
+                    n.type = AstType.String;
+                    break;
+                default:
+                    throw new IllegalStateException("literal format " + n.format);
+            }
         }
 
         @Override
