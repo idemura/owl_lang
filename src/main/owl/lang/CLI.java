@@ -57,6 +57,8 @@ public class CLI {
     int flagPrintAst = 0;
     @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
     int flagPrintEntityMap = 0;
+    @Parameter(names = {"--generate"}, description = "Generate code")
+    int flagGenerate = 1;
 
     public static void main(String[] args) {
         CLI cli = new CLI();
@@ -75,7 +77,7 @@ public class CLI {
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 Ast ast = parse(in, new ParserErrorListener(errorListener));
                 try {
-                    analyze(ast, errorListener);
+                    compileAst(ast, errorListener, System.out, System.out);
                 } catch (OwlException e) {
                     // Skip, error listener took care.
                 }
@@ -114,16 +116,20 @@ public class CLI {
         }
     }
 
-    private void analyze(Ast ast, ErrorListener errorListener) throws OwlException {
+    private void compileAst(Ast ast, CountErrorListener errorListener, OutputStream out, PrintStream debugOut) throws OwlException {
         if (flagPrintAst != 0) {
-            ast.accept(new DebugPrintVisitor());
+            DebugPrint.printAst(ast,debugOut);
         }
         if (flagAnalyze != 0) {
             EntityMap entityMap = EntityCollector.analyze(ast, errorListener);
             if (flagPrintEntityMap != 0) {
-                entityMap.print(System.out);
+                entityMap.print(debugOut);
             }
             TypeCheckerAndEntityResolver.analyze(ast, entityMap, errorListener);
+            if (errorListener.getErrorCount() == 0 && flagGenerate != 0) {
+                Jvm jvm = CodeGenerator.generate(ast, errorListener);
+                new JavaTranslator().translate(jvm, out);
+            }
         }
     }
 }
