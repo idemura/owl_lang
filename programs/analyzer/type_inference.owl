@@ -1,0 +1,25 @@
+# Owl Language
+
+fn f1() {
+    print("hello");
+}
+
+fn f2(a: I32) {
+    print(a + 10);
+}
+
+fn f2(x: String): I32 {
+}
+
+fn qq {
+    print(f2("zzz"));
+}
+
+fn f3(x, y: I32) {
+    x * y + 10;
+}
+
+fn f4(): I32[] {
+}
+
+x = 10;

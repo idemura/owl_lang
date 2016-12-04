@@ -1,9 +1,10 @@
 #! /bin/bash
 
 for owl in `find programs -name '*.owl'`; do
+    flags=`cat $(dirname "$owl")/FLAGS`
     out=`tempfile`
     err=`tempfile`
-    ./owl --print_ast 1 $owl 1> $out 2> $err
+    ./owl $flags $owl 1> $out 2> $err
     if [ $? == 0 ]; then
         mv $out $owl.out
     else

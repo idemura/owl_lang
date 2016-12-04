@@ -1,33 +1,32 @@
 Module
   Variable zzz
-    Literal "world"
+    Literal STRING "world"
   
   Function f1
-    returnType: Type None
+    returnType: None
     Block
+    ;;
   
   Function f2
-    returnType: Type None
-    Argument x
-      Type I32
+    returnType: None
+    Argument x: I32
     Block
       Expr
         Apply
           Name print
-          Literal "hello"
+          Literal STRING "hello"
       ;
       Expr
         Apply
           Name print
-          Literal 127
+          Literal DEC 127
       ;
+    ;;
   
   Function f3
-    returnType: Type None
-    Argument x
-      Type None
-    Argument y
-      Type I32
+    returnType: None
+    Argument x: None
+    Argument y: I32
     Block
       Expr
         Apply
@@ -74,7 +73,7 @@ Module
             Apply
               Name f4
             Name x
-          Literal 10
+          Literal DEC 10
       ;
       Expr
         Apply
@@ -92,7 +91,7 @@ Module
           Name []
           Apply
             Name f2
-          Literal 10
+          Literal DEC 10
       ;
       Expr
         Member
@@ -112,17 +111,18 @@ Module
             Name y
           Name z
       ;
+    ;;
   
   Function f4
-    returnType: Type None
+    returnType: None
     Block
       Expr
         Apply
           Name :
           Apply
             Name g
-            Literal 10
-            Literal 20
+            Literal DEC 10
+            Literal DEC 20
           Type I32
       ;
       Expr
@@ -130,7 +130,7 @@ Module
           Name g
           Apply
             Name :
-            Literal 10
+            Literal DEC 10
             Type owl.lang.String
       ;
       Expr
@@ -138,21 +138,19 @@ Module
           Name g
           Apply
             Name :
-            Literal 50
+            Literal DEC 50
             Type Array
               Type I32
       ;
+    ;;
   
   Function f5
-    returnType: Type Fn
-      Type I32
-      Type Char
-      Type Bool
+    returnType: Fn(I32, Char, Bool)
     Block
       Expr
         Apply
           Name :
-          Literal 50
+          Literal DEC 50
           Type Fn
             Type I32
             Type Bool
@@ -160,14 +158,14 @@ Module
       Expr
         Apply
           Name :
-          Literal 12
+          Literal DEC 12
           Type Generic
             Type I32
       ;
       Expr
         Apply
           Name :
-          Literal 13
+          Literal DEC 13
           Type Generic
             Type I32
             Type String
@@ -176,7 +174,7 @@ Module
       Expr
         Apply
           Name :
-          Literal 14
+          Literal DEC 14
           Type Generic
             Type Fn
               Type I32
@@ -191,7 +189,7 @@ Module
       Expr
         Apply
           Name :
-          Literal 15
+          Literal DEC 15
           Type Fn
             Type Array
               Type Array
@@ -199,16 +197,17 @@ Module
             Type I64
             Type Bool
       ;
+    ;;
   
   Function f6
-    returnType: Type None
+    returnType: None
     Block
       Expr
         Apply
           Name f
           Apply
             Name ~
-            Literal 10
+            Literal DEC 10
       ;
       Expr
         Apply
@@ -217,7 +216,7 @@ Module
             Name ~
             Apply
               Name :
-              Literal 10
+              Literal DEC 10
               Type I32
       ;
       Expr
@@ -225,14 +224,14 @@ Module
           Name f
           Apply
             Name -
-            Literal 100
+            Literal DEC 100
       ;
       Expr
         Apply
           Name f
           Apply
             Name -
-            Literal 100
+            Literal DEC 100
           Apply
             Name !
             Apply
@@ -245,7 +244,7 @@ Module
           Name f
           Apply
             Name -
-            Literal 100
+            Literal DEC 100
           Apply
             Name !
             Apply
@@ -258,7 +257,7 @@ Module
           Name f
           Apply
             Name -
-            Literal 100
+            Literal DEC 100
           Apply
             Name :
             Apply
@@ -271,7 +270,7 @@ Module
           Name +
           Apply
             Name f
-            Literal 10
+            Literal DEC 10
       ;
       Expr
         Apply
@@ -280,7 +279,7 @@ Module
             Name :
             Apply
               Name f
-              Literal 10
+              Literal DEC 10
             Type I32
       ;
       Expr
@@ -288,23 +287,24 @@ Module
           Name +
           Apply
             Name -
-            Literal 3
+            Literal DEC 3
           Apply
             Name +
-            Literal 6
+            Literal DEC 6
       ;
+    ;;
   
   Function f7
-    returnType: Type None
+    returnType: None
     Block
       Expr
         Apply
           Name /
           Apply
             Name *
-            Literal 2
-            Literal 3
-          Literal 5
+            Literal DEC 2
+            Literal DEC 3
+          Literal DEC 5
       ;
       Expr
         Apply
@@ -313,10 +313,10 @@ Module
             Name /
             Apply
               Name *
-              Literal 2
-              Literal 3
-            Literal 5
-          Literal 9
+              Literal DEC 2
+              Literal DEC 3
+            Literal DEC 5
+          Literal DEC 9
       ;
       Expr
         Apply
@@ -327,16 +327,16 @@ Module
               Name *
               Apply
                 Name -
-                Literal 2
+                Literal DEC 2
               Apply
                 Name +
-                Literal 4
+                Literal DEC 4
             Apply
               Name -
-              Literal 5
+              Literal DEC 5
           Apply
             Name +
-            Literal 6
+            Literal DEC 6
       ;
       Expr
         Apply
@@ -347,23 +347,23 @@ Module
               Name *
               Apply
                 Name foo
-                Literal 2
-                Literal 3
+                Literal DEC 2
+                Literal DEC 3
               Apply
                 Name -
-                Literal 10
+                Literal DEC 10
             Apply
               Name *
-              Literal 80
+              Literal DEC 80
               Apply
                 Name +
-                Literal 2
+                Literal DEC 2
                 Apply
                   Name g
           Apply
             Name []
             Name a
-            Literal 10
+            Literal DEC 10
       ;
       Expr
         Apply
@@ -373,9 +373,9 @@ Module
             Apply
               Name <<
               Name a
-              Literal 10
-            Literal 8
-          Literal 1
+              Literal DEC 10
+            Literal DEC 8
+          Literal DEC 1
       ;
       Expr
         Apply
@@ -385,12 +385,12 @@ Module
             Name a
             Apply
               Name <<
-              Literal 1
-              Literal 8
+              Literal DEC 1
+              Literal DEC 8
           Apply
             Name <<
-            Literal 1
-            Literal 6
+            Literal DEC 1
+            Literal DEC 6
       ;
       Expr
         Apply
@@ -403,9 +403,9 @@ Module
             Name &
             Apply
               Name +
-              Literal 1
-              Literal 6
-            Literal 3
+              Literal DEC 1
+              Literal DEC 6
+            Literal DEC 3
       ;
       Expr
         Apply
@@ -419,9 +419,10 @@ Module
               Name c
               Name d
       ;
+    ;;
   
   Function f8
-    returnType: Type None
+    returnType: None
     Block
       Expr
         Apply
@@ -450,14 +451,14 @@ Module
           Apply
             Name &
             Name a
-            Literal 10
+            Literal DEC 10
           Apply
             Name &
             Name b
             Apply
               Name <<
-              Literal 1
-              Literal 4
+              Literal DEC 1
+              Literal DEC 4
       ;
       Expr
         Apply
@@ -467,9 +468,9 @@ Module
             Apply
               Name is
               Name a
-              Literal 10
+              Literal DEC 10
             Name b
-          Literal 20
+          Literal DEC 20
       ;
       Expr
         Apply
@@ -477,7 +478,7 @@ Module
           Apply
             Name ==
             Name a
-            Literal 13
+            Literal DEC 13
       ;
       Expr
         Apply
@@ -485,7 +486,7 @@ Module
           Apply
             Name is
             Name a
-            Literal 13
+            Literal DEC 13
       ;
       Expr
         Apply
@@ -495,8 +496,8 @@ Module
             Name a
             Apply
               Name +
-              Literal 12
-              Literal 1
+              Literal DEC 12
+              Literal DEC 1
       ;
       Expr
         Apply
@@ -508,17 +509,17 @@ Module
               Name f
               Apply
                 Name <<
-                Literal 1
-                Literal 8
+                Literal DEC 1
+                Literal DEC 8
             Apply
               Name !
               Apply
                 Name <
                 Apply
                   Name *
-                  Literal 3
+                  Literal DEC 3
                   Name y
-                Literal 7
+                Literal DEC 7
           Apply
             Name !
             Apply
@@ -526,9 +527,10 @@ Module
               Name b
               Name true
       ;
+    ;;
   
   Function f9
-    returnType: Type None
+    returnType: None
     Block
       Expr
         Apply
@@ -549,8 +551,8 @@ Module
               Apply
                 Name square
                 Name r
-                Literal 0
-            Literal 2
+                Literal DEC 0
+            Literal DEC 2
       ;
       Expr
         Apply
@@ -568,9 +570,10 @@ Module
                 Name !
                 Name b
       ;
+    ;;
   
   Function f10
-    returnType: Type None
+    returnType: None
     Block
       If
         Apply
@@ -588,7 +591,7 @@ Module
                 Apply
                   Name width
                   Name x
-                Literal 10
+                Literal DEC 10
           Apply
             Name height
             Name x
@@ -597,8 +600,9 @@ Module
           Expr
             Apply
               Name print
-              Literal 10
+              Literal DEC 10
           ;
+        ;;
       ;
       If
         Apply
@@ -607,21 +611,23 @@ Module
           Apply
             Name &
             Name r
-            Literal 5
+            Literal DEC 5
         # elif:
         Block
           Expr
             Apply
               Name print
-              Literal 10
+              Literal DEC 10
           ;
+        ;;
         # else:
         Block
           Expr
             Apply
               Name print
-              Literal 20
+              Literal DEC 20
           ;
+        ;;
       ;
       If
         Apply
@@ -633,38 +639,41 @@ Module
           Expr
             Apply
               Name print
-              Literal 10
+              Literal DEC 10
           ;
+        ;;
         # elif condition:
         Apply
           Name ==
           Apply
             Name +
             Name m
-            Literal 10
-          Literal 12
+            Literal DEC 10
+          Literal DEC 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Literal 11
+              Literal DEC 11
           ;
+        ;;
         # elif condition:
         Apply
           Name ==
           Apply
             Name -
             Name m
-            Literal 10
-          Literal 12
+            Literal DEC 10
+          Literal DEC 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Literal 12
+              Literal DEC 12
           ;
+        ;;
       ;
       If
         Apply
@@ -676,49 +685,54 @@ Module
           Expr
             Apply
               Name print
-              Literal 10
+              Literal DEC 10
           ;
+        ;;
         # elif condition:
         Apply
           Name ==
           Apply
             Name +
             Name m
-            Literal 10
-          Literal 12
+            Literal DEC 10
+          Literal DEC 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Literal 11
+              Literal DEC 11
           ;
+        ;;
         # elif condition:
         Apply
           Name ==
           Apply
             Name -
             Name m
-            Literal 10
-          Literal 12
+            Literal DEC 10
+          Literal DEC 12
         # then:
         Block
           Expr
             Apply
               Name print
-              Literal 12
+              Literal DEC 12
           ;
+        ;;
         # else:
         Block
           Expr
             Apply
               Name print
-              Literal 13
+              Literal DEC 13
           ;
+        ;;
       ;
+    ;;
   
   Function f11
-    returnType: Type None
+    returnType: None
     Block
       Match
         .None 
@@ -729,6 +743,7 @@ Module
               Apply
                 Name s
           ;
+        ;;
         .Just x
         Block
           Expr
@@ -736,6 +751,7 @@ Module
               Name print
               Name x
           ;
+        ;;
       ;
       Match
         .Blue 
@@ -746,26 +762,28 @@ Module
               Name print
               Name color
           ;
+        ;;
       ;
       Match
         .Blue 
         .Yellow 
         Block
-        # Else (default)
+        ;;
+        # else (default)
         Block
           Expr
             Apply
               Name print
               Name zzz
           ;
+        ;;
       ;
+    ;;
   
   Function f12
-    returnType: Type I32
-    Argument x
-      Type None
-    Argument y
-      Type I32
+    returnType: I32
+    Argument x: None
+    Argument y: I32
     Block
       Return
         Apply
@@ -786,7 +804,8 @@ Module
       ;
       Return
       ;
+    ;;
   
   Variable PI
-    Literal 3
+    Literal DEC 3
   

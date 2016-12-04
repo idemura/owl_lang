@@ -72,7 +72,7 @@ class EntityCollector {
                     arguments.put(a.name, a);
                     if (a.type == AstType.None) {
                         if (t == AstType.None) {
-                            error(n, "function " + n.name + " argument " + a.name + " returnType None");
+                            error(n, "function " + n.name + " argument " + a.name + " type None");
                             err = true;
                         } else {
                             a.type = t;
