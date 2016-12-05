@@ -40,5 +40,8 @@ public class NameGenTest {
         assertEquals("_tmp_ab", gen.newName());
         assertEquals("_tmp_bb", gen.newName());
         assertEquals("_tmp_cb", gen.newName());
+        gen.reset();
+        assertEquals("_tmp_a", gen.newName());
+        assertEquals("_tmp_b", gen.newName());
     }
 }

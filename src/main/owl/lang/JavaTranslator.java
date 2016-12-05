@@ -135,6 +135,7 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmFunction node) {
+            gen.reset();
             printer.println(
                     javaAccessModifier(node.access),
                     javaMemoryModifier(node.memory),
