@@ -42,31 +42,12 @@ final class IndentPrinter {
         tab--;
     }
 
-    IndentPrinter print(String s) {
-        return doPrint(s, false);
+    IndentPrinter print(Object... objs) {
+        return doPrint(objs, false);
     }
 
-    IndentPrinter println(String s) {
-        return doPrint(s, true);
-    }
-
-    IndentPrinter printlnAll(Object... objs) {
-        printLineIndent();
-        boolean first = true;
-        for (Object o : objs) {
-            String ostr = o.toString();
-            if (ostr.isEmpty()) {
-                continue;
-            }
-            if (!first) {
-                out.print(" ");
-            }
-            out.print(o.toString());
-            first = false;
-        }
-        out.println();
-        newLine = true;
-        return this;
+    IndentPrinter println(Object... objs) {
+        return doPrint(objs, true);
     }
 
     void curlyOpen() {
@@ -87,23 +68,39 @@ final class IndentPrinter {
         }
     }
 
-    private IndentPrinter doPrint(String s, boolean ln) {
+    private IndentPrinter doPrint(Object[] objs, boolean ln) {
         printLineIndent();
-        out.print(s);
-        if (ln) out.println();
+        boolean first = true;
+        for (Object o : objs) {
+            String ostr = o.toString();
+            if (ostr.isEmpty()) {
+                continue;
+            }
+            if (!first) {
+                out.print(" ");
+            }
+            out.print(o.toString());
+            first = false;
+        }
+        if (ln)
+            out.println();
         newLine = ln;
         return this;
     }
 }
 
-final class Utils {
-    private Utils() {}
+final class Util {
+    private Util() {}
 
     private static String LANGUAGE_VERSION;
     private static String COMPILER_NAME;
 
     static <T> String joinLines(Collection<T> c) {
         return String.join("\n", c.stream().map(T::toString).collect(toList()));
+    }
+
+    static String trimQuotes(String s) {
+        return s.substring(1, s.length() - 1);
     }
 
     static String getCompilerName() {
@@ -125,7 +122,7 @@ final class Utils {
     private static String getManifestAttribute(String name) {
         try {
             Attributes.Name attrName = new Attributes.Name(name);
-            Enumeration<URL> resources = Utils.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+            Enumeration<URL> resources = Util.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
             while (resources.hasMoreElements()) {
                 Manifest m = new Manifest(resources.nextElement().openStream());
                 Object value = m.getMainAttributes().get(attrName);

@@ -1,6 +1,6 @@
 Module
   Variable zzz
-    Literal STRING "world"
+    Literal STRING world
   
   Function f1
     returnType: None
@@ -14,7 +14,7 @@ Module
       Expr
         Apply
           Name print
-          Literal STRING "hello"
+          Literal STRING hello
       ;
       Expr
         Apply

@@ -1,31 +1,27 @@
 # Owl Language
 
 fn f1() {
-    print("hello");
+    println("hello");
 }
 
 fn f2(a: I32) {
-    print(a + 10);
+    println(a + 10);
 }
 
 fn f2(x: String): I32 {
     return 2 * 100;
 }
 
-fn qq {
-    print(f2("zzz"));
+fn qq(x: String, y: I32) {
+    println(f2("zzz"));
 }
 
 fn f3(x, y: I32) {
     x * y + 10;
 }
 
-fn f4(): I32[] {
-}
-
 x = 10;
 
-fn owl_main() {
-    qq();
+fn owl_main {
+    qq("haha", 12);
 }
-

@@ -19,16 +19,26 @@ import java.util.Objects;
 import static owl.lang.TypeUtil.fnEqualSignatures;
 
 abstract class Entity {
-    protected String name;
-    protected String moduleName;
-    protected AstType type;
+    final String moduleName;
+    final String name;
+    final AstType type;
+
+    Entity(String moduleName, String name, AstType type) {
+        this.moduleName = moduleName;
+        this.name = name;
+        this.type = type;
+    }
 
     String getName() {
         return name;
     }
 
+    boolean isRT() {
+        return moduleName.isEmpty();
+    }
+
     String getModuleName() {
-        return moduleName;
+        return isRT()? "<runtime>": moduleName;
     }
 
     AstType getType() {
@@ -52,16 +62,14 @@ abstract class Entity {
 }
 
 // Basically function signature
-class FunctionEntity extends Entity {
+final class FunctionEntity extends Entity {
     FunctionEntity(String moduleName, String name, AstType type) {
-        this.moduleName = moduleName;
-        this.name = name;
-        this.type = type;
+        super(moduleName, name, type);
     }
 
     @Override
     public String toString() {
-        return "Function " + moduleName + " " + name + ": " + type;
+        return "Function " + getModuleName() + " " + name + ": " + type;
     }
 
     @Override
@@ -81,18 +89,16 @@ enum VariableScope {
     FUNCTION,
 }
 
-class VariableEntity extends Entity {
+final class VariableEntity extends Entity {
     VariableScope scope;
 
     VariableEntity(String moduleName, String name, AstType type, VariableScope scope) {
-        this.moduleName = moduleName;
-        this.name = name;
-        this.type = type;
+        super(moduleName, name, type);
         this.scope = scope;
     }
 
     @Override
     public String toString() {
-        return "Variable " + moduleName + " " + name + ": " + type;
+        return "Variable " + getModuleName() + " " + name + ": " + type;
     }
 }

@@ -28,7 +28,7 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
-public class CLI {
+public final class CLI {
     private static final class ParserErrorListener extends BaseErrorListener {
         private ErrorListener listener;
 
@@ -89,7 +89,7 @@ public class CLI {
                     // Skip, error listener took care
                 }
             } catch (IOException | OwlException e) {
-                errorListener.error(0, 0, e.getMessage());
+                errorListener.error(e.getMessage());
             }
 
             if (errorListener.getErrorCount() == 0) {

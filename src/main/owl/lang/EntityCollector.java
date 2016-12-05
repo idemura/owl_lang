@@ -18,7 +18,9 @@ import java.util.HashMap;
 
 // Collects module level entities (functions, variables). Checks function signature (infers argument types and checks
 // no duplicates).
-class EntityCollector {
+final class EntityCollector {
+    private EntityCollector() {}
+
     static EntityMap run(Ast ast, ErrorListener errorListener) throws OwlException {
         CountErrorListener newErrorListener = new CountErrorListener(errorListener);
         Visitor v = new Visitor(newErrorListener);
@@ -31,37 +33,37 @@ class EntityCollector {
 
     private static final class Visitor implements AstVisitor {
         private final ErrorListener errorListener;
-        private final EntityMap entityMap = Prelude.ENTITY_MAP.clone();
+        private final EntityMap entityMap = Runtime.ENTITY_MAP.clone();
         private String moduleName;
 
         private Visitor(ErrorListener errorListener) {
             this.errorListener = errorListener;
         }
 
-        private void error(AstNode n, String msg) {
-            errorListener.error(n.line, n.charPositionInLine, msg);
+        private void error(AstNode node, String msg) {
+            errorListener.error(node.line, node.charPositionInLine, msg);
         }
 
         @Override
-        public Void visit(AstModule n) {
-            moduleName = n.name;
-            for (AstNode m : n.members) {
+        public Void visit(AstModule node) {
+            moduleName = node.name;
+            for (AstNode m : node.members) {
                 accept(m);
             }
             return null;
         }
 
         @Override
-        public Void visit(AstFunction n) {
+        public Void visit(AstFunction node) {
             // TODO: Lambda
             boolean err = false;
-            if (!n.args.isEmpty()) {
+            if (!node.args.isEmpty()) {
                 HashMap<String, AstArgument> arguments = new HashMap<>();
                 AstType t = AstType.NONE;
-                for (int i = n.args.size(); i > 0; ) {
-                    AstArgument a = n.args.get(--i);
+                for (int i = node.args.size(); i > 0; ) {
+                    AstArgument a = node.args.get(--i);
                     if (arguments.containsKey(a.name)) {
-                        error(n, "function " + n.name + " argument " + a.name + " duplicated, first at line " +
+                        error(node, "function " + node.name + " argument " + a.name + " duplicated, first at line " +
                                 arguments.get(a.name).line);
                         err = true;
                         continue;
@@ -69,7 +71,7 @@ class EntityCollector {
                     arguments.put(a.name, a);
                     if (a.type == AstType.NONE) {
                         if (t == AstType.NONE) {
-                            error(n, "function " + n.name + " argument " + a.name + " type None");
+                            error(node, "function " + node.name + " argument " + a.name + " type None");
                             err = true;
                         } else {
                             a.type = t;
@@ -79,27 +81,27 @@ class EntityCollector {
                     }
                 }
             }
-            if (n.name.isEmpty()) {
-                error(n, "function unnamed");
+            if (node.name.isEmpty()) {
+                error(node, "function unnamed");
             } else if (!err) {
                 // Add only if no errors during function signature analysis
-                Entity s = n.getEntity(moduleName);
+                Entity s = node.getEntity(moduleName);
                 try {
                     entityMap.put(s);
                 } catch (OwlException e) {
-                    errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
+                    errorListener.error(node.line, node.charPositionInLine, "duplicated module member " + node.name);
                 }
             }
             return null;
         }
 
         @Override
-        public Void visit(AstVariable n) {
-            Entity s = n.getEntity(moduleName);
+        public Void visit(AstVariable node) {
+            Entity s = node.getEntity(moduleName);
             try {
                 entityMap.put(s);
             } catch (OwlException e) {
-                errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
+                errorListener.error(node.line, node.charPositionInLine, "duplicated module member " + node.name);
             }
             return null;
         }

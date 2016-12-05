@@ -1,18 +1,18 @@
 # Owl Language
 
 fn f1() {
-    print("hello");
+    println("hello");
 }
 
 fn f2(a: I32) {
-    print(a + 10);
+    println(a + 10);
 }
 
 fn f2(x: String): I32 {
 }
 
 fn qq {
-    print(f2("zzz"));
+    println(f2("zzz"));
 }
 
 fn f3(x, y: I32) {

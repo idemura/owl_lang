@@ -95,7 +95,7 @@ returns [AstNode r]
 |   OCT { $r = new AstLiteral($OCT.text, AstLiteral.Format.OCT); }
 |   DEC { $r = new AstLiteral($DEC.text, AstLiteral.Format.DEC); }
 |   HEX { $r = new AstLiteral($HEX.text, AstLiteral.Format.HEX); }
-|   STRING { $r = new AstLiteral($STRING.text, AstLiteral.Format.STRING); }
+|   STRING { $r = new AstLiteral(Util.trimQuotes($STRING.text), AstLiteral.Format.STRING); }
 |   LPAREN e = expression RPAREN { $r = $e.r; }
 ;
 

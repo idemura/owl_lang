@@ -14,12 +14,24 @@
  */
 package owl.lang;
 
-public final class OwlException extends Exception {
-    public OwlException(String message) {
-        super(message);
+final class NameGen {
+    static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private int counter = 0;
+    private char[] buf = new char[80];
+
+    String newName() {
+        int j = 0;
+        int n = counter;
+        do {
+            int mod = ALPHABET.length();
+            buf[j++] = ALPHABET.charAt(n % mod);
+            n /= mod;
+        } while (n != 0);
+        counter++;
+        return "_tmp_" + new String(buf, 0, j);
     }
 
-    public OwlException(Throwable cause) {
-        super(cause);
+    void reset() {
+        counter = 0;
     }
 }

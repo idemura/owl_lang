@@ -4,8 +4,8 @@ Module
     Block
       Expr
         Apply
-          Name print
-          Literal STRING "hello"
+          Name println
+          Literal STRING hello
       ;
     ;;
   
@@ -15,7 +15,7 @@ Module
     Block
       Expr
         Apply
-          Name print
+          Name println
           Apply
             Name +
             Name a
@@ -34,10 +34,10 @@ Module
     Block
       Expr
         Apply
-          Name print
+          Name println
           Apply
             Name f2
-            Literal STRING "zzz"
+            Literal STRING zzz
       ;
     ;;
   
@@ -66,15 +66,19 @@ Module
     Literal DEC 10
   
 Function owl_test qq: Fn(None)
-print
-  Function <prelude> print: Fn(I32, None)
-  Function <prelude> print: Fn(I64, None)
-  Function <prelude> print: Fn(String, None)
+println
+  Function <runtime> println: Fn(Bool, None)
+  Function <runtime> println: Fn(Char, None)
+  Function <runtime> println: Fn(I32, None)
+  Function <runtime> println: Fn(I64, None)
+  Function <runtime> println: Fn(F32, None)
+  Function <runtime> println: Fn(F64, None)
+  Function <runtime> println: Fn(String, None)
 Variable owl_test x: None
-Function <prelude> *: Fn(I32, I32, I32)
+Function <runtime> *: Fn(I32, I32, I32)
 +
-  Function <prelude> +: Fn(I32, I32, I32)
-  Function <prelude> +: Fn(I64, I64, I64)
+  Function <runtime> +: Fn(I32, I32, I32)
+  Function <runtime> +: Fn(I64, I64, I64)
 Function owl_test f1: Fn(None)
 f2
   Function owl_test f2: Fn(I32, None)

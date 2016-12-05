@@ -19,12 +19,16 @@ import java.io.PrintStream;
 interface ErrorListener {
     void error(int line, int charPositionInLine, String msg);
 
+    default void error(String msg) {
+        error(0, 0, msg);
+    }
+
     default void error(int line, int charPositionInLine, OwlException e) {
         error(line, charPositionInLine, e.getMessage());
     }
 }
 
-class PrintErrorListener implements ErrorListener {
+final class PrintErrorListener implements ErrorListener {
     private final String fileName;
     private final PrintStream out;
 
@@ -60,7 +64,7 @@ class PrintErrorListener implements ErrorListener {
 }
 
 
-class CountErrorListener implements ErrorListener {
+final class CountErrorListener implements ErrorListener {
     private ErrorListener sink;
     private int errorCount = 0;
 

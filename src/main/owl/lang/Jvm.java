@@ -61,19 +61,19 @@ abstract class JvmNode {
     abstract Object accept(JvmVisitor v);
 }
 
-enum JvmAccessModifier {
+enum AccessModifier {
     PUBLIC,
     PRIVATE,
     PACKAGE,
 }
 
-enum JvmMemoryModifier {
+enum MemoryModifier {
     STATIC,
     LOCAL,
     MEMBER,
 }
 
-class JvmPackage extends JvmNode {
+final class JvmPackage extends JvmNode {
     final String name;
     private List<JvmNode> children = new ArrayList<>();
 
@@ -81,8 +81,8 @@ class JvmPackage extends JvmNode {
         this.name = name;
     }
 
-    void add(JvmNode n) {
-        children.add(n);
+    void add(JvmNode node) {
+        children.add(node);
     }
 
     List<JvmNode> getChildren() {
@@ -95,18 +95,18 @@ class JvmPackage extends JvmNode {
     }
 }
 
-class JvmClass extends JvmNode {
-    final JvmAccessModifier access;
+final class JvmClass extends JvmNode {
+    final AccessModifier access;
     final String name;
     private List<JvmNode> children = new ArrayList<>();
 
-    JvmClass(JvmAccessModifier access, String name) {
+    JvmClass(AccessModifier access, String name) {
         this.access = access;
         this.name = name;
     }
 
-    void add(JvmNode n) {
-        children.add(n);
+    void add(JvmNode node) {
+        children.add(node);
     }
 
     List<JvmNode> getChildren() {
@@ -119,19 +119,19 @@ class JvmClass extends JvmNode {
     }
 }
 
-class JvmVariable extends JvmNode {
-    final JvmAccessModifier access;
-    final JvmMemoryModifier memory;
+final class JvmVariable extends JvmNode {
+    final AccessModifier access;
+    final MemoryModifier memory;
     final String name;
     final AstType type;
 
-    static JvmVariable makeLocal(String name, AstType type) {
-        return new JvmVariable(JvmAccessModifier.PRIVATE, JvmMemoryModifier.LOCAL, type, name);
+    static JvmVariable local(AstType type, String name) {
+        return new JvmVariable(AccessModifier.PRIVATE, MemoryModifier.LOCAL, type, name);
     }
 
     JvmVariable(
-            JvmAccessModifier access,
-            JvmMemoryModifier memory,
+            AccessModifier access,
+            MemoryModifier memory,
             AstType type,
             String name) {
         this.access = access;
@@ -146,17 +146,17 @@ class JvmVariable extends JvmNode {
     }
 }
 
-class JvmFunction extends JvmNode {
-    final JvmAccessModifier access;
-    final JvmMemoryModifier memory;
+final class JvmFunction extends JvmNode {
+    final AccessModifier access;
+    final MemoryModifier memory;
+    final AstType returnType;
     final String name;
     final List<JvmVariable> args;
-    final AstType returnType;
     final JvmNode block;
 
     JvmFunction(
-            JvmAccessModifier access,
-            JvmMemoryModifier memory,
+            AccessModifier access,
+            MemoryModifier memory,
             AstType returnType,
             String name,
             List<JvmVariable> args,
@@ -176,11 +176,13 @@ class JvmFunction extends JvmNode {
 }
 
 // Includes literals and variable names
-class JvmValue extends JvmNode {
-    String name;
+final class JvmValue extends JvmNode {
+    final String text;
+    final AstType type;
 
-    JvmValue(String name) {
-        this.name = name;
+    JvmValue(String text, AstType type) {
+        this.text = text;
+        this.type = type;
     }
 
     @Override
@@ -189,11 +191,11 @@ class JvmValue extends JvmNode {
     }
 }
 
-class JvmApply extends JvmNode {
+final class JvmApply extends JvmNode {
     final AstType returnType;
     final String object;
     final String method;
-    private List<JvmNode> args = new ArrayList<>();
+    final List<JvmNode> args;
 
     JvmApply(
             AstType returnType,
@@ -212,15 +214,17 @@ class JvmApply extends JvmNode {
     }
 }
 
-class JvmBinary extends JvmNode {
+final class JvmBinary extends JvmNode {
     final String op;
-    JvmNode a;
-    JvmNode b;
+    final AstType returnType;
+    final JvmNode l;
+    final JvmNode r;
 
-    JvmBinary(String op, JvmNode a, JvmNode b) {
+    JvmBinary(AstType returnType, String op, JvmNode l, JvmNode r) {
+        this.returnType = returnType;
         this.op = op;
-        this.a = a;
-        this.b = b;
+        this.l = l;
+        this.r = r;
     }
 
     @Override
@@ -229,11 +233,11 @@ class JvmBinary extends JvmNode {
     }
 }
 
-class JvmBlock extends JvmNode {
+final class JvmBlock extends JvmNode {
     private List<JvmNode> statements = new ArrayList<>();
 
-    void add(JvmNode n) {
-        statements.add(n);
+    void add(JvmNode node) {
+        statements.add(node);
     }
 
     List<JvmNode> getStatements() {
@@ -246,7 +250,7 @@ class JvmBlock extends JvmNode {
     }
 }
 
-class JvmReturn extends JvmNode {
+final class JvmReturn extends JvmNode {
     final JvmNode expr;
 
     JvmReturn(JvmNode expr) {
@@ -259,7 +263,7 @@ class JvmReturn extends JvmNode {
     }
 }
 
-class JvmComment extends JvmNode {
+final class JvmComment extends JvmNode {
     final String text;
 
     JvmComment(String text) {

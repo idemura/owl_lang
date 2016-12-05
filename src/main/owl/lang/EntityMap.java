@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
-import static owl.lang.Utils.joinLines;
+import static owl.lang.Util.joinLines;
 
-class EntityMap implements Cloneable {
+final class EntityMap implements Cloneable {
     private HashMap<String, List<Entity>> ents = new HashMap<>();
 
     EntityMap() {}

@@ -14,12 +14,13 @@
  */
 package owl.lang;
 
-public final class OwlException extends Exception {
-    public OwlException(String message) {
-        super(message);
-    }
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-    public OwlException(Throwable cause) {
-        super(cause);
+public class UtilTest {
+    @Test
+    public void testTrimQuaotes() {
+        assertEquals("abc", Util.trimQuotes("\"abc\""));
+        assertEquals("", Util.trimQuotes("\"\""));
     }
 }

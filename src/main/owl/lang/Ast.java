@@ -72,7 +72,7 @@ abstract class AstNode {
     }
 }
 
-class AstName extends AstNode {
+final class AstName extends AstNode {
     static final AstName BOOL = new AstName("Bool");
     static final AstName CHAR = new AstName("Char");
     static final AstName F32 = new AstName("F32");
@@ -98,7 +98,7 @@ class AstName extends AstNode {
             AstName otherName = (AstName) other;
             return name.equals(otherName.name);
         }
-        return name.equals(other);
+        return false;
     }
 
     @Override
@@ -118,7 +118,7 @@ class AstName extends AstNode {
 }
 
 // Generic returnType with parameters
-class AstType extends AstNode {
+final class AstType extends AstNode {
     static final AstType BOOL = new AstType(AstName.BOOL);
     static final AstType CHAR = new AstType(AstName.CHAR);
     static final AstType F32 = new AstType(AstName.F32);
@@ -188,19 +188,19 @@ class AstType extends AstNode {
         }
 
         @Override
-        public String visit(AstName n) {
-            return n.name;
+        public String visit(AstName node) {
+            return node.name;
         }
 
         @Override
-        public String visit(AstType n) {
-            String name = accept(n.name);
-            if (!n.args.isEmpty()) {
+        public String visit(AstType node) {
+            String name = accept(node.name);
+            if (!node.args.isEmpty()) {
                 name += "(";
-                name += accept(n.args.get(0));
-                for (int i = 1; i < n.args.size(); i++) {
+                name += accept(node.args.get(0));
+                for (int i = 1; i < node.args.size(); i++) {
                     name += ", ";
-                    name += accept(n.args.get(i));
+                    name += accept(node.args.get(i));
                 }
                 name += ")";
             }
@@ -209,7 +209,7 @@ class AstType extends AstNode {
     }
 }
 
-class AstMember extends AstNode {
+final class AstMember extends AstNode {
     AstNode left;
     AstName name;
     AstType type = AstType.NONE;
@@ -225,7 +225,7 @@ class AstMember extends AstNode {
     }
 }
 
-class AstModule extends AstNode {
+final class AstModule extends AstNode {
     String name;
     String fileName;
     List<AstNode> members = new ArrayList<>();
@@ -236,7 +236,7 @@ class AstModule extends AstNode {
     }
 }
 
-class AstFunction extends AstNode {
+final class AstFunction extends AstNode {
     String name = "";
     List<AstArgument> args = new ArrayList<>();
     AstType returnType = AstType.NONE;
@@ -266,7 +266,7 @@ class AstFunction extends AstNode {
     }
 }
 
-class AstArgument extends AstNode {
+final class AstArgument extends AstNode {
     String name = "";
     AstType type = AstType.NONE;
 
@@ -285,7 +285,7 @@ class AstArgument extends AstNode {
     }
 }
 
-class AstVariable extends AstNode {
+final class AstVariable extends AstNode {
     String name = "";
     AstNode expr;
 
@@ -310,7 +310,7 @@ class AstVariable extends AstNode {
     }
 }
 
-class AstBlock extends AstNode {
+final class AstBlock extends AstNode {
     List<AstNode> statements = new ArrayList<>();
 
     @Override
@@ -319,7 +319,7 @@ class AstBlock extends AstNode {
     }
 }
 
-class AstApply extends AstNode {
+final class AstApply extends AstNode {
     List<AstNode> args = new ArrayList<>();
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
@@ -345,7 +345,7 @@ class AstApply extends AstNode {
     }
 }
 
-class AstConstant extends AstNode {
+final class AstConstant extends AstNode {
     String name = "";
     AstNode expr;
 
@@ -360,7 +360,7 @@ class AstConstant extends AstNode {
     }
 }
 
-class AstLiteral extends AstNode {
+final class AstLiteral extends AstNode {
     enum Format {
         DEC,
         OCT,
@@ -389,7 +389,7 @@ class AstLiteral extends AstNode {
     }
 }
 
-class AstIf extends AstNode {
+final class AstIf extends AstNode {
     // N conditions each with block and optionally (N + 1)-th block for else
     List<AstNode> condition = new ArrayList<>();
     List<AstNode> block = new ArrayList<>();
@@ -400,7 +400,7 @@ class AstIf extends AstNode {
     }
 }
 
-class AstMatch extends AstNode {
+final class AstMatch extends AstNode {
     // Label is a name of enum returnType label. Several labels might refer to the same block of index @block.
     static final class Label {
         String label = "";
@@ -419,7 +419,7 @@ class AstMatch extends AstNode {
     }
 }
 
-class AstReturn extends AstNode {
+final class AstReturn extends AstNode {
     AstNode expr;
 
     @Override
@@ -428,7 +428,7 @@ class AstReturn extends AstNode {
     }
 }
 
-class AstExpr extends AstNode {
+final class AstExpr extends AstNode {
     AstNode expr;
 
     AstExpr() {}
