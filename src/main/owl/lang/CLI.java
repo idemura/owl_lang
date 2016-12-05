@@ -51,19 +51,23 @@ public class CLI {
     private List<String> files = new ArrayList<>();
     @Parameter(names = "--help", help = true)
     private boolean flagHelp = false;
-    @Parameter(names = {"--analyze"}, description = "Analyze semantics")
-    int flagAnalyze = 1;
+
+    @Parameter(names = {"--analyze"}, description = "Analyze semantics", arity = 1)
+    boolean flagAnalyze = true;
+    @Parameter(names = {"--generate"}, description = "Generate code", arity = 1)
+    boolean flagGenerate = true;
+
     @Parameter(names = {"--print_ast"}, description = "Print AST")
-    int flagPrintAst = 0;
+    boolean flagPrintAst = false;
     @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
-    int flagPrintEntityMap = 0;
-    @Parameter(names = {"--generate"}, description = "Generate code")
-    int flagGenerate = 1;
+    boolean flagPrintEntityMap = false;
 
     public static void main(String[] args) {
-        CLI cli = new CLI();
-        new JCommander(cli, args);
-        cli.run();
+        new CLI(args).run();
+    }
+
+    private CLI(String[] args) {
+        new JCommander(this, args);
     }
 
     private void run() {
@@ -123,16 +127,16 @@ public class CLI {
     }
 
     private void compileAst(Ast ast, CountErrorListener errorListener, OutputStream out, PrintStream debugOut) throws OwlException {
-        if (flagPrintAst != 0) {
+        if (flagPrintAst) {
             DebugPrint.printAst(ast,debugOut);
         }
-        if (flagAnalyze != 0) {
+        if (flagAnalyze) {
             EntityMap entityMap = EntityCollector.run(ast, errorListener);
-            if (flagPrintEntityMap != 0) {
+            if (flagPrintEntityMap) {
                 entityMap.print(debugOut);
             }
             TypeCheckerAndEntityResolver.run(ast, entityMap, errorListener);
-            if (errorListener.getErrorCount() == 0 && flagGenerate != 0) {
+            if (errorListener.getErrorCount() == 0 && flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
                 new JavaTranslator().translate(jvm, out);
             }
