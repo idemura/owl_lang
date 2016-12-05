@@ -20,10 +20,10 @@ import java.util.HashMap;
 // no duplicates).
 class EntityCollector {
     static EntityMap run(Ast ast, ErrorListener errorListener) throws OwlException {
-        CountErrorListener countErrorListener = new CountErrorListener(errorListener);
-        Visitor v = new Visitor(countErrorListener);
+        CountErrorListener newErrorListener = new CountErrorListener(errorListener);
+        Visitor v = new Visitor(newErrorListener);
         v.accept(ast.root);
-        if (countErrorListener.getErrorCount() > 0) {
+        if (newErrorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
         return v.entityMap.freeze();

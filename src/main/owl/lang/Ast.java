@@ -33,33 +33,33 @@ final class Ast {
 }
 
 interface AstVisitor<T> {
-    default T defaultValue() {
-        return null;
+    default T visitError() {
+        throw new UnsupportedOperationException("AstVisitor implementation " + getClass().getName());
     }
 
     default T accept(AstNode node) {
         if (node != null) {
             return (T) node.accept(this);
         } else {
-            return defaultValue();
+            return null;
         }
     }
 
-    default T visit(AstName node) { return defaultValue(); }
-    default T visit(AstType node) { return defaultValue(); }
-    default T visit(AstModule node) { return defaultValue(); }
-    default T visit(AstFunction node) { return defaultValue(); }
-    default T visit(AstVariable node) { return defaultValue(); }
-    default T visit(AstArgument node) { return defaultValue(); }
-    default T visit(AstBlock node) { return defaultValue(); }
-    default T visit(AstApply node) { return defaultValue(); }
-    default T visit(AstConstant node) { return defaultValue(); }
-    default T visit(AstLiteral node) { return defaultValue(); }
-    default T visit(AstMember node) { return defaultValue(); }
-    default T visit(AstIf node) { return defaultValue(); }
-    default T visit(AstMatch node) { return defaultValue(); }
-    default T visit(AstReturn node) { return defaultValue(); }
-    default T visit(AstExpr node) { return defaultValue(); }
+    default T visit(AstName node) { return visitError(); }
+    default T visit(AstType node) { return visitError(); }
+    default T visit(AstModule node) { return visitError(); }
+    default T visit(AstFunction node) { return visitError(); }
+    default T visit(AstVariable node) { return visitError(); }
+    default T visit(AstArgument node) { return visitError(); }
+    default T visit(AstBlock node) { return visitError(); }
+    default T visit(AstApply node) { return visitError(); }
+    default T visit(AstConstant node) { return visitError(); }
+    default T visit(AstLiteral node) { return visitError(); }
+    default T visit(AstMember node) { return visitError(); }
+    default T visit(AstIf node) { return visitError(); }
+    default T visit(AstMatch node) { return visitError(); }
+    default T visit(AstReturn node) { return visitError(); }
+    default T visit(AstExpr node) { return visitError(); }
 }
 
 abstract class AstNode {
@@ -68,7 +68,7 @@ abstract class AstNode {
 
     abstract Object accept(AstVisitor visitor);
     AstType getType() {
-        throw new UnsupportedOperationException("getType on " + getClass().getSimpleName());
+        throw new UnsupportedOperationException("AstNode implementation " + getClass().getName());
     }
 }
 
@@ -379,7 +379,7 @@ class AstIf extends AstNode {
 
 class AstMatch extends AstNode {
     // Label is a name of enum returnType label. Several labels might refer to the same block of index @block.
-    static class Label {
+    static final class Label {
         String label = "";
         String variable = "";
         int block;

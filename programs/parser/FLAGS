@@ -1,1 +1,1 @@
---print_ast 1 --analyze 0
+--print_ast 1 --print_entity_map 1 --analyze 0 --generate 0

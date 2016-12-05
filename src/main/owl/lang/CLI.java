@@ -29,7 +29,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 public class CLI {
-    static class ParserErrorListener extends BaseErrorListener {
+    private static final class ParserErrorListener extends BaseErrorListener {
         private ErrorListener listener;
 
         ParserErrorListener(ErrorListener listener) {
@@ -73,7 +73,7 @@ public class CLI {
         }
         int succeeded = 0, total = 0;
         for (String fileName : files) {
-            CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(fileName));
+            CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(System.err, fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 Ast ast = parse(in, new ParserErrorListener(errorListener));
                 AstModule module = ast.<AstModule>getRootAs();
@@ -93,7 +93,10 @@ public class CLI {
             }
             total++;
         }
-        System.exit(succeeded != total ? 1 : 0);
+        if (total == 0) {
+            System.err.println("no input files");
+        }
+        System.exit(succeeded != total || total == 0? 1: 0);
     }
 
     private static Ast parse(InputStream in, ANTLRErrorListener errorListener) throws OwlException {

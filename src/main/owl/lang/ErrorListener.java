@@ -14,6 +14,8 @@
  */
 package owl.lang;
 
+import java.io.PrintStream;
+
 interface ErrorListener {
     void error(int line, int charPositionInLine, String msg);
 
@@ -22,11 +24,12 @@ interface ErrorListener {
     }
 }
 
-class PrintErrorListener
-        implements ErrorListener {
-    private String fileName;
+class PrintErrorListener implements ErrorListener {
+    private final String fileName;
+    private final PrintStream out;
 
-    PrintErrorListener(String fileName) {
+    PrintErrorListener(PrintStream out, String fileName) {
+        this.out = out;
         this.fileName = fileName;
     }
 
@@ -52,13 +55,12 @@ class PrintErrorListener
         if (position != null) {
             fileWithPosition += ":" + position;
         }
-        System.err.println(fileWithPosition + ": " + text);
+        out.println(fileWithPosition + ": " + text);
     }
 }
 
 
-class CountErrorListener
-        implements ErrorListener {
+class CountErrorListener implements ErrorListener {
     private ErrorListener sink;
     private int errorCount = 0;
 

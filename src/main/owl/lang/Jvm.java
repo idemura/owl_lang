@@ -33,27 +33,27 @@ interface JvmTranslator {
 }
 
 interface JvmVisitor<T> {
-    default T defaultValue() {
-        return null;
+    default T visitError() {
+        throw new UnsupportedOperationException("JvmVisitor implementation " + getClass().getName());
     }
 
     default T accept(JvmNode node) {
         if (node != null) {
             return (T) node.accept(this);
         } else {
-            return defaultValue();
+            return visitError();
         }
     }
 
-    default T visit(JvmPackage node) { return defaultValue(); }
-    default T visit(JvmClass node) { return defaultValue(); }
-    default T visit(JvmFunction node) { return defaultValue(); }
-    default T visit(JvmVariable node) { return defaultValue(); }
-    default T visit(JvmValue node) { return defaultValue(); }
-    default T visit(JvmApply node) { return defaultValue(); }
-    default T visit(JvmBinary node) { return defaultValue(); }
-    default T visit(JvmBlock node) { return defaultValue(); }
-    default T visit(JvmReturn node) { return defaultValue(); }
+    default T visit(JvmPackage node) { return visitError(); }
+    default T visit(JvmClass node) { return visitError(); }
+    default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmVariable node) { return visitError(); }
+    default T visit(JvmValue node) { return visitError(); }
+    default T visit(JvmApply node) { return visitError(); }
+    default T visit(JvmBinary node) { return visitError(); }
+    default T visit(JvmBlock node) { return visitError(); }
+    default T visit(JvmReturn node) { return visitError(); }
 }
 
 abstract class JvmNode {

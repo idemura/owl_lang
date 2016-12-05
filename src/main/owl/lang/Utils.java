@@ -23,6 +23,7 @@ final class IndentPrinter {
     private static final String TAB = "  ";
     private PrintStream out;
     private int tab = 0;
+    private boolean newLine = true;
 
     IndentPrinter(PrintStream out) {
         this.out = out;
@@ -36,11 +37,54 @@ final class IndentPrinter {
         tab--;
     }
 
-    void print(String s) {
-        for (int i = 0; i < tab; i++) {
-            out.print(TAB);
+    IndentPrinter print(String s) {
+        return doPrint(s, false);
+    }
+
+    IndentPrinter println(String s) {
+        return doPrint(s, true);
+    }
+
+    IndentPrinter printlnAll(Object... objs) {
+        printLineIndent();
+        boolean first = true;
+        for (Object o : objs) {
+            if (first) {
+                first = false;
+            } else {
+                out.print(" ");
+            }
+            out.print(o.toString());
         }
-        out.println(s);
+        out.println();
+        newLine = true;
+        return this;
+    }
+
+    void curlyOpen() {
+        println("{");
+        indent();
+    }
+
+    void curlyClose() {
+        unindent();
+        println("}");
+    }
+
+    private void printLineIndent() {
+        if (newLine) {
+            for (int i = 0; i < tab; i++) {
+                out.print(TAB);
+            }
+        }
+    }
+
+    private IndentPrinter doPrint(String s, boolean ln) {
+        printLineIndent();
+        out.print(s);
+        if (ln) out.println();
+        newLine = ln;
+        return this;
     }
 }
 

@@ -23,10 +23,10 @@ final class DebugPrint {
         new AstPrintVisitor(new IndentPrinter(out)).accept(ast.root);
     }
 
-    private static final class AstPrintVisitor implements AstVisitor<Void> {
-        private IndentPrinter printer;
+    private static final class AstPrintVisitor implements AstVisitor {
+        private final IndentPrinter printer;
 
-        AstPrintVisitor(IndentPrinter printer) {
+        private AstPrintVisitor(IndentPrinter printer) {
             this.printer = printer;
         }
 
@@ -60,7 +60,7 @@ final class DebugPrint {
             node(n);
             for (AstNode f : n.members) {
                 accept(f);
-                printer.print("");
+                printer.println("");
             }
             endNode();
             return null;
@@ -97,10 +97,10 @@ final class DebugPrint {
             node(n);
             for (AstNode s : n.statements) {
                 accept(s);
-                printer.print(";");
+                printer.println(";");
             }
             endNode();
-            printer.print(";;");
+            printer.println(";;");
             return null;
         }
 
@@ -133,18 +133,18 @@ final class DebugPrint {
             node(n);
             for (int i = 0; i < n.condition.size(); i++) {
                 if (i != 0) {
-                    printer.print("# elif condition:");
+                    printer.println("# elif condition:");
                 }
                 accept(n.condition.get(i));
                 if (i != 0) {
-                    printer.print("# then:");
+                    printer.println("# then:");
                 } else {
-                    printer.print("# elif:");
+                    printer.println("# elif:");
                 }
                 accept(n.block.get(i));
             }
             if (n.block.size() > n.condition.size()) {
-                printer.print("# else:");
+                printer.println("# else:");
                 accept(n.block.get(n.block.size() - 1));
             }
             endNode();
@@ -160,11 +160,11 @@ final class DebugPrint {
                     accept(n.block.get(blockIndex));
                     blockIndex = l.block;
                 }
-                printer.print("." + l.label + " " + l.variable);
+                printer.println("." + l.label + " " + l.variable);
             }
             accept(n.block.get(blockIndex));
             if (n.elseBlock != null) {
-                printer.print("# else (default)");
+                printer.println("# else (default)");
                 accept(n.elseBlock);
             }
             endNode();
@@ -188,24 +188,24 @@ final class DebugPrint {
         }
 
         private void prop(String name, String s) {
-            printer.print(name + ": " + s);
+            printer.println(name + ": " + s);
         }
 
         private void leaf(AstNode n) {
-            printer.print(getClassName(n));
+            printer.println(getClassName(n));
         }
 
         private void leaf(AstNode n, String s) {
-            printer.print(getClassName(n) + " " + s);
+            printer.println(getClassName(n) + " " + s);
         }
 
         private void node(AstNode n) {
-            printer.print(getClassName(n));
+            printer.println(getClassName(n));
             printer.indent();
         }
 
         private void node(AstNode n, String s) {
-            printer.print(getClassName(n) + " " + s);
+            printer.println(getClassName(n) + " " + s);
             printer.indent();
         }
 
