@@ -82,7 +82,7 @@ public class CLI {
                 try {
                     compileAst(ast, errorListener, System.out, System.out);
                 } catch (OwlException e) {
-                    // Skip, error listener took care.
+                    // Skip, error listener took care
                 }
             } catch (IOException | OwlException e) {
                 errorListener.error(0, 0, e.getMessage());

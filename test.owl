@@ -9,6 +9,7 @@ fn f2(a: I32) {
 }
 
 fn f2(x: String): I32 {
+    return 2 * 100;
 }
 
 fn qq {
@@ -23,3 +24,8 @@ fn f4(): I32[] {
 }
 
 x = 10;
+
+fn owl_main() {
+    qq();
+}
+

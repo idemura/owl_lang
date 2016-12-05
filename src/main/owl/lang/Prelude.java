@@ -30,9 +30,9 @@ final class Prelude {
             ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "+", binaryI32));
             ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "+", binaryI64));
             ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "*", binaryI32));
-            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.I32, AstType.None)));
-            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.I64, AstType.None)));
-            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.String, AstType.None)));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.I32, AstType.NONE)));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.I64, AstType.NONE)));
+            ENTITY_MAP.put(new FunctionEntity(PRELUDE_MODULE_NAME, "print", makeFnType(AstType.STRING, AstType.NONE)));
         } catch (OwlException e) {
             throw new IllegalArgumentException(e);
         }

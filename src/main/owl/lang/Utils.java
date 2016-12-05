@@ -14,8 +14,13 @@
  */
 package owl.lang;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import static java.util.stream.Collectors.toList;
 
@@ -49,12 +54,15 @@ final class IndentPrinter {
         printLineIndent();
         boolean first = true;
         for (Object o : objs) {
-            if (first) {
-                first = false;
-            } else {
+            String ostr = o.toString();
+            if (ostr.isEmpty()) {
+                continue;
+            }
+            if (!first) {
                 out.print(" ");
             }
             out.print(o.toString());
+            first = false;
         }
         out.println();
         newLine = true;
@@ -91,7 +99,42 @@ final class IndentPrinter {
 final class Utils {
     private Utils() {}
 
+    private static String LANGUAGE_VERSION;
+    private static String COMPILER_NAME;
+
     static <T> String joinLines(Collection<T> c) {
         return String.join("\n", c.stream().map(T::toString).collect(toList()));
+    }
+
+    static String getCompilerName() {
+        if (COMPILER_NAME == null) {
+            COMPILER_NAME =
+                    getManifestAttribute("Owl-Compiler-Name") + " " +
+                    getManifestAttribute("Owl-Compiler-Version");
+        }
+        return COMPILER_NAME;
+    }
+
+    static String getLanguageVersion() {
+        if (LANGUAGE_VERSION == null) {
+            LANGUAGE_VERSION = getManifestAttribute("Owl-Language-Version");
+        }
+        return LANGUAGE_VERSION;
+    }
+
+    private static String getManifestAttribute(String name) {
+        try {
+            Attributes.Name attrName = new Attributes.Name(name);
+            Enumeration<URL> resources = Utils.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+            while (resources.hasMoreElements()) {
+                Manifest m = new Manifest(resources.nextElement().openStream());
+                Object value = m.getMainAttributes().get(attrName);
+                if (value != null) {
+                    return (String) value;
+                }
+            }
+        } catch (IOException e) {
+        }
+        throw new IllegalStateException("manifest missing attribute");
     }
 }

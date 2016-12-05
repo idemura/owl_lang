@@ -18,13 +18,14 @@ java_test(
     ]),
     deps = [
         ':owl_lang',
+        '//lib:guava',
         '//lib:junit',
     ],
 )
 
 java_binary(
     name = 'owl_lang_cli',
-    main_class = 'owl.lang.CLI',
+    manifest_file = 'src/main/resources/META-INF/MANIFEST.MF',
     deps = [
         ':owl_lang',
     ],

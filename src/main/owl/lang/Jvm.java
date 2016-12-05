@@ -54,6 +54,7 @@ interface JvmVisitor<T> {
     default T visit(JvmBinary node) { return visitError(); }
     default T visit(JvmBlock node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
+    default T visit(JvmComment node) { return visitError(); }
 }
 
 abstract class JvmNode {
@@ -122,17 +123,17 @@ class JvmVariable extends JvmNode {
     final JvmAccessModifier access;
     final JvmMemoryModifier memory;
     final String name;
-    final String type;
+    final AstType type;
 
-    static JvmVariable makeLocal(String name, String type) {
-        return new JvmVariable(JvmAccessModifier.PRIVATE, JvmMemoryModifier.LOCAL, name, type);
+    static JvmVariable makeLocal(String name, AstType type) {
+        return new JvmVariable(JvmAccessModifier.PRIVATE, JvmMemoryModifier.LOCAL, type, name);
     }
 
     JvmVariable(
             JvmAccessModifier access,
             JvmMemoryModifier memory,
-            String name,
-            String type) {
+            AstType type,
+            String name) {
         this.access = access;
         this.memory = memory;
         this.name = name;
@@ -150,13 +151,13 @@ class JvmFunction extends JvmNode {
     final JvmMemoryModifier memory;
     final String name;
     final List<JvmVariable> args;
-    final String returnType;
+    final AstType returnType;
     final JvmNode block;
 
     JvmFunction(
             JvmAccessModifier access,
             JvmMemoryModifier memory,
-            String returnType,
+            AstType returnType,
             String name,
             List<JvmVariable> args,
             JvmNode block) {
@@ -174,7 +175,7 @@ class JvmFunction extends JvmNode {
     }
 }
 
-// Includes literals and variable names.
+// Includes literals and variable names
 class JvmValue extends JvmNode {
     String name;
 
@@ -189,13 +190,13 @@ class JvmValue extends JvmNode {
 }
 
 class JvmApply extends JvmNode {
-    final String returnType;
+    final AstType returnType;
     final String object;
     final String method;
     private List<JvmNode> args = new ArrayList<>();
 
     JvmApply(
-            String returnType,
+            AstType returnType,
             String object,
             String method,
             List<JvmNode> args) {
@@ -250,6 +251,19 @@ class JvmReturn extends JvmNode {
 
     JvmReturn(JvmNode expr) {
         this.expr = expr;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+class JvmComment extends JvmNode {
+    final String text;
+
+    JvmComment(String text) {
+        this.text = text;
     }
 
     @Override

@@ -57,7 +57,7 @@ class EntityCollector {
             boolean err = false;
             if (!n.args.isEmpty()) {
                 HashMap<String, AstArgument> arguments = new HashMap<>();
-                AstType t = AstType.None;
+                AstType t = AstType.NONE;
                 for (int i = n.args.size(); i > 0; ) {
                     AstArgument a = n.args.get(--i);
                     if (arguments.containsKey(a.name)) {
@@ -67,8 +67,8 @@ class EntityCollector {
                         continue;
                     }
                     arguments.put(a.name, a);
-                    if (a.type == AstType.None) {
-                        if (t == AstType.None) {
+                    if (a.type == AstType.NONE) {
+                        if (t == AstType.NONE) {
                             error(n, "function " + n.name + " argument " + a.name + " type None");
                             err = true;
                         } else {
@@ -82,7 +82,7 @@ class EntityCollector {
             if (n.name.isEmpty()) {
                 error(n, "function unnamed");
             } else if (!err) {
-                // Add only if no errors during function signature analysis.
+                // Add only if no errors during function signature analysis
                 Entity s = n.getEntity(moduleName);
                 try {
                     entityMap.put(s);

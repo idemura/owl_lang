@@ -14,21 +14,24 @@
  */
 package owl.lang;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class TypeTest {
     @Test
-    public void testGenericTypeStr() {
-        AstType t = new AstType("Foo");
-        t.args.add(AstType.I32);
-        t.args.add(AstType.F32);
-        assertEquals("Foo(I32, F32)", t.toString());
-    }
+    public void testTypeToString() {
+        AstType t;
 
-    @Test
-    public void testTypeStr() {
-        AstType t = new AstType("Foo");
+        t = new AstType(new AstName("Foo"),
+                ImmutableList.of(AstType.I32, AstType.F32));
+        assertEquals("Foo(I32, F32)", t.toString());
+
+        t = new AstType(new AstName("Foo"),
+                ImmutableList.of(AstType.BOOL));
+        assertEquals("Foo(Bool)", t.toString());
+
+        t = new AstType(new AstName("Foo"));
         assertEquals("Foo", t.toString());
     }
 }

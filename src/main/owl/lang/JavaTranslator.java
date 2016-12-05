@@ -25,11 +25,47 @@ final class JavaTranslator implements JvmTranslator {
         new Visitor(new IndentPrinter(new PrintStream(out))).accept(jvm.root);
     }
 
-    private static final class Context {
-
+    private static String javaTypeName(AstType type) {
+        return new JavaTypeNameVisitor().accept(type);
     }
 
-    private static String javaAccessModifierStr(JvmAccessModifier m) {
+    private static final class JavaTypeNameVisitor implements AstVisitor<String> {
+        @Override
+        public String visit(AstName n) {
+            return n.name;
+        }
+
+        @Override
+        public String visit(AstType n) {
+            if (n.name.equals("Array")) {
+                return accept(n.args.get(0)) + "[]";
+            }
+            if (n.args.size() > 0) {
+                throw new UnsupportedOperationException("java type name on generic");
+            }
+            if (n.equals(AstType.BOOL)) {
+                return "boolean";
+            } else if (n.equals(AstType.CHAR)) {
+                return "char";
+            } else if (n.equals(AstType.I32)) {
+                return "int";
+            } else if (n.equals(AstType.I64)) {
+                return "long";
+            } else if (n.equals(AstType.F32)) {
+                return "float";
+            } else if (n.equals(AstType.F64)) {
+                return "double";
+            } else if (n.equals(AstType.STRING)) {
+                return "String";
+            } else if (n.equals(AstType.NONE)) {
+                return "void";
+            } else {
+                return accept(n.name);
+            }
+        }
+    }
+
+    private static String javaAccessModifier(JvmAccessModifier m) {
         switch (m) {
             case PUBLIC:
                 return "public";
@@ -41,7 +77,7 @@ final class JavaTranslator implements JvmTranslator {
         throw new IllegalStateException("JvmAccessModifer " + m);
     }
 
-    private static String javaMemoryModifierStr(JvmMemoryModifier m) {
+    private static String javaMemoryModifier(JvmMemoryModifier m) {
         switch (m) {
             case STATIC:
                 return "static";
@@ -54,7 +90,6 @@ final class JavaTranslator implements JvmTranslator {
 
     private static final class Visitor implements JvmVisitor {
         private final IndentPrinter printer;
-        private final Context context = new Context();
 
         private Visitor(IndentPrinter printer) {
             this.printer = printer;
@@ -71,19 +106,43 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmClass n) {
-            printer.printlnAll(javaAccessModifierStr(n.access), "class", n.name).curlyOpen();
+            printer.printlnAll(javaAccessModifier(n.access), "class", n.name).curlyOpen();
+            for (JvmNode child : n.getChildren()) {
+                accept(child);
+            }
             printer.curlyClose();
             return null;
         }
 
         @Override
         public Void visit(JvmFunction n) {
-            return (Void) visitError();
+            printer.printlnAll(
+                    javaAccessModifier(n.access),
+                    javaMemoryModifier(n.memory),
+                    javaTypeName(n.returnType),
+                    n.name, "(");
+            printer.indent();
+            printer.indent();
+            boolean first = true;
+            for (JvmVariable v : n.args) {
+                printer.printlnAll(first? "": ",", v.type, n.name);
+                first = false;
+            }
+            printer.unindent();
+            printer.unindent();
+            printer.printlnAll(")").curlyOpen();
+            printer.curlyClose();
+            return null;
         }
 
         @Override
         public Void visit(JvmVariable n) {
-            return (Void) visitError();
+            printer.printlnAll(
+                    javaAccessModifier(n.access),
+                    javaMemoryModifier(n.memory),
+                    javaTypeName(n.type));
+            // TODO: Init expression generation
+            return null;
         }
 
         @Override
@@ -109,6 +168,12 @@ final class JavaTranslator implements JvmTranslator {
         @Override
         public Void visit(JvmReturn n) {
             return (Void) visitError();
+        }
+
+        @Override
+        public Void visit(JvmComment n) {
+            printer.printlnAll("//", n.text);
+            return null;
         }
     }
 }

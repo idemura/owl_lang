@@ -37,7 +37,7 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstName n) {
-            // Should not resolve named function here, but in apply.
+            // Should not resolve named function here, but in apply
             if (!locals.isFunction(n.name)) {
                 try {
                     n.entity = locals.resolveVariable(n.name);
@@ -133,7 +133,7 @@ class TypeCheckerAndEntityResolver {
                     n.type = AstType.I32;
                     break;
                 case STRING:
-                    n.type = AstType.String;
+                    n.type = AstType.STRING;
                     break;
                 default:
                     throw new IllegalStateException("unknown literal format " + n.format);
@@ -153,7 +153,8 @@ class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstReturn n) {
-            throw new UnsupportedOperationException("type checker");
+            accept(n.expr);
+            return null;
         }
 
         @Override

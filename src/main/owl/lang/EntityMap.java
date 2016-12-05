@@ -106,7 +106,7 @@ class EntityMap implements Cloneable {
             return false;
         }
         AstType fnType = e.getType();
-        // Do not count return type.
+        // Do not count return type
         if (fnType.args.size() - 1 == argTypes.size()) {
             for (int i = 0; i < argTypes.size(); i++) {
                 if (!fnType.args.get(i).equals(argTypes.get(i))) {

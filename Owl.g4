@@ -434,23 +434,27 @@ returns [AstNode r]
 ;
 
 // Type Instance
-typeNonFn
-returns [AstType r = new AstType()]
-:   n = absoluteName { $r.name = $n.r; }
+typeNonLambda
+returns [AstType r]
+:   n = absoluteName { $r = new AstType($n.r); }
     (
+        {
+            List<AstType> typeArgs = new ArrayList<>();
+        }
         LPAREN
-        a = typeInstance { $r.args.add($a.r); }
+        a = typeInstance { typeArgs.add($a.r); }
         (
-            COMMA a = typeInstance { $r.args.add($a.r); }
+            COMMA a = typeInstance { typeArgs.add($a.r); }
         )*
         RPAREN
+        {
+            $r = new AstType($r.name, typeArgs);
+        }
     |   (
             LBRACKET
             RBRACKET
             {
-                AstType arrayType = new AstType("Array");
-                arrayType.args.add($r);
-                $r = arrayType;
+                $r = AstType.arrayOf($r);
             }
         )+
     )?
@@ -458,19 +462,20 @@ returns [AstType r = new AstType()]
 
 typeInstance
 returns [AstType r]
-:   { AstType functionType = null; }
-    x = typeNonFn { $r = $x.r; }
+:   {
+        List<AstType> typeArgs = new ArrayList<>();
+    }
+    x = typeNonLambda { typeArgs.add($x.r); }
     (
-        ARROW y = typeNonFn
-        {
-            if (functionType == null) {
-                functionType = new AstType("Fn");
-                functionType.args.add($r);
-                $r = functionType;
-            }
-            functionType.args.add($y.r);
-        }
+        ARROW y = typeNonLambda { typeArgs.add($y.r); }
     )*
+    {
+        if (typeArgs.size() == 1) {
+            $r = typeArgs.get(0);
+        } else {
+            $r = AstType.functionOf(typeArgs);
+        }
+    }
 ;
 
 

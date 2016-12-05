@@ -20,13 +20,13 @@ final class TypeUtil {
     private TypeUtil() {}
 
     static boolean fnEqualSignatures(AstType a, AstType b) {
-        if (!a.name.equals("Fn") || !b.name.equals("Fn")) {
+        if (!a.name.equals(AstName.FUNCTION) || !b.name.equals(AstName.FUNCTION)) {
             throw new IllegalArgumentException("function type expected");
         }
         if (a.args.size() != b.args.size()) {
             return false;
         }
-        // Compare all except last (return type).
+        // Compare all except last (return type)
         for (int i = 0; i < a.args.size() - 1; i++) {
             if (!a.args.get(i).equals(b.args.get(i))) {
                 return false;
@@ -35,12 +35,10 @@ final class TypeUtil {
         return true;
     }
 
-    static AstType makeFnType(AstType... args) {
-        if (args.length < 1) {
+    static AstType makeFnType(AstType... typeArgs) {
+        if (typeArgs.length < 1) {
             throw new IllegalArgumentException("makeFnType args 0 length");
         }
-        AstType t = new AstType("Fn");
-        t.args.addAll(asList(args));
-        return t;
+        return AstType.functionOf(asList(typeArgs));
     }
 }

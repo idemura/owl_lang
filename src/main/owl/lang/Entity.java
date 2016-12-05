@@ -51,7 +51,7 @@ abstract class Entity {
     }
 }
 
-// Basically function signature.
+// Basically function signature
 class FunctionEntity extends Entity {
     FunctionEntity(String moduleName, String name, AstType type) {
         this.moduleName = moduleName;

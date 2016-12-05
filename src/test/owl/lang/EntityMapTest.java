@@ -28,10 +28,10 @@ public class EntityMapTest {
             fail();
         }
         try {
-            m.put(new VariableEntity("test", "x", AstType.String, VariableScope.FUNCTION));
+            m.put(new VariableEntity("test", "x", AstType.STRING, VariableScope.FUNCTION));
             fail();
         } catch (OwlException e) {
         }
-        m.replace(new VariableEntity("test", "x", AstType.String, VariableScope.FUNCTION));
+        m.replace(new VariableEntity("test", "x", AstType.STRING, VariableScope.FUNCTION));
     }
 }

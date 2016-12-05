@@ -73,6 +73,17 @@ abstract class AstNode {
 }
 
 class AstName extends AstNode {
+    static final AstName BOOL = new AstName("Bool");
+    static final AstName CHAR = new AstName("Char");
+    static final AstName F32 = new AstName("F32");
+    static final AstName F64 = new AstName("F64");
+    static final AstName I32 = new AstName("I32");
+    static final AstName I64 = new AstName("I64");
+    static final AstName NONE = new AstName("None");
+    static final AstName STRING = new AstName("String");
+    static final AstName ARRAY = new AstName("Array");
+    static final AstName FUNCTION = new AstName("Fn");
+
     String name = "";
     Entity entity = null;
 
@@ -106,24 +117,36 @@ class AstName extends AstNode {
     }
 }
 
-// Generic returnType with parameters.
+// Generic returnType with parameters
 class AstType extends AstNode {
-    static final AstType Bool = new AstType("Bool");
-    static final AstType Char = new AstType("Char");
-    static final AstType F32 = new AstType("F32");
-    static final AstType F64 = new AstType("F64");
-    static final AstType I32 = new AstType("I32");
-    static final AstType I64 = new AstType("I64");
-    static final AstType None = new AstType("None");
-    static final AstType String = new AstType("String");
+    static final AstType BOOL = new AstType(AstName.BOOL);
+    static final AstType CHAR = new AstType(AstName.CHAR);
+    static final AstType F32 = new AstType(AstName.F32);
+    static final AstType F64 = new AstType(AstName.F64);
+    static final AstType I32 = new AstType(AstName.I32);
+    static final AstType I64 = new AstType(AstName.I64);
+    static final AstType NONE = new AstType(AstName.NONE);
+    static final AstType STRING = new AstType(AstName.STRING);
 
-    AstType() {}
-    AstType(String name) {
-        this.name = new AstName(name);
+    final AstName name;
+    final List<AstType> args;
+
+    static AstType arrayOf(AstType type) {
+        return new AstType(AstName.ARRAY, ImmutableList.of(type));
     }
 
-    AstName name;
-    List<AstType> args = new ArrayList<>();
+    static AstType functionOf(List<AstType> args) {
+        return new AstType(AstName.FUNCTION, args);
+    }
+
+    AstType(AstName name) {
+        this(name, ImmutableList.of());
+    }
+
+    AstType(AstName name, List<AstType> args) {
+        this.name = name;
+        this.args = ImmutableList.copyOf(args);
+    }
 
     @Override
     public String toString() {
@@ -189,7 +212,7 @@ class AstType extends AstNode {
 class AstMember extends AstNode {
     AstNode left;
     AstName name;
-    AstType type = AstType.None;
+    AstType type = AstType.NONE;
 
     @Override
     public Object accept(AstVisitor v) {
@@ -216,7 +239,7 @@ class AstModule extends AstNode {
 class AstFunction extends AstNode {
     String name = "";
     List<AstArgument> args = new ArrayList<>();
-    AstType returnType = AstType.None;
+    AstType returnType = AstType.NONE;
     AstBlock block;
 
     @Override
@@ -230,22 +253,22 @@ class AstFunction extends AstNode {
 
     @Override
     AstType getType() {
-        // Shouldn't be called multiple times.
-        AstType t = new AstType("Fn");
+        // Shouldn't be called multiple times
+        List<AstType> typeArgs = new ArrayList<>();
         for (AstArgument a : args) {
-            if (a.type.equals(AstType.None)) {
+            if (a.type.equals(AstType.NONE)) {
                 throw new IllegalStateException("argument type is None");
             }
-            t.args.add(a.getType());
+            typeArgs.add(a.getType());
         }
-        t.args.add(returnType);
-        return t;
+        typeArgs.add(returnType);
+        return AstType.functionOf(typeArgs);
     }
 }
 
 class AstArgument extends AstNode {
     String name = "";
-    AstType type = AstType.None;
+    AstType type = AstType.NONE;
 
     @Override
     public Object accept(AstVisitor v) {
@@ -278,7 +301,7 @@ class AstVariable extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name, AstType.None, VariableScope.MODULE);
+        return new VariableEntity(moduleName, name, AstType.NONE, VariableScope.MODULE);
     }
 
     @Override
@@ -301,7 +324,7 @@ class AstApply extends AstNode {
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
     // function application contexts.
-    AstType type = AstType.None;
+    AstType type = AstType.NONE;
 
     @Override
     public Object accept(AstVisitor v) {
@@ -347,7 +370,7 @@ class AstLiteral extends AstNode {
 
     String text = "";
     Format format = null;
-    AstType type = AstType.None;
+    AstType type = AstType.NONE;
 
     AstLiteral() {}
     AstLiteral(String text, Format format) {
@@ -367,7 +390,7 @@ class AstLiteral extends AstNode {
 }
 
 class AstIf extends AstNode {
-    // N conditions each with block and optionally (N + 1)-th block for else.
+    // N conditions each with block and optionally (N + 1)-th block for else
     List<AstNode> condition = new ArrayList<>();
     List<AstNode> block = new ArrayList<>();
 
