@@ -5,3 +5,5 @@ buck-out
 out
 src/owl_lang.iml
 
+*.class
+
