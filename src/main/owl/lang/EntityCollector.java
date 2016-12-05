@@ -19,42 +19,40 @@ import java.util.HashMap;
 // Collects module level entities (functions, variables). Checks function signature (infers argument types and checks
 // no duplicates).
 class EntityCollector {
-    static EntityMap analyze(Ast ast, ErrorListener errorListener) throws OwlException {
-        return new EntityCollector(ast, errorListener).run();
-    }
-
-    private final Ast ast;
-    private CountErrorListener errorListener;
-    private EntityMap entityMap = Prelude.ENTITY_MAP.clone();
-
-    private EntityCollector(Ast ast, ErrorListener errorListener) {
-        this.ast = ast;
-        this.errorListener = new CountErrorListener(errorListener);
-    }
-
-    private void error(AstNode n, String msg) {
-        errorListener.error(n.line, n.charPositionInLine, msg);
-    }
-
-    private EntityMap run() throws OwlException {
-        ast.accept(new AnalyzerVisitor());
-        if (errorListener.getErrorCount() > 0) {
+    static EntityMap run(Ast ast, ErrorListener errorListener) throws OwlException {
+        CountErrorListener countErrorListener = new CountErrorListener(errorListener);
+        Visitor v = new Visitor(countErrorListener);
+        v.accept(ast.root);
+        if (countErrorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
-        entityMap.freeze();
-        return entityMap;
+        return v.entityMap.freeze();
     }
 
-    private final class AnalyzerVisitor implements AstVisitor {
+    private static final class Visitor implements AstVisitor {
+        private final ErrorListener errorListener;
+        private final EntityMap entityMap = Prelude.ENTITY_MAP.clone();
+        private String moduleName;
+
+        private Visitor(ErrorListener errorListener) {
+            this.errorListener = errorListener;
+        }
+
+        private void error(AstNode n, String msg) {
+            errorListener.error(n.line, n.charPositionInLine, msg);
+        }
+
         @Override
-        public void visit(AstModule n) {
+        public Void visit(AstModule n) {
+            moduleName = n.name;
             for (AstNode m : n.members) {
                 accept(m);
             }
+            return null;
         }
 
         @Override
-        public void visit(AstFunction n) {
+        public Void visit(AstFunction n) {
             // TODO: Lambda
             boolean err = false;
             if (!n.args.isEmpty()) {
@@ -85,23 +83,25 @@ class EntityCollector {
                 error(n, "function unnamed");
             } else if (!err) {
                 // Add only if no errors during function signature analysis.
-                Entity s = n.getEntity(ast.<AstModule>getRootAs().name);
+                Entity s = n.getEntity(moduleName);
                 try {
                     entityMap.put(s);
                 } catch (OwlException e) {
                     errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
                 }
             }
+            return null;
         }
 
         @Override
-        public void visit(AstVariable n) {
-            Entity s = n.getEntity(ast.<AstModule>getRootAs().name);
+        public Void visit(AstVariable n) {
+            Entity s = n.getEntity(moduleName);
             try {
                 entityMap.put(s);
             } catch (OwlException e) {
                 errorListener.error(n.line, n.charPositionInLine, "duplicated module member " + n.name);
             }
+            return null;
         }
     }
 }

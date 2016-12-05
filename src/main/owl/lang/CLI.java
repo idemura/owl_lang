@@ -76,6 +76,9 @@ public class CLI {
             CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 Ast ast = parse(in, new ParserErrorListener(errorListener));
+                AstModule module = ast.<AstModule>getRootAs();
+                module.name = "owl_test";
+                module.fileName = fileName;
                 try {
                     compileAst(ast, errorListener, System.out, System.out);
                 } catch (OwlException e) {
@@ -121,13 +124,13 @@ public class CLI {
             DebugPrint.printAst(ast,debugOut);
         }
         if (flagAnalyze != 0) {
-            EntityMap entityMap = EntityCollector.analyze(ast, errorListener);
+            EntityMap entityMap = EntityCollector.run(ast, errorListener);
             if (flagPrintEntityMap != 0) {
                 entityMap.print(debugOut);
             }
-            TypeCheckerAndEntityResolver.analyze(ast, entityMap, errorListener);
+            TypeCheckerAndEntityResolver.run(ast, entityMap, errorListener);
             if (errorListener.getErrorCount() == 0 && flagGenerate != 0) {
-                Jvm jvm = CodeGenerator.generate(ast, errorListener);
+                Jvm jvm = CodeGenerator.run(ast, errorListener);
                 new JavaTranslator().translate(jvm, out);
             }
         }

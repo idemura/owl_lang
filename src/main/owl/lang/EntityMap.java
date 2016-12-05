@@ -67,7 +67,9 @@ class EntityMap implements Cloneable {
         return -1;
     }
 
-    void freeze() {}
+    EntityMap freeze() {
+        return this;
+    }
 
     boolean isFunction(String name) {
         return ents.containsKey(name) && ents.get(name).get(0) instanceof FunctionEntity;

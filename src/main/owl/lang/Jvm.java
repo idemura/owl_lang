@@ -14,6 +14,8 @@
  */
 package owl.lang;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,110 +26,151 @@ final class Jvm {
     Jvm(JvmNode root) {
         this.root = root;
     }
-
-    void accept(JvmVisitor v) {
-        if (root != null) {
-            root.accept(v);
-        }
-    }
 }
 
 interface JvmTranslator {
     void translate(Jvm jvm, OutputStream out) throws OwlException;
 }
 
-interface JvmVisitor {
-    default void visit(JvmPackage n) {}
-    default void visit(JvmClass n) {}
-    default void visit(JvmFunction n) {}
-    default void visit(JvmVariable n) {}
-    default void visit(JvmValue n) {}
-    default void visit(JvmApply n) {}
-    default void visit(JvmBinary n) {}
+interface JvmVisitor<T> {
+    default T defaultValue() {
+        return null;
+    }
+
+    default T accept(JvmNode node) {
+        if (node != null) {
+            return (T) node.accept(this);
+        } else {
+            return defaultValue();
+        }
+    }
+
+    default T visit(JvmPackage node) { return defaultValue(); }
+    default T visit(JvmClass node) { return defaultValue(); }
+    default T visit(JvmFunction node) { return defaultValue(); }
+    default T visit(JvmVariable node) { return defaultValue(); }
+    default T visit(JvmValue node) { return defaultValue(); }
+    default T visit(JvmApply node) { return defaultValue(); }
+    default T visit(JvmBinary node) { return defaultValue(); }
+    default T visit(JvmBlock node) { return defaultValue(); }
+    default T visit(JvmReturn node) { return defaultValue(); }
 }
 
 abstract class JvmNode {
-    abstract void accept(JvmVisitor v);
+    abstract Object accept(JvmVisitor v);
 }
 
-enum JvmAccess {
+enum JvmAccessModifier {
     PUBLIC,
     PRIVATE,
     PACKAGE,
 }
 
+enum JvmMemoryModifier {
+    STATIC,
+    LOCAL,
+    MEMBER,
+}
+
 class JvmPackage extends JvmNode {
-    String name;
-    List<JvmNode> members = new ArrayList<>();
+    final String name;
+    private List<JvmNode> children = new ArrayList<>();
 
     JvmPackage(String name) {
         this.name = name;
     }
 
+    void add(JvmNode n) {
+        children.add(n);
+    }
+
+    List<JvmNode> getChildren() {
+        return ImmutableList.copyOf(children);
+    }
+
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }
 
 class JvmClass extends JvmNode {
-    JvmAccess access;
-    String name;
-    List<JvmNode> members = new ArrayList<>();
+    final JvmAccessModifier access;
+    final String name;
+    private List<JvmNode> children = new ArrayList<>();
 
-    JvmClass(JvmAccess access, String name) {
+    JvmClass(JvmAccessModifier access, String name) {
         this.access = access;
         this.name = name;
     }
 
+    void add(JvmNode n) {
+        children.add(n);
+    }
+
+    List<JvmNode> getChildren() {
+        return ImmutableList.copyOf(children);
+    }
+
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }
 
 class JvmVariable extends JvmNode {
-    JvmAccess access;
-    String name;
-    String type;
+    final JvmAccessModifier access;
+    final JvmMemoryModifier memory;
+    final String name;
+    final String type;
 
-    JvmVariable(JvmAccess access, String name, String type) {
+    static JvmVariable makeLocal(String name, String type) {
+        return new JvmVariable(JvmAccessModifier.PRIVATE, JvmMemoryModifier.LOCAL, name, type);
+    }
+
+    JvmVariable(
+            JvmAccessModifier access,
+            JvmMemoryModifier memory,
+            String name,
+            String type) {
+        this.access = access;
+        this.memory = memory;
         this.name = name;
         this.type = type;
     }
 
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }
 
 class JvmFunction extends JvmNode {
-    JvmAccess access;
-    boolean isStatic;
-    String name;
-    List<JvmVariable> args;
-    String returnType;
-    JvmNode block;
+    final JvmAccessModifier access;
+    final JvmMemoryModifier memory;
+    final String name;
+    final List<JvmVariable> args;
+    final String returnType;
+    final JvmNode block;
 
     JvmFunction(
-            JvmAccess access,
-            boolean isStatic,
+            JvmAccessModifier access,
+            JvmMemoryModifier memory,
+            String returnType,
             String name,
             List<JvmVariable> args,
-            String returnType,
             JvmNode block) {
         this.access = access;
-        this.isStatic = isStatic;
+        this.memory = memory;
         this.name = name;
-        this.args = args;
+        this.args = ImmutableList.copyOf(args);
         this.returnType = returnType;
         this.block = block;
     }
 
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }
 
@@ -140,49 +183,77 @@ class JvmValue extends JvmNode {
     }
 
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }
 
 class JvmApply extends JvmNode {
-    String object;
-    String method;
-    String result;
-    List<String> params;
-    List<JvmNode> child = new ArrayList<>();
+    final String returnType;
+    final String object;
+    final String method;
+    private List<JvmNode> args = new ArrayList<>();
 
-
-    JvmApply(String result, String object, String method, List<String> params) {
+    JvmApply(
+            String returnType,
+            String object,
+            String method,
+            List<JvmNode> args) {
+        this.returnType = returnType;
         this.object = object;
         this.method = method;
-        this.result = result;
-        this.params = params;
+        this.args = ImmutableList.copyOf(args);
     }
 
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }
 
 class JvmBinary extends JvmNode {
-    String result;
-    String op;
-    String a;
-    String b;
-    JvmNode aNode;
-    JvmNode bNode;
+    final String op;
+    JvmNode a;
+    JvmNode b;
 
-    JvmBinary(String result, String op, String a, String b) {
-        this.result = result;
+    JvmBinary(String op, JvmNode a, JvmNode b) {
         this.op = op;
         this.a = a;
         this.b = b;
     }
 
     @Override
-    void accept(JvmVisitor v) {
-        v.visit(this);
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+class JvmBlock extends JvmNode {
+    private List<JvmNode> statements = new ArrayList<>();
+
+    void add(JvmNode n) {
+        statements.add(n);
+    }
+
+    List<JvmNode> getStatements() {
+        return ImmutableList.copyOf(statements);
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+class JvmReturn extends JvmNode {
+    final JvmNode expr;
+
+    JvmReturn(JvmNode expr) {
+        this.expr = expr;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
     }
 }

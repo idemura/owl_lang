@@ -14,9 +14,35 @@
  */
 package owl.lang;
 
+import java.io.PrintStream;
 import java.util.Collection;
 
 import static java.util.stream.Collectors.toList;
+
+final class IndentPrinter {
+    private static final String TAB = "  ";
+    private PrintStream out;
+    private int tab = 0;
+
+    IndentPrinter(PrintStream out) {
+        this.out = out;
+    }
+
+    void indent() {
+        tab++;
+    }
+
+    void unindent() {
+        tab--;
+    }
+
+    void print(String s) {
+        for (int i = 0; i < tab; i++) {
+            out.print(TAB);
+        }
+        out.println(s);
+    }
+}
 
 final class Utils {
     private Utils() {}

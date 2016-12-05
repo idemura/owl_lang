@@ -27,46 +27,46 @@ final class Ast {
         this.root = root;
     }
 
-    void accept(AstVisitor v) {
-        if (root != null) {
-            root.accept(v);
-        }
-    }
-
     <T> T getRootAs() {
         return (T) root;
     }
 }
 
-interface AstVisitor {
-    default void visit(AstName node) {}
-    default void visit(AstType node) {}
-    default void visit(AstModule node) {}
-    default void visit(AstFunction node) {}
-    default void visit(AstVariable node) {}
-    default void visit(AstArgument node) {}
-    default void visit(AstBlock node) {}
-    default void visit(AstApply node) {}
-    default void visit(AstConstant node) {}
-    default void visit(AstLiteral node) {}
-    default void visit(AstMember node) {}
-    default void visit(AstIf node) {}
-    default void visit(AstMatch node) {}
-    default void visit(AstReturn node) {}
-    default void visit(AstExpr node) {}
+interface AstVisitor<T> {
+    default T defaultValue() {
+        return null;
+    }
 
-    default void accept(AstNode node) {
+    default T accept(AstNode node) {
         if (node != null) {
-            node.accept(this);
+            return (T) node.accept(this);
+        } else {
+            return defaultValue();
         }
     }
+
+    default T visit(AstName node) { return defaultValue(); }
+    default T visit(AstType node) { return defaultValue(); }
+    default T visit(AstModule node) { return defaultValue(); }
+    default T visit(AstFunction node) { return defaultValue(); }
+    default T visit(AstVariable node) { return defaultValue(); }
+    default T visit(AstArgument node) { return defaultValue(); }
+    default T visit(AstBlock node) { return defaultValue(); }
+    default T visit(AstApply node) { return defaultValue(); }
+    default T visit(AstConstant node) { return defaultValue(); }
+    default T visit(AstLiteral node) { return defaultValue(); }
+    default T visit(AstMember node) { return defaultValue(); }
+    default T visit(AstIf node) { return defaultValue(); }
+    default T visit(AstMatch node) { return defaultValue(); }
+    default T visit(AstReturn node) { return defaultValue(); }
+    default T visit(AstExpr node) { return defaultValue(); }
 }
 
 abstract class AstNode {
     int line;
     int charPositionInLine;
 
-    abstract void accept(AstVisitor visitor);
+    abstract Object accept(AstVisitor visitor);
     AstType getType() {
         throw new UnsupportedOperationException("getType on " + getClass().getSimpleName());
     }
@@ -96,8 +96,8 @@ class AstName extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     @Override
@@ -111,6 +111,7 @@ class AstType extends AstNode {
     static final AstType Bool = new AstType("Bool");
     static final AstType Char = new AstType("Char");
     static final AstType F32 = new AstType("F32");
+    static final AstType F64 = new AstType("F64");
     static final AstType I32 = new AstType("I32");
     static final AstType I64 = new AstType("I64");
     static final AstType None = new AstType("None");
@@ -154,36 +155,33 @@ class AstType extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
-    private static class TypeNameVisitor implements AstVisitor {
+    private static final class TypeNameVisitor implements AstVisitor<String> {
         static String run(AstType type) {
-            TypeNameVisitor v = new TypeNameVisitor();
-            type.accept(v);
-            return v.name;
-        }
-
-        private String name = "";
-
-        @Override
-        public void visit(AstName n) {
-            name += n.name;
+            return new TypeNameVisitor().accept(type);
         }
 
         @Override
-        public void visit(AstType n) {
-            accept(n.name);
+        public String visit(AstName n) {
+            return n.name;
+        }
+
+        @Override
+        public String visit(AstType n) {
+            String name = accept(n.name);
             if (!n.args.isEmpty()) {
                 name += "(";
-                accept(n.args.get(0));
+                name += accept(n.args.get(0));
                 for (int i = 1; i < n.args.size(); i++) {
                     name += ", ";
-                    accept(n.args.get(i));
+                    name += accept(n.args.get(i));
                 }
                 name += ")";
             }
+            return name;
         }
     }
 }
@@ -194,8 +192,8 @@ class AstMember extends AstNode {
     AstType type = AstType.None;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     @Override
@@ -205,12 +203,13 @@ class AstMember extends AstNode {
 }
 
 class AstModule extends AstNode {
-    String name = "<main>";
+    String name;
+    String fileName;
     List<AstNode> members = new ArrayList<>();
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 }
 
@@ -221,8 +220,8 @@ class AstFunction extends AstNode {
     AstBlock block;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     Entity getEntity(String moduleName) {
@@ -249,8 +248,8 @@ class AstArgument extends AstNode {
     AstType type = AstType.None;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     Entity getEntity(String moduleName) {
@@ -274,8 +273,8 @@ class AstVariable extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     Entity getEntity(String moduleName) {
@@ -292,21 +291,21 @@ class AstBlock extends AstNode {
     List<AstNode> statements = new ArrayList<>();
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 }
 
 class AstApply extends AstNode {
     List<AstNode> args = new ArrayList<>();
     // We can't take apply type as function return type because function return type is the result of deduction on
-    // function type parameters given argument types. Consider: fn f(x, y: T): T {}. So type may vary in different
+    // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
     // function application contexts.
     AstType type = AstType.None;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     @Override
@@ -328,8 +327,8 @@ class AstConstant extends AstNode {
     AstNode expr;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     @Override
@@ -357,8 +356,8 @@ class AstLiteral extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     @Override
@@ -373,8 +372,8 @@ class AstIf extends AstNode {
     List<AstNode> block = new ArrayList<>();
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 }
 
@@ -392,8 +391,8 @@ class AstMatch extends AstNode {
     AstNode elseBlock;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 }
 
@@ -401,8 +400,8 @@ class AstReturn extends AstNode {
     AstNode expr;
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 }
 
@@ -415,8 +414,8 @@ class AstExpr extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor v) {
-        v.visit(this);
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
     @Override

@@ -65,19 +65,19 @@ Module
   Variable x
     Literal DEC 10
   
-Function <main> qq: Fn(None)
+Function owl_test qq: Fn(None)
 print
   Function <prelude> print: Fn(I32, None)
   Function <prelude> print: Fn(I64, None)
   Function <prelude> print: Fn(String, None)
-Variable <main> x: None
+Variable owl_test x: None
 Function <prelude> *: Fn(I32, I32, I32)
 +
   Function <prelude> +: Fn(I32, I32, I32)
   Function <prelude> +: Fn(I64, I64, I64)
-Function <main> f1: Fn(None)
+Function owl_test f1: Fn(None)
 f2
-  Function <main> f2: Fn(I32, None)
-  Function <main> f2: Fn(String, I32)
-Function <main> f3: Fn(I32, I32, None)
-Function <main> f4: Fn(Array(I32))
+  Function owl_test f2: Fn(I32, None)
+  Function owl_test f2: Fn(String, I32)
+Function owl_test f3: Fn(I32, I32, None)
+Function owl_test f4: Fn(Array(I32))

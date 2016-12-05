@@ -16,33 +16,27 @@ package owl.lang;
 
 // Check types of function applications. Resolves entity names and function overloads.
 class TypeCheckerAndEntityResolver {
-    static void analyze(Ast ast, EntityMap entityMap, ErrorListener errorListener) throws OwlException {
-        new TypeCheckerAndEntityResolver(ast, entityMap, errorListener).run();
+    static void run(Ast ast, EntityMap entityMap, ErrorListener errorListener) throws OwlException {
+        new Visitor(entityMap, errorListener).accept(ast.root);
     }
 
-    private final Ast ast;
-    private CountErrorListener errorListener;
-    private EntityMap entityMap;
+    private static final class Visitor implements AstVisitor {
+        private final ErrorListener errorListener;
+        private final EntityMap entityMap;
+        private EntityMap locals;
+        private String moduleName;
 
-    private TypeCheckerAndEntityResolver(Ast ast, EntityMap entityMap, ErrorListener errorListener) {
-        this.ast = ast;
-        this.entityMap = entityMap;
-        this.errorListener = new CountErrorListener(errorListener);
-    }
+        private Visitor(EntityMap entityMap, ErrorListener errorListener) {
+            this.errorListener = new CountErrorListener(errorListener);
+            this.entityMap = entityMap;
+        }
 
-    private void error(AstNode n, String msg) {
-        errorListener.error(n.line, n.charPositionInLine, msg);
-    }
-
-    private void run() throws OwlException {
-        ast.accept(new AnalyzerVisitor());
-    }
-
-    private final class AnalyzerVisitor implements AstVisitor {
-        EntityMap locals = null;
+        private void error(AstNode n, String msg) {
+            errorListener.error(n.line, n.charPositionInLine, msg);
+        }
 
         @Override
-        public void visit(AstName n) {
+        public Void visit(AstName n) {
             // Should not resolve named function here, but in apply.
             if (!locals.isFunction(n.name)) {
                 try {
@@ -51,59 +45,59 @@ class TypeCheckerAndEntityResolver {
                     error(n, e.getMessage());
                 }
             }
+            return null;
         }
 
         @Override
-        public void visit(AstType n) {
+        public Void visit(AstType n) {
             throw new UnsupportedOperationException("type checker");
-//            for (AstType t : n.args) {
-//                accept(t);
-//            }
         }
 
         @Override
-        public void visit(AstMember n) {
+        public Void visit(AstMember n) {
             throw new UnsupportedOperationException("type checker");
-//            accept(n.left);
-//            accept(n.name);
         }
 
         @Override
-        public void visit(AstModule n) {
+        public Void visit(AstModule n) {
+            moduleName = n.name;
             for (AstNode f : n.members) {
                 accept(f);
             }
+            return null;
         }
 
         @Override
-        public void visit(AstFunction n) {
+        public Void visit(AstFunction n) {
             locals = entityMap.clone();
             for (AstArgument a : n.args) {
-                locals.replace(a.getEntity(ast.<AstModule>getRootAs().name));
+                locals.replace(a.getEntity(moduleName));
             }
             accept(n.block);
+            return null;
         }
 
         @Override
-        public void visit(AstArgument n) {
+        public Void visit(AstArgument n) {
             throw new UnsupportedOperationException("type checker");
-//            accept(n.returnType);
         }
 
         @Override
-        public void visit(AstVariable n) {
+        public Void visit(AstVariable n) {
             accept(n.expr);
+            return null;
         }
 
         @Override
-        public void visit(AstBlock n) {
+        public Void visit(AstBlock n) {
             for (AstNode s : n.statements) {
                 accept(s);
             }
+            return null;
         }
 
         @Override
-        public void visit(AstApply n) {
+        public Void visit(AstApply n) {
             for (AstNode e : n.args) {
                 accept(e);
             }
@@ -114,22 +108,24 @@ class TypeCheckerAndEntityResolver {
                     fn.entity = entityMap.resolveFunction(fn.name, n.getArgTypes());
                 } catch (OwlException e) {
                     error(n, e.getMessage());
-                    return;
+                    return null;
                 }
                 AstType fnType = fn.entity.getType();
                 n.type = fnType.args.get(fnType.args.size() - 1);
             } else {
                 throw new UnsupportedOperationException("apply function expr");
             }
+            return null;
         }
 
         @Override
-        public void visit(AstConstant n) {
+        public Void visit(AstConstant n) {
             accept(n.expr);
+            return null;
         }
 
         @Override
-        public void visit(AstLiteral n) {
+        public Void visit(AstLiteral n) {
             switch (n.format) {
                 case DEC:
                 case HEX:
@@ -140,45 +136,30 @@ class TypeCheckerAndEntityResolver {
                     n.type = AstType.String;
                     break;
                 default:
-                    throw new IllegalStateException("literal format " + n.format);
+                    throw new IllegalStateException("unknown literal format " + n.format);
             }
+            return null;
         }
 
         @Override
-        public void visit(AstIf n) {
+        public Void visit(AstIf n) {
             throw new UnsupportedOperationException("type checker");
-//            for (int i = 0; i < n.condition.size(); i++) {
-//                accept(n.condition.get(i));
-//                accept(n.block.get(i));
-//            }
-//            if (n.block.size() > n.condition.size()) {
-//                accept(n.block.get(n.block.size() - 1));
-//            }
         }
 
         @Override
-        public void visit(AstMatch n) {
+        public Void visit(AstMatch n) {
             throw new UnsupportedOperationException("type checker");
-//            int blockIndex = 0;
-//            for (AstMatch.Label l : n.label) {
-//                if (blockIndex != l.block) {
-//                    accept(n.block.get(blockIndex));
-//                    blockIndex = l.block;
-//                }
-//            }
-//            accept(n.block.get(blockIndex));
-//            accept(n.elseBlock);
         }
 
         @Override
-        public void visit(AstReturn n) {
+        public Void visit(AstReturn n) {
             throw new UnsupportedOperationException("type checker");
-//                accept(n.expr);
         }
 
         @Override
-        public void visit(AstExpr n) {
+        public Void visit(AstExpr n) {
             accept(n.expr);
+            return null;
         }
     }
 }

@@ -20,75 +20,54 @@ final class DebugPrint {
     private DebugPrint() {}
 
     static void printAst(Ast ast, PrintStream out) {
-        ast.accept(new AstPrintVisitor(new Formatter(out)));
+        new AstPrintVisitor(new IndentPrinter(out)).accept(ast.root);
     }
 
-    private static final class Formatter {
-        private static final String TAB = "  ";
-        private PrintStream out;
-        private int tab = 0;
+    private static final class AstPrintVisitor implements AstVisitor<Void> {
+        private IndentPrinter printer;
 
-        Formatter(PrintStream out) {
-            this.out = out;
-        }
-
-        void indent() {
-            tab++;
-        }
-
-        void unindent() {
-            tab--;
-        }
-
-        void print(String s) {
-            for (int i = 0; i < tab; i++) {
-                out.print(TAB);
-            }
-            out.println(s);
-        }
-    }
-
-    private static final class AstPrintVisitor implements AstVisitor {
-        private Formatter printer;
-
-        AstPrintVisitor(Formatter printer) {
+        AstPrintVisitor(IndentPrinter printer) {
             this.printer = printer;
         }
 
         @Override
-        public void visit(AstName n) {
+        public Void visit(AstName n) {
             leaf(n, n.name);
+            return null;
         }
 
         @Override
-        public void visit(AstType n) {
+        public Void visit(AstType n) {
             node(n, n.name.name);
             for (AstType t : n.args) {
                 accept(t);
             }
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstMember n) {
+        public Void visit(AstMember n) {
             node(n);
             accept(n.left);
             accept(n.name);
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstModule n) {
+        public Void visit(AstModule n) {
             node(n);
             for (AstNode f : n.members) {
                 accept(f);
                 printer.print("");
             }
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstFunction n) {
+        public Void visit(AstFunction n) {
             node(n, n.name);
             prop("returnType", n.returnType.toString());
             for (AstArgument a : n.args) {
@@ -96,22 +75,25 @@ final class DebugPrint {
             }
             accept(n.block);
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstArgument n) {
+        public Void visit(AstArgument n) {
             leaf(n, n.name + ": " + n.type);
+            return null;
         }
 
         @Override
-        public void visit(AstVariable n) {
+        public Void visit(AstVariable n) {
             node(n, n.name);
             accept(n.expr);
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstBlock n) {
+        public Void visit(AstBlock n) {
             node(n);
             for (AstNode s : n.statements) {
                 accept(s);
@@ -119,31 +101,35 @@ final class DebugPrint {
             }
             endNode();
             printer.print(";;");
+            return null;
         }
 
         @Override
-        public void visit(AstApply n) {
+        public Void visit(AstApply n) {
             node(n);
             for (AstNode e : n.args) {
                 accept(e);
             }
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstConstant n) {
+        public Void visit(AstConstant n) {
             node(n, n.name);
             accept(n.expr);
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstLiteral n) {
+        public Void visit(AstLiteral n) {
             leaf(n, n.format + " " + n.text);
+            return null;
         }
 
         @Override
-        public void visit(AstIf n) {
+        public Void visit(AstIf n) {
             node(n);
             for (int i = 0; i < n.condition.size(); i++) {
                 if (i != 0) {
@@ -162,10 +148,11 @@ final class DebugPrint {
                 accept(n.block.get(n.block.size() - 1));
             }
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstMatch n) {
+        public Void visit(AstMatch n) {
             node(n);
             int blockIndex = 0;
             for (AstMatch.Label l : n.label) {
@@ -181,20 +168,23 @@ final class DebugPrint {
                 accept(n.elseBlock);
             }
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstReturn n) {
+        public Void visit(AstReturn n) {
             node(n);
             accept(n.expr);
             endNode();
+            return null;
         }
 
         @Override
-        public void visit(AstExpr n) {
+        public Void visit(AstExpr n) {
             node(n);
             accept(n.expr);
             endNode();
+            return null;
         }
 
         private void prop(String name, String s) {

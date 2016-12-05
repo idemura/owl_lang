@@ -14,94 +14,198 @@
  */
 package owl.lang;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.ArrayList;
+import java.util.List;
+
 // Check types of function applications. Resolves entity names and function overloads.
 class CodeGenerator {
-    static Jvm generate(Ast ast, ErrorListener errorListener) throws OwlException {
-        return new Jvm(new CodeGenerator(ast, errorListener).run());
+    static Jvm run(Ast ast, ErrorListener errorListener) throws OwlException {
+        return new Jvm(new Visitor(errorListener).accept(ast.root));
     }
 
-    private final Ast ast;
-    private CountErrorListener errorListener;
-
-    private CodeGenerator(Ast ast, ErrorListener errorListener) {
-        this.ast = ast;
-        this.errorListener = new CountErrorListener(errorListener);
+    private static JvmNode javaMain() {
+        JvmBlock block = new JvmBlock();
+        block.add(new JvmApply(null, null, "owl_main", ImmutableList.of()));
+        return new JvmFunction(
+                JvmAccessModifier.PUBLIC,
+                JvmMemoryModifier.STATIC,
+                "void",
+                "main",
+                ImmutableList.of(JvmVariable.makeLocal("args", "String")),
+                block);
     }
 
-    private void error(AstNode n, String msg) {
-        errorListener.error(n.line, n.charPositionInLine, msg);
+    private static String javaTypeName(AstType type) {
+        return new JavaTypeNameVisitor().accept(type);
     }
 
-    private JvmNode run() throws OwlException {
-        GeneratorVisitor v = new GeneratorVisitor();
-        ast.accept(v);
-        return v.root;
+    private static final class JavaTypeNameVisitor implements AstVisitor<String> {
+        @Override
+        public String visit(AstName n) {
+            if (n.name.equals(AstType.Bool)) {
+                return "boolean";
+            } else if (n.name.equals(AstType.Char)) {
+                return "char";
+            } else if (n.name.equals(AstType.I32)) {
+                return "int";
+            } else if (n.name.equals(AstType.I64)) {
+                return "long";
+            } else if (n.name.equals(AstType.F32)) {
+                return "float";
+            } else if (n.name.equals(AstType.F64)) {
+                return "double";
+            } else if (n.name.equals(AstType.String)) {
+                return "String";
+            } else if (n.name.equals(AstType.None)) {
+                return "void";
+            } else {
+                return n.name;
+            }
+        }
 
+        @Override
+        public String visit(AstType n) {
+            if (n.name.equals("Array")) {
+                return accept(n.args.get(0)) + "[]";
+            }
+            if (n.args.size() > 0) {
+                throw new UnsupportedOperationException("java type name on generic");
+            }
+            return accept(n.name);
+        }
     }
 
-    private final class GeneratorVisitor implements AstVisitor {
-        JvmNode root = null;
+    private static final class Visitor implements AstVisitor<JvmNode> {
+        private final ErrorListener errorListener;
 
-        @Override
-        public void visit(AstName n) {
+        private Visitor(ErrorListener errorListener) {
+            this.errorListener = errorListener;
         }
 
         @Override
-        public void visit(AstType n) {
+        public JvmNode visit(AstName n) {
+            return new JvmValue(n.name);
         }
 
         @Override
-        public void visit(AstMember n) {
-            root = null;
+        public JvmNode visit(AstType n) {
+            throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public void visit(AstModule n) {
+        public JvmNode visit(AstMember n) {
+            throw new UnsupportedOperationException("code generator");
+       }
+
+        @Override
+        public JvmNode visit(AstModule n) {
+            if (n.fileName == null) {
+                errorListener.error(0, 0, "module file name is empty");
+                return null;
+            }
+            JvmClass clazz = new JvmClass(JvmAccessModifier.PUBLIC, n.fileName);
+            clazz.add(javaMain());
+
+            JvmPackage p = new JvmPackage(n.name);
+            p.add(clazz);
+            return p;
         }
 
         @Override
-        public void visit(AstFunction n) {
+        public JvmNode visit(AstFunction n) {
+            List<JvmVariable> args = new ArrayList<>();
+            for (AstArgument a : n.args) {
+                args.add(JvmVariable.makeLocal(
+                        a.name,
+                        javaTypeName(a.getType())));
+            }
+            return new JvmFunction(
+                    JvmAccessModifier.PACKAGE,
+                    JvmMemoryModifier.STATIC,
+                    javaTypeName(n.returnType),
+                    n.name,
+                    args,
+                    accept(n.block));
         }
 
         @Override
-        public void visit(AstArgument n) {
+        public JvmNode visit(AstArgument n) {
+            throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public void visit(AstVariable n) {
+        public JvmNode visit(AstVariable n) {
+            throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public void visit(AstBlock n) {
+        public JvmNode visit(AstBlock n) {
+            JvmBlock block = new JvmBlock();
+            for (AstNode s : n.statements) {
+                block.add(accept(s));
+            }
+            return block;
         }
 
         @Override
-        public void visit(AstApply n) {
+        public JvmNode visit(AstApply n) {
+            AstName fnName = (AstName) n.args.get(0);
+            List<JvmNode> args = new ArrayList<>();
+            for (int i = 1; i < n.args.size(); i++) {
+                args.add(accept(n.args.get(i)));
+            }
+            return new JvmApply(
+                    javaTypeName(n.getType()),
+                    null,
+                    fnName.name,
+                    args);
         }
 
         @Override
-        public void visit(AstConstant n) {
+        public JvmNode visit(AstConstant n) {
+            throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public void visit(AstLiteral n) {
+        public JvmNode visit(AstLiteral n) {
+            String value;
+            switch (n.format) {
+                case OCT:
+                case HEX:
+                    throw new UnsupportedOperationException("oct/hex literal");
+                case DEC:
+                    value = n.text;
+                    break;
+                case STRING:
+                    value = "\"" + n.text + "\"";
+                    break;
+                default:
+                    throw new IllegalStateException("unknown literal format " + n.format);
+
+            }
+            return new JvmValue(value);
         }
 
         @Override
-        public void visit(AstIf n) {
+        public JvmNode visit(AstIf n) {
+            throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public void visit(AstMatch n) {
+        public JvmNode visit(AstMatch n) {
+            throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public void visit(AstReturn n) {
+        public JvmNode visit(AstReturn n) {
+            return new JvmReturn(accept(n.expr));
         }
 
         @Override
-        public void visit(AstExpr n) {
-            accept(n.expr);
+        public JvmNode visit(AstExpr n) {
+            return accept(n.expr);
         }
     }
 }
