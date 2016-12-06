@@ -193,7 +193,7 @@ final class CodeGenerator {
                     value = node.text;
                     break;
                 case STRING:
-                    value = "\"" + node.text + "\"";
+                    value = Util.quote(node.text);
                     break;
                 default:
                     throw new IllegalStateException("unknown literal format " + node.format);

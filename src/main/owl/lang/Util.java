@@ -99,7 +99,13 @@ final class Util {
         return String.join("\n", c.stream().map(T::toString).collect(toList()));
     }
 
-    static String trimQuotes(String s) {
+    static String quote(String s) {
+        // TODO: Handle escapes
+        return "\"" + s + "\"";
+    }
+
+    static String unquote(String s) {
+        // TODO: Handle escapes
         return s.substring(1, s.length() - 1);
     }
 

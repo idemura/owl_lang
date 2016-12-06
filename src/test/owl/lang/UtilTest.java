@@ -20,7 +20,9 @@ import static org.junit.Assert.assertEquals;
 public class UtilTest {
     @Test
     public void testTrimQuaotes() {
-        assertEquals("abc", Util.trimQuotes("\"abc\""));
-        assertEquals("", Util.trimQuotes("\"\""));
+        assertEquals("abc", Util.unquote("\"abc\""));
+        assertEquals("", Util.unquote("\"\""));
+        assertEquals("\"abc\"", Util.quote("abc"));
+        assertEquals("\"\"", Util.quote(""));
     }
 }

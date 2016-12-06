@@ -563,7 +563,7 @@ public class OwlParser extends Parser {
 				{
 				setState(137);
 				((ExprPrimeContext)_localctx).STRING = match(STRING);
-				 ((ExprPrimeContext)_localctx).r =  new AstLiteral(Util.trimQuotes((((ExprPrimeContext)_localctx).STRING!=null?((ExprPrimeContext)_localctx).STRING.getText():null)), AstLiteral.Format.STRING); 
+				 ((ExprPrimeContext)_localctx).r =  new AstLiteral(Util.unquote((((ExprPrimeContext)_localctx).STRING!=null?((ExprPrimeContext)_localctx).STRING.getText():null)), AstLiteral.Format.STRING); 
 				}
 				break;
 			case LPAREN:
