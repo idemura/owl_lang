@@ -1,5 +1,5 @@
-#hello
 # Owl Language
+module test;
 
 zzz = "world";
 

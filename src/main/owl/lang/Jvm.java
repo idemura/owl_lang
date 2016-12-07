@@ -34,7 +34,8 @@ interface JvmTranslator {
 
 interface JvmVisitor<T> {
     default T visitError() {
-        throw new UnsupportedOperationException("JvmVisitor implementation " + getClass().getName());
+        Util.visitError(getClass());
+        return null;
     }
 
     default T accept(JvmNode node) {
@@ -45,16 +46,16 @@ interface JvmVisitor<T> {
         }
     }
 
-    default T visit(JvmPackage node) { return visitError(); }
-    default T visit(JvmClass node) { return visitError(); }
-    default T visit(JvmFunction node) { return visitError(); }
-    default T visit(JvmVariable node) { return visitError(); }
-    default T visit(JvmValue node) { return visitError(); }
     default T visit(JvmApply node) { return visitError(); }
-    default T visit(JvmBinary node) { return visitError(); }
     default T visit(JvmBlock node) { return visitError(); }
-    default T visit(JvmReturn node) { return visitError(); }
+    default T visit(JvmBinary node) { return visitError(); }
+    default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
+    default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmPackage node) { return visitError(); }
+    default T visit(JvmReturn node) { return visitError(); }
+    default T visit(JvmValue node) { return visitError(); }
+    default T visit(JvmVariable node) { return visitError(); }
 }
 
 abstract class JvmNode {

@@ -48,9 +48,8 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstMember node) {
-            beginNode(node);
-            accept(node.left);
-            accept(node.name);
+            beginNode(node, node.member);
+            accept(node.object);
             endNode();
             return null;
         }
@@ -58,7 +57,7 @@ final class DebugPrint {
         @Override
         public Void visit(AstModule node) {
             beginNode(node);
-            for (AstNode f : node.members) {
+            for (AstNode f : node.children) {
                 accept(f);
                 printer.println("");
             }
@@ -95,7 +94,7 @@ final class DebugPrint {
         @Override
         public Void visit(AstBlock node) {
             beginNode(node);
-            for (AstNode s : node.statements) {
+            for (AstNode s : node.children) {
                 accept(s);
                 printer.println(";");
             }
@@ -123,7 +122,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstLiteral node) {
+        public Void visit(AstValue node) {
             leaf(node, node.format + " " + node.text);
             return null;
         }
@@ -131,22 +130,18 @@ final class DebugPrint {
         @Override
         public Void visit(AstIf node) {
             beginNode(node);
-            for (int i = 0; i < node.condition.size(); i++) {
-                if (i != 0) {
-                    printer.println("# elif condition:");
-                }
-                accept(node.condition.get(i));
-                if (i != 0) {
-                    printer.println("# then:");
-                } else {
-                    printer.println("# elif:");
-                }
-                accept(node.block.get(i));
+            for (AstNode n : node.children) {
+                accept(n);
             }
-            if (node.block.size() > node.condition.size()) {
-                printer.println("# else:");
-                accept(node.block.get(node.block.size() - 1));
-            }
+            endNode();
+            return null;
+        }
+
+        @Override
+        public Void visit(AstCond node) {
+            beginNode(node);
+            accept(node.condition);
+            accept(node.block);
             endNode();
             return null;
         }
@@ -154,19 +149,17 @@ final class DebugPrint {
         @Override
         public Void visit(AstMatch node) {
             beginNode(node);
-            int blockIndex = 0;
-            for (AstMatch.Label l : node.label) {
-                if (blockIndex != l.block) {
-                    accept(node.block.get(blockIndex));
-                    blockIndex = l.block;
-                }
-                printer.println("." + l.label + " " + l.variable);
+            for (AstNode n : node.children) {
+                accept(n);
             }
-            accept(node.block.get(blockIndex));
-            if (node.elseBlock != null) {
-                printer.println("# else (default)");
-                accept(node.elseBlock);
-            }
+            endNode();
+            return null;
+        }
+
+        @Override
+        public Void visit(AstCase node) {
+            beginNode(node, node.label + ", " + node.variable);
+            accept(node.block);
             endNode();
             return null;
         }

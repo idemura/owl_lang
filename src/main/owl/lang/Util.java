@@ -17,8 +17,10 @@ package owl.lang;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -123,6 +125,16 @@ final class Util {
             LANGUAGE_VERSION = getManifestAttribute("Owl-Language-Version");
         }
         return LANGUAGE_VERSION;
+    }
+
+    static void visitError(Class clazz) {
+        throw new UnsupportedOperationException("visitor incomplete " + clazz.getName());
+    }
+
+    static <T> List<T> listOf(T x1) {
+        List<T> l = new ArrayList<>();
+        l.add(x1);
+        return l;
     }
 
     private static String getManifestAttribute(String name) {

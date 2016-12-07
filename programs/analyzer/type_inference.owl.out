@@ -5,7 +5,7 @@ Module
       Expr
         Apply
           Name println
-          Literal STRING hello
+          Value STRING hello
       ;
     ;;
   
@@ -19,7 +19,7 @@ Module
           Apply
             Name +
             Name a
-            Literal DEC 10
+            Value DEC 10
       ;
     ;;
   
@@ -37,7 +37,7 @@ Module
           Name println
           Apply
             Name f2
-            Literal STRING zzz
+            Value STRING zzz
       ;
     ;;
   
@@ -53,7 +53,7 @@ Module
             Name *
             Name x
             Name y
-          Literal DEC 10
+          Value DEC 10
       ;
     ;;
   
@@ -63,9 +63,9 @@ Module
     ;;
   
   Variable x
-    Literal DEC 10
+    Value DEC 10
   
-Function owl_test qq: Fn(None)
+Function test qq: Fn(None)
 println
   Function <runtime> println: Fn(Bool, None)
   Function <runtime> println: Fn(Char, None)
@@ -74,14 +74,14 @@ println
   Function <runtime> println: Fn(F32, None)
   Function <runtime> println: Fn(F64, None)
   Function <runtime> println: Fn(String, None)
-Variable owl_test x: None
+Variable test x: None
 Function <runtime> *: Fn(I32, I32, I32)
 +
   Function <runtime> +: Fn(I32, I32, I32)
   Function <runtime> +: Fn(I64, I64, I64)
-Function owl_test f1: Fn(None)
+Function test f1: Fn(None)
 f2
-  Function owl_test f2: Fn(I32, None)
-  Function owl_test f2: Fn(String, I32)
-Function owl_test f3: Fn(I32, I32, None)
-Function owl_test f4: Fn(Array(I32))
+  Function test f2: Fn(I32, None)
+  Function test f2: Fn(String, I32)
+Function test f3: Fn(I32, I32, None)
+Function test f4: Fn(Array(I32))

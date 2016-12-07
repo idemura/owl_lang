@@ -34,7 +34,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         private void error(AstNode node, String msg) {
-            errorListener.error(node.line, node.charPositionInLine, msg);
+            errorListener.error(node.getLine(), node.getCharPosition(), msg);
         }
 
         @Override
@@ -63,7 +63,7 @@ final class TypeCheckerAndEntityResolver {
         @Override
         public Void visit(AstModule node) {
             moduleName = node.name;
-            for (AstNode f : node.members) {
+            for (AstNode f : node.children) {
                 accept(f);
             }
             return null;
@@ -92,7 +92,7 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstBlock node) {
-            for (AstNode s : node.statements) {
+            for (AstNode s : node.children) {
                 accept(s);
             }
             return null;
@@ -127,7 +127,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstLiteral node) {
+        public Void visit(AstValue node) {
             switch (node.format) {
                 case DEC:
                 case HEX:
@@ -145,11 +145,27 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstIf node) {
+            for (AstNode n : node.children) {
+                accept(n);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstCond node) {
             throw new UnsupportedOperationException("type checker");
         }
 
         @Override
         public Void visit(AstMatch node) {
+            for (AstNode n : node.children) {
+                accept(n);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstCase node) {
             throw new UnsupportedOperationException("type checker");
         }
 

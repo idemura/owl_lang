@@ -14,12 +14,8 @@
  */
 package owl.lang;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.beust.jcommander.Parameter;
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -27,6 +23,15 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class CLI {
     private static final class ParserErrorListener extends BaseErrorListener {
@@ -40,10 +45,10 @@ public final class CLI {
         public void syntaxError(Recognizer<?, ?> recognizer,
                 Object offendingEntity,
                 int line,
-                int charPositionInLine,
+                int charPosition,
                 String msg,
                 RecognitionException e) {
-            listener.error(line, charPositionInLine, msg);
+            listener.error(line, charPosition, msg);
         }
     }
 
@@ -80,9 +85,7 @@ public final class CLI {
             CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(System.err, fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 Ast ast = parse(in, new ParserErrorListener(errorListener));
-                AstModule module = ast.<AstModule>getRootAs();
-                module.name = "owl_test";
-                module.fileName = fileName;
+                ast.<AstModule>getRoot().fileName = fileName;
                 try {
                     compileAst(ast, errorListener, System.out, System.out);
                 } catch (OwlException e) {

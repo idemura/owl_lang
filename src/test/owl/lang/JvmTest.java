@@ -18,12 +18,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class UtilTest {
+public class JvmTest {
     @Test
-    public void testTrimQuaotes() {
-        assertEquals("abc", Util.unquote("\"abc\""));
-        assertEquals("", Util.unquote("\"\""));
-        assertEquals("\"abc\"", Util.quote("abc"));
-        assertEquals("\"\"", Util.quote(""));
+    public void testEmpty() {
+        assertEquals(0, 0);
     }
 }

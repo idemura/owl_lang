@@ -41,13 +41,13 @@ final class EntityCollector {
         }
 
         private void error(AstNode node, String msg) {
-            errorListener.error(node.line, node.charPositionInLine, msg);
+            errorListener.error(node.getLine(), node.getCharPosition(), msg);
         }
 
         @Override
         public Void visit(AstModule node) {
             moduleName = node.name;
-            for (AstNode m : node.members) {
+            for (AstNode m : node.children) {
                 accept(m);
             }
             return null;
@@ -64,7 +64,7 @@ final class EntityCollector {
                     AstArgument a = node.args.get(--i);
                     if (arguments.containsKey(a.name)) {
                         error(node, "function " + node.name + " argument " + a.name + " duplicated, first at line " +
-                                arguments.get(a.name).line);
+                                arguments.get(a.name).getType());
                         err = true;
                         continue;
                     }
@@ -81,7 +81,7 @@ final class EntityCollector {
                     }
                 }
             }
-            if (node.name.isEmpty()) {
+            if (node.name == null) {
                 error(node, "function unnamed");
             } else if (!err) {
                 // Add only if no errors during function signature analysis
@@ -89,7 +89,8 @@ final class EntityCollector {
                 try {
                     entityMap.put(s);
                 } catch (OwlException e) {
-                    errorListener.error(node.line, node.charPositionInLine, "duplicated module member " + node.name);
+                    errorListener.error(node.getLine(), node.getCharPosition(),
+                            "duplicated module member " + node.name);
                 }
             }
             return null;
@@ -101,7 +102,8 @@ final class EntityCollector {
             try {
                 entityMap.put(s);
             } catch (OwlException e) {
-                errorListener.error(node.line, node.charPositionInLine, "duplicated module member " + node.name);
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "duplicated module member " + node.name);
             }
             return null;
         }

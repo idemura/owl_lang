@@ -15,6 +15,7 @@
 package owl.lang;
 
 import org.junit.Test;
+
 import static org.junit.Assert.fail;
 
 public class EntityMapTest {

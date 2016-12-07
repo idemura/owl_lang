@@ -1,4 +1,5 @@
-# No name
+module test;
+
 fn(x, y: I32) {}
 
 # No y type

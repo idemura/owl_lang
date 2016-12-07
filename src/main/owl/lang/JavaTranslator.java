@@ -125,17 +125,19 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmClass node) {
+            gen.push();
             printer.println(javaAccessModifier(node.access), "final class", node.name).curlyOpen();
             for (JvmNode child : node.getChildren()) {
                 accept(child);
             }
             printer.curlyClose();
+            gen.pop();
             return null;
         }
 
         @Override
         public Void visit(JvmFunction node) {
-            gen.reset();
+            gen.push();
             printer.println(
                     javaAccessModifier(node.access),
                     javaMemoryModifier(node.memory),
@@ -153,6 +155,7 @@ final class JavaTranslator implements JvmTranslator {
             printer.println(")").curlyOpen();
             accept(node.block);
             printer.curlyClose();
+            gen.pop();
             return null;
         }
 

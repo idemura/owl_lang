@@ -19,6 +19,7 @@ import com.google.common.io.Files;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 final class CodeGenerator {
     private CodeGenerator() {}
@@ -63,7 +64,7 @@ final class CodeGenerator {
         }
 
         private void error(AstNode node, String msg) {
-            errorListener.error(node.line, node.charPositionInLine, msg);
+            errorListener.error(node.getLine(), node.getCharPosition(), msg);
         }
 
         @Override
@@ -95,7 +96,7 @@ final class CodeGenerator {
             }
             JvmClass clazz = new JvmClass(AccessModifier.PUBLIC, className);
             clazz.add(javaMain());
-            for (AstNode m : node.members) {
+            for (AstNode m : node.children) {
                 clazz.add(accept(m));
             }
 
@@ -108,18 +109,14 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstFunction node) {
-            List<JvmVariable> args = new ArrayList<>();
-            for (AstArgument a : node.args) {
-                args.add(JvmVariable.local(
-                        a.getType(), a.name
-                ));
-            }
             return new JvmFunction(
                     AccessModifier.PACKAGE,
                     MemoryModifier.STATIC,
                     node.returnType,
                     node.name,
-                    args,
+                    node.args.stream()
+                            .map(a -> JvmVariable.local(a.getType(), a.name))
+                            .collect(Collectors.toList()),
                     accept(node.block));
         }
 
@@ -140,7 +137,7 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstBlock node) {
             JvmBlock block = new JvmBlock();
-            for (AstNode s : node.statements) {
+            for (AstNode s : node.children) {
                 block.add(accept(s));
             }
             return block;
@@ -183,7 +180,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstLiteral node) {
+        public JvmNode visit(AstValue node) {
             String value;
             switch (node.format) {
                 case OCT:
@@ -208,7 +205,17 @@ final class CodeGenerator {
         }
 
         @Override
+        public JvmNode visit(AstCond node) {
+            throw new UnsupportedOperationException("code generator");
+        }
+
+        @Override
         public JvmNode visit(AstMatch node) {
+            throw new UnsupportedOperationException("code generator");
+        }
+
+        @Override
+        public JvmNode visit(AstCase node) {
             throw new UnsupportedOperationException("code generator");
         }
 

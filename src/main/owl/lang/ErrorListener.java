@@ -17,14 +17,14 @@ package owl.lang;
 import java.io.PrintStream;
 
 interface ErrorListener {
-    void error(int line, int charPositionInLine, String msg);
+    void error(int line, int charPosition, String msg);
 
     default void error(String msg) {
         error(0, 0, msg);
     }
 
-    default void error(int line, int charPositionInLine, OwlException e) {
-        error(line, charPositionInLine, e.getMessage());
+    default void error(int line, int charPosition, OwlException e) {
+        error(line, charPosition, e.getMessage());
     }
 }
 
@@ -39,13 +39,13 @@ final class PrintErrorListener implements ErrorListener {
 
     public void error(
             int line,
-            int charPositionInLine,
+            int charPosition,
             String msg) {
         String position = null;
         if (line > 0) {
             position = String.valueOf(line);
-            if (charPositionInLine > 0) {
-                position += ":" + String.valueOf(charPositionInLine);
+            if (charPosition > 0) {
+                position += ":" + String.valueOf(charPosition);
             }
         }
         if (msg == null) {
@@ -74,9 +74,9 @@ final class CountErrorListener implements ErrorListener {
 
     public void error(
             int line,
-            int charPositionInLine,
+            int charPosition,
             String msg) {
-        sink.error(line, charPositionInLine, msg);
+        sink.error(line, charPosition, msg);
         errorCount++;
     }
 

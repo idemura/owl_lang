@@ -23,29 +23,36 @@ package owl.lang;
 // Parser Rules
 module
 returns [AstModule r = new AstModule()]
-:   (
-        f = function { $r.members.add($f.r); }
+:
+    MODULE n = absoluteName { $r.name = $n.r.name; } SEMICOLON
+    (
+        f = function { $r.add($f.r); }
     |   NAME ASSIGN e = expression SEMICOLON
         {
-            $r.members.add(new AstVariable($NAME.text, $e.r));
+            $r.add(new AstVariable($NAME.text, $e.r));
         }
     )*
 ;
 
 absoluteName
-returns [AstName r = new AstName()]
-:   NAME { $r.name += $NAME.text; }
+returns [AstName r]
+:   {
+        List<String> pieces = new ArrayList<>();
+    }
+    NAME { pieces.add($NAME.text); }
     (
-        DOT NAME { $r.name += "." + $NAME.text; }
+        DOT NAME { pieces.add($NAME.text); }
     )*
+    {
+        $r = new AstName(pieces);
+    }
 ;
 
 function
 returns [AstFunction r = new AstFunction()]
 :   FN
     {
-        $r.line = $FN.line;
-        $r.charPositionInLine = $FN.pos;
+        $r.setPosition($FN.line, $FN.pos);
     }
     (
         NAME { $r.name = $NAME.text; }
@@ -53,9 +60,9 @@ returns [AstFunction r = new AstFunction()]
     (
         LPAREN
         (
-            a = argument { $r.args.add($a.r); }
+            a = argument { $r.add($a.r); }
             (
-                COMMA a = argument { $r.args.add($a.r); }
+                COMMA a = argument { $r.add($a.r); }
             )*
         )?
         RPAREN
@@ -71,8 +78,7 @@ returns [AstArgument r = new AstArgument()]
 :   NAME
     {
         $r.name = $NAME.text;
-        $r.line = $NAME.line;
-        $r.charPositionInLine = $NAME.pos;
+        $r.setPosition($NAME.line, $NAME.pos);
     }
     (
         COLON t = typeInstance { $r.type = $t.r; }
@@ -83,7 +89,7 @@ block
 returns [AstBlock r = new AstBlock()]
 :   LCURLY
     (
-        s = statement { $r.statements.add($s.r); }
+        s = statement { $r.add($s.r); }
     )*
     RCURLY
 ;
@@ -92,10 +98,10 @@ returns [AstBlock r = new AstBlock()]
 exprPrime
 returns [AstNode r]
 :   NAME { $r = new AstName($NAME.text); }
-|   OCT { $r = new AstLiteral($OCT.text, AstLiteral.Format.OCT); }
-|   DEC { $r = new AstLiteral($DEC.text, AstLiteral.Format.DEC); }
-|   HEX { $r = new AstLiteral($HEX.text, AstLiteral.Format.HEX); }
-|   STRING { $r = new AstLiteral(Util.unquote($STRING.text), AstLiteral.Format.STRING); }
+|   OCT { $r = new AstValue($OCT.text, AstValue.Format.OCT); }
+|   DEC { $r = new AstValue($DEC.text, AstValue.Format.DEC); }
+|   HEX { $r = new AstValue($HEX.text, AstValue.Format.HEX); }
+|   STRING { $r = new AstValue(Util.unquote($STRING.text), AstValue.Format.STRING); }
 |   LPAREN e = expression RPAREN { $r = $e.r; }
 ;
 
@@ -105,34 +111,31 @@ returns [AstNode r]
     (
         DOT NAME
         {
-            AstMember m = new AstMember();
-            m.left = $r;
-            m.name = new AstName($NAME.text);
-            $r = m;
+            $r = new AstMember($r, $NAME.text);
         }
     |   {
             AstApply app = new AstApply();
-            app.args.add($r);
+            app.add($r);
             $r = app;
         }
         LPAREN
         (
-            a = expression { app.args.add($a.r); }
+            a = expression { app.add($a.r); }
             (
-                COMMA a = expression { app.args.add($a.r); }
+                COMMA a = expression { app.add($a.r); }
             )*
         )?
         RPAREN
     |   {
             AstApply app = new AstApply();
-            app.args.add(new AstName("[]"));
-            app.args.add($r);
+            app.add(new AstName("[]"));
+            app.add($r);
             $r = app;
         }
         LBRACKET
-        a = expression { app.args.add($a.r); }
+        a = expression { app.add($a.r); }
         (
-            COMMA a = expression { app.args.add($a.r); }
+            COMMA a = expression { app.add($a.r); }
         )*
         RBRACKET
     )*
@@ -145,9 +148,9 @@ returns [AstNode r]
         COLON y = typeInstance
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName(":"));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName(":"));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )?
@@ -159,8 +162,8 @@ returns [AstNode r]
     {
         if ($op != null) {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($x.r);
+            app.add(new AstName($op.text));
+            app.add($x.r);
             $r = app;
         } else {
             $r = $x.r;
@@ -175,9 +178,9 @@ returns [AstNode r]
         op = (MUL | DIV | MOD) y = exprUnary
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -190,9 +193,9 @@ returns [AstNode r]
         op = (PLS | MNS) y = exprMulDiv
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -205,9 +208,9 @@ returns [AstNode r]
         op = (LSHIFT | RSHIFT | SIGNED_RSHIFT) y = exprAddSub
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -220,9 +223,9 @@ returns [AstNode r]
         op = BIT_AND y = exprShift
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -235,9 +238,9 @@ returns [AstNode r]
         op = BIT_XOR y = exprBitAnd
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -250,9 +253,9 @@ returns [AstNode r]
         op = BIT_OR y = exprBitXor
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -265,9 +268,9 @@ returns [AstNode r]
         op = (LT | LE | GT | GE) y = exprBitOr
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -280,9 +283,9 @@ returns [AstNode r]
         op = (EQ | NE | IS) y = exprComparison
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -294,8 +297,8 @@ returns [AstNode r]
     {
         if ($op != null) {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
+            app.add(new AstName($op.text));
+            app.add($r);
             $r = app;
         }
     }
@@ -308,9 +311,9 @@ returns [AstNode r]
         op = AND y = exprNot
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -323,9 +326,9 @@ returns [AstNode r]
         op = OR y = exprAnd
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
@@ -334,7 +337,7 @@ returns [AstNode r]
 // TODO:
 //  - Comma assignment x, y =  10 + 12, 10 * 12;
 //  - Lambda expression
-expression
+exprAssign
 returns [AstNode r]
 :   x = exprOr { $r = $x.r; }
     (
@@ -356,67 +359,61 @@ returns [AstNode r]
         y = exprOr
         {
             AstApply app = new AstApply();
-            app.args.add(new AstName($op.text));
-            app.args.add($r);
-            app.args.add($y.r);
+            app.add(new AstName($op.text));
+            app.add($r);
+            app.add($y.r);
             $r = app;
         }
     )*
 ;
 
+expression
+returns [AstNode r]
+:   e = exprAssign { $r = $e.r; }
+;
+
+ifCond
+returns [AstCond r]
+:   c = expression b = block
+    {
+        $r = new AstCond(new AstExpr($c.r), $b.r);
+    }
+;
+
 stmtIf
 returns [AstIf r = new AstIf()]
-:   IF
-    cond = expression { $r.condition.add($cond.r); }
-    b = block { $r.block.add($b.r); }
+:   IF c = ifCond { $r.add($c.r); }
     (
-        ELIF
-        cond = expression { $r.condition.add($cond.r); }
-        b = block { $r.block.add($b.r); }
+        ELIF c = ifCond { $r.add($c.r); }
     )*
     (
-        ELSE
-        b = block { $r.block.add($b.r); }
+        ELSE b = block { $r.add(new AstCond(null, $b.r)); }
     )?
+;
+
+matchCase
+returns [AstCase r]
+:   l = NAME (v = NAME)? (b = block)?
+    {
+        $r = new AstCase($l.text, $v.text, $b.r);
+    }
 ;
 
 stmtMatch
 returns [AstMatch r = new AstMatch()]
-:   MATCH e = expression { $r.expr = $e.r; }
+:   MATCH e = expression { $r.expr = new AstExpr($e.r); }
     LCURLY
     (
-        (
-            CASE t = NAME (n = NAME)?
-            {
-                AstMatch.Label label = new AstMatch.Label();
-                label.label = $t.text;
-                if ($n != null) {
-                    label.variable = $n.text;
-                }
-                label.block = $r.block.size();
-                $r.label.add(label);
-            }
-        )+
-        b = block
-        {
-            $r.block.add($b.r);
-        }
-    )*
+        c = matchCase { $r.add($c.r); }
+    )+
     RCURLY
-    (
-        ELSE
-        b = block
-        {
-            $r.elseBlock = $b.r;
-        }
-    )?
 ;
 
 stmtReturn
 returns [AstReturn r = new AstReturn()]
 :   RETURN
     (
-        e = expression { $r.expr = $e.r; }
+        e = expression { $r.expr = new AstExpr($e.r); }
     )?
     SEMICOLON
 ;
@@ -438,18 +435,12 @@ typeNonLambda
 returns [AstType r]
 :   n = absoluteName { $r = new AstType($n.r); }
     (
-        {
-            List<AstType> typeArgs = new ArrayList<>();
-        }
         LPAREN
-        a = typeInstance { typeArgs.add($a.r); }
+        a = typeInstance { $r.add($a.r); }
         (
-            COMMA a = typeInstance { typeArgs.add($a.r); }
+            COMMA a = typeInstance { $r.add($a.r); }
         )*
         RPAREN
-        {
-            $r = new AstType($r.name, typeArgs);
-        }
     |   (
             LBRACKET
             RBRACKET
@@ -461,19 +452,14 @@ returns [AstType r]
 ;
 
 typeInstance
-returns [AstType r]
-:   {
-        List<AstType> typeArgs = new ArrayList<>();
-    }
-    x = typeNonLambda { typeArgs.add($x.r); }
+returns [AstType r = new AstType(AstName.FUNCTION)]
+:   x = typeNonLambda { $r.add($x.r); }
     (
-        ARROW y = typeNonLambda { typeArgs.add($y.r); }
+        ARROW y = typeNonLambda { $r.add($y.r); }
     )*
     {
-        if (typeArgs.size() == 1) {
-            $r = typeArgs.get(0);
-        } else {
-            $r = AstType.functionOf(typeArgs);
+        if ($r.args.size() == 1) {
+            $r = $r.args.get(0);
         }
     }
 ;
@@ -487,6 +473,7 @@ FN: 'fn';
 IF: 'if';
 IS: 'is';
 MATCH: 'match';
+MODULE: 'module';
 NEW: 'new';
 RETURN: 'return';
 

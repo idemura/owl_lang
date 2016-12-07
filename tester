@@ -1,5 +1,6 @@
 #! /bin/bash
 
+ok=1
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
     out=`tempfile`
@@ -8,13 +9,15 @@ for owl in `find programs -name '*.owl'`; do
     if [ $? == 0 ]; then
         diff -ZBu $owl.out $out
         if [ $? != 0 ]; then
-            exit 1
+            ok=0
         fi
     else
         diff -ZBu $owl.err $err
         if [ $? != 0 ]; then
-            exit 1
+            ok=0
         fi
     fi
 done
-echo "ALL TESTS PASSED"
+if [ $ok == 1 ]; then
+    echo 'ALL TESTS PASSED'
+fi

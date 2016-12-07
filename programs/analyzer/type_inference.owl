@@ -1,4 +1,4 @@
-# Owl Language
+module test;
 
 fn f1() {
     println("hello");

@@ -15,6 +15,7 @@
 package owl.lang;
 
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 public class NameGenTest {
@@ -40,8 +41,10 @@ public class NameGenTest {
         assertEquals("_tmp_ab", gen.newName());
         assertEquals("_tmp_bb", gen.newName());
         assertEquals("_tmp_cb", gen.newName());
-        gen.reset();
+        gen.push();
         assertEquals("_tmp_a", gen.newName());
         assertEquals("_tmp_b", gen.newName());
+        gen.pop();
+        assertEquals("_tmp_db", gen.newName());
     }
 }

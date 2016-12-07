@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 final class Ast {
     AstNode root;
@@ -27,14 +28,15 @@ final class Ast {
         this.root = root;
     }
 
-    <T> T getRootAs() {
+    <T extends AstNode> T getRoot() {
         return (T) root;
     }
 }
 
 interface AstVisitor<T> {
     default T visitError() {
-        throw new UnsupportedOperationException("AstVisitor implementation " + getClass().getName());
+        Util.visitError(getClass());
+        return null;
     }
 
     default T accept(AstNode node) {
@@ -45,30 +47,45 @@ interface AstVisitor<T> {
         }
     }
 
-    default T visit(AstName node) { return visitError(); }
-    default T visit(AstType node) { return visitError(); }
-    default T visit(AstModule node) { return visitError(); }
-    default T visit(AstFunction node) { return visitError(); }
-    default T visit(AstVariable node) { return visitError(); }
+    default T visit(AstApply node) { return visitError(); }
     default T visit(AstArgument node) { return visitError(); }
     default T visit(AstBlock node) { return visitError(); }
-    default T visit(AstApply node) { return visitError(); }
+    default T visit(AstCase node) { return visitError(); }
+    default T visit(AstCond node) { return visitError(); }
     default T visit(AstConstant node) { return visitError(); }
-    default T visit(AstLiteral node) { return visitError(); }
-    default T visit(AstMember node) { return visitError(); }
+    default T visit(AstExpr node) { return visitError(); }
+    default T visit(AstFunction node) { return visitError(); }
     default T visit(AstIf node) { return visitError(); }
     default T visit(AstMatch node) { return visitError(); }
+    default T visit(AstMember node) { return visitError(); }
+    default T visit(AstModule node) { return visitError(); }
+    default T visit(AstName node) { return visitError(); }
     default T visit(AstReturn node) { return visitError(); }
-    default T visit(AstExpr node) { return visitError(); }
+    default T visit(AstType node) { return visitError(); }
+    default T visit(AstValue node) { return visitError(); }
+    default T visit(AstVariable node) { return visitError(); }
 }
 
 abstract class AstNode {
-    int line;
-    int charPositionInLine;
+    private int line;
+    private int charPosition;
+    private List<AstNode> children = new ArrayList<>();
+
+    void setPosition(int line, int charPosition) {
+        this.line = line;
+        this.charPosition = charPosition;
+    }
+
+    int getLine() { return line; }
+    int getCharPosition() { return charPosition; }
+
+    void add(AstNode node) {
+        throw new UnsupportedOperationException("add node");
+    }
 
     abstract Object accept(AstVisitor visitor);
     AstType getType() {
-        throw new UnsupportedOperationException("AstNode implementation " + getClass().getName());
+        throw new UnsupportedOperationException(getClass().getName() + " is not typed");
     }
 }
 
@@ -84,12 +101,23 @@ final class AstName extends AstNode {
     static final AstName ARRAY = new AstName("Array");
     static final AstName FUNCTION = new AstName("Fn");
 
-    String name = "";
-    Entity entity = null;
+    String name;
+    Entity entity;
 
     AstName() {}
+
     AstName(String name) {
+        this();
         this.name = name;
+    }
+
+    AstName(List<String> pieces) {
+        this(String.join(".", pieces));
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
     @Override
@@ -99,11 +127,6 @@ final class AstName extends AstNode {
             return name.equals(otherName.name);
         }
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
     }
 
     @Override
@@ -117,7 +140,7 @@ final class AstName extends AstNode {
     }
 }
 
-// Generic returnType with parameters
+// Generic type with parameters
 final class AstType extends AstNode {
     static final AstType BOOL = new AstType(AstName.BOOL);
     static final AstType CHAR = new AstType(AstName.CHAR);
@@ -128,8 +151,8 @@ final class AstType extends AstNode {
     static final AstType NONE = new AstType(AstName.NONE);
     static final AstType STRING = new AstType(AstName.STRING);
 
-    final AstName name;
-    final List<AstType> args;
+    AstName name;
+    List<AstType> args = new ArrayList<>();
 
     static AstType arrayOf(AstType type) {
         return new AstType(AstName.ARRAY, ImmutableList.of(type));
@@ -140,12 +163,17 @@ final class AstType extends AstNode {
     }
 
     AstType(AstName name) {
-        this(name, ImmutableList.of());
+        this.name = name;
     }
 
     AstType(AstName name, List<AstType> args) {
-        this.name = name;
-        this.args = ImmutableList.copyOf(args);
+        this(name);
+        this.args = args;
+    }
+
+    @Override
+    void add(AstNode node) {
+        args.add((AstType) node);
     }
 
     @Override
@@ -188,21 +216,11 @@ final class AstType extends AstNode {
         }
 
         @Override
-        public String visit(AstName node) {
-            return node.name;
-        }
-
-        @Override
         public String visit(AstType node) {
-            String name = accept(node.name);
+            String name = node.name.name;
             if (!node.args.isEmpty()) {
-                name += "(";
-                name += accept(node.args.get(0));
-                for (int i = 1; i < node.args.size(); i++) {
-                    name += ", ";
-                    name += accept(node.args.get(i));
-                }
-                name += ")";
+                List<String> pieces = node.args.stream().map(this::accept).collect(Collectors.toList());
+                name += "(" + String.join(", ", pieces) + ")";
             }
             return name;
         }
@@ -210,9 +228,16 @@ final class AstType extends AstNode {
 }
 
 final class AstMember extends AstNode {
-    AstNode left;
-    AstName name;
-    AstType type = AstType.NONE;
+    AstNode object;
+    String member;
+    AstType type;  // Deduced
+
+    AstMember() {}
+
+    AstMember(AstNode object, String member) {
+        this.object = object;
+        this.member = member;
+    }
 
     @Override
     public Object accept(AstVisitor v) {
@@ -228,16 +253,21 @@ final class AstMember extends AstNode {
 final class AstModule extends AstNode {
     String name;
     String fileName;
-    List<AstNode> members = new ArrayList<>();
+    List<AstNode> children = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
     }
+
+    @Override
+    void add(AstNode node) {
+        children.add(node);
+    }
 }
 
 final class AstFunction extends AstNode {
-    String name = "";
+    String name;
     List<AstArgument> args = new ArrayList<>();
     AstType returnType = AstType.NONE;
     AstBlock block;
@@ -245,6 +275,11 @@ final class AstFunction extends AstNode {
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
+    }
+
+    @Override
+    void add(AstNode node) {
+        args.add((AstArgument) node);
     }
 
     Entity getEntity(String moduleName) {
@@ -256,7 +291,7 @@ final class AstFunction extends AstNode {
         // Shouldn't be called multiple times
         List<AstType> typeArgs = new ArrayList<>();
         for (AstArgument a : args) {
-            if (a.type.equals(AstType.NONE)) {
+            if (a.getType().equals(AstType.NONE)) {
                 throw new IllegalStateException("argument type is None");
             }
             typeArgs.add(a.getType());
@@ -267,7 +302,7 @@ final class AstFunction extends AstNode {
 }
 
 final class AstArgument extends AstNode {
-    String name = "";
+    String name;
     AstType type = AstType.NONE;
 
     @Override
@@ -286,10 +321,11 @@ final class AstArgument extends AstNode {
 }
 
 final class AstVariable extends AstNode {
-    String name = "";
+    String name;
     AstNode expr;
 
     AstVariable() {}
+
     AstVariable(String name, AstNode expr) {
         this.name = name;
         this.expr = expr;
@@ -311,11 +347,16 @@ final class AstVariable extends AstNode {
 }
 
 final class AstBlock extends AstNode {
-    List<AstNode> statements = new ArrayList<>();
+    List<AstNode> children = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
+    }
+
+    @Override
+    void add(AstNode node) {
+        children.add(node);
     }
 }
 
@@ -324,7 +365,7 @@ final class AstApply extends AstNode {
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
     // function application contexts.
-    AstType type = AstType.NONE;
+    AstType type;  // Deduced
 
     @Override
     public Object accept(AstVisitor v) {
@@ -334,6 +375,11 @@ final class AstApply extends AstNode {
     @Override
     AstType getType() {
         return type;
+    }
+
+    @Override
+    void add(AstNode node) {
+        args.add(node);
     }
 
     List<AstType> getArgTypes() {
@@ -346,7 +392,7 @@ final class AstApply extends AstNode {
 }
 
 final class AstConstant extends AstNode {
-    String name = "";
+    String name;
     AstNode expr;
 
     @Override
@@ -360,7 +406,7 @@ final class AstConstant extends AstNode {
     }
 }
 
-final class AstLiteral extends AstNode {
+final class AstValue extends AstNode {
     enum Format {
         DEC,
         OCT,
@@ -368,12 +414,13 @@ final class AstLiteral extends AstNode {
         STRING,
     }
 
-    String text = "";
-    Format format = null;
-    AstType type = AstType.NONE;
+    String text;
+    Format format;
+    AstType type;  // Deduced
 
-    AstLiteral() {}
-    AstLiteral(String text, Format format) {
+    AstValue() {}
+
+    AstValue(String text, Format format) {
         this.text = text;
         this.format = format;
     }
@@ -390,9 +437,29 @@ final class AstLiteral extends AstNode {
 }
 
 final class AstIf extends AstNode {
-    // N conditions each with block and optionally (N + 1)-th block for else
-    List<AstNode> condition = new ArrayList<>();
-    List<AstNode> block = new ArrayList<>();
+    List<AstCond> children = new ArrayList<>();
+
+    @Override
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
+    }
+
+    @Override
+    void add(AstNode node) {
+        children.add((AstCond) node);
+    }
+}
+
+final class AstCond extends AstNode {
+    AstExpr condition;
+    AstBlock block;
+
+    AstCond() {}
+
+    AstCond(AstExpr condition, AstBlock block) {
+        this.condition = condition;
+        this.block = block;
+    }
 
     @Override
     public Object accept(AstVisitor v) {
@@ -401,17 +468,32 @@ final class AstIf extends AstNode {
 }
 
 final class AstMatch extends AstNode {
-    // Label is a name of enum returnType label. Several labels might refer to the same block of index @block.
-    static final class Label {
-        String label = "";
-        String variable = "";
-        int block;
+    AstExpr expr;
+    List<AstCase> children = new ArrayList<>();
+
+    @Override
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 
-    AstNode expr;
-    List<Label> label = new ArrayList<>();
-    List<AstBlock> block = new ArrayList<>();
-    AstNode elseBlock;
+    @Override
+    void add(AstNode node) {
+        children.add((AstCase) node);
+    }
+}
+
+final class AstCase extends AstNode {
+    String label;
+    String variable;
+    AstBlock block;
+
+    AstCase() {}
+
+    AstCase(String label, String variable, AstBlock block) {
+        this.label = label;
+        this.variable = variable;
+        this.block = block;
+    }
 
     @Override
     public Object accept(AstVisitor v) {
@@ -432,6 +514,7 @@ final class AstExpr extends AstNode {
     AstNode expr;
 
     AstExpr() {}
+
     AstExpr(AstNode expr) {
         this.expr = expr;
     }
