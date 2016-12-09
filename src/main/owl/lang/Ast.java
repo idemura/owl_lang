@@ -283,7 +283,7 @@ final class AstFunction extends AstNode {
     }
 
     Entity getEntity(String moduleName) {
-        return new FunctionEntity(moduleName, name, getType());
+        return new FunctionEntity(moduleName, name, getType(), false);
     }
 
     @Override

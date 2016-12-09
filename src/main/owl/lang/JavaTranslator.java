@@ -16,6 +16,10 @@ package owl.lang;
 
 import com.google.common.collect.Lists;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -25,8 +29,16 @@ final class JavaTranslator implements JvmTranslator {
     JavaTranslator() {}
 
     @Override
-    public void translate(Jvm jvm, OutputStream out) {
-        new Visitor(new IndentPrinter(new PrintStream(out))).accept(jvm.root);
+    public void translate(Jvm jvm, File outDir) throws OwlException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            Visitor v = new Visitor(outDir, new IndentPrinter(new PrintStream(bos)));
+            v.accept(jvm.root);
+            try (OutputStream fos = new FileOutputStream(v.outJavaCode)) {
+                fos.write(bos.toByteArray());
+            }
+        } catch (IOException e) {
+            throw new OwlException(e);
+        }
     }
 
     private static String javaTypeName(AstType type) {
@@ -96,8 +108,11 @@ final class JavaTranslator implements JvmTranslator {
         private final IndentPrinter printer;
         private final NameGen gen = new NameGen();
         private final List<String> names = new ArrayList<>();
+        private File outDir;
+        private File outJavaCode;
 
-        private Visitor(IndentPrinter printer) {
+        private Visitor(File outDir, IndentPrinter printer) {
+            this.outDir = outDir;
             this.printer = printer;
         }
 
@@ -116,6 +131,8 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmPackage node) {
+            outDir = new File(outDir, node.name.replace('.', File.separatorChar));
+            outDir.mkdirs();
             printer.println("package", node.name, ";");
             for (JvmNode child : node.getChildren()) {
                 accept(child);
@@ -125,6 +142,7 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmClass node) {
+            outJavaCode = new File(outDir, node.name + ".java");
             gen.push();
             printer.println(javaAccessModifier(node.access), "final class", node.name).curlyOpen();
             for (JvmNode child : node.getChildren()) {
@@ -132,6 +150,12 @@ final class JavaTranslator implements JvmTranslator {
             }
             printer.curlyClose();
             gen.pop();
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmImport node) {
+            printer.println("import", node.name, ";");
             return null;
         }
 
@@ -206,7 +230,12 @@ final class JavaTranslator implements JvmTranslator {
             accept(node.r);
             String r = popTempLocal();
             String l = popTempLocal();
-            printer.println(javaTypeName(node.returnType), genTempLocal(), "=", l, node.op, r, ";");
+            printer.print(javaTypeName(node.returnType), genTempLocal(), "=");
+            if (node.op.equals("[]")) {
+                printer.println(l, "[", r, "];");
+            } else {
+                printer.println(l, node.op, r, ";");
+            }
             return null;
         }
 

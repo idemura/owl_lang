@@ -97,6 +97,20 @@ final class Util {
     private static String LANGUAGE_VERSION;
     private static String COMPILER_NAME;
 
+    static boolean isName(String s) {
+        char c = Character.toLowerCase(s.charAt(0));
+        if (!('a' <= c && c <= 'z')) {
+            return false;
+        }
+        for (int i = 1; i < s.length(); i++) {
+            c = Character.toLowerCase(s.charAt(0));
+            if ("abcdefghijklmnopqrstuvwxyz0123456789_".indexOf(c) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static <T> String joinLines(Collection<T> c) {
         return String.join("\n", c.stream().map(T::toString).collect(toList()));
     }

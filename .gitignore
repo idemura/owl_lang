@@ -1,9 +1,13 @@
+# BUCK
 buck-out
 .buckd
 
+# IntelliJ Idea
 .idea
 out
 src/owl_lang.iml
 
+# Owl out
 *.class
+.owl_out
 

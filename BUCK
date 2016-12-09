@@ -11,6 +11,14 @@ java_library(
     ],
 )
 
+java_library(
+    name = 'owl_runtime',
+    srcs = glob([
+        'src/main/owl/runtime/*.java',
+    ]),
+    deps = [],
+)
+
 java_test(
     name = 'owl_lang_test',
     srcs = glob([
@@ -30,3 +38,4 @@ java_binary(
         ':owl_lang',
     ],
 )
+

@@ -16,7 +16,7 @@ package owl.lang;
 
 import com.google.common.collect.ImmutableList;
 
-import java.io.OutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +26,14 @@ final class Jvm {
     Jvm(JvmNode root) {
         this.root = root;
     }
+
+    <T extends JvmNode> T getRoot() {
+        return (T) root;
+    }
 }
 
 interface JvmTranslator {
-    void translate(Jvm jvm, OutputStream out) throws OwlException;
+    void translate(Jvm jvm, File outDir) throws OwlException;
 }
 
 interface JvmVisitor<T> {
@@ -52,6 +56,7 @@ interface JvmVisitor<T> {
     default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
     default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmImport node) { return visitError(); }
     default T visit(JvmPackage node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
     default T visit(JvmValue node) { return visitError(); }
@@ -269,6 +274,19 @@ final class JvmComment extends JvmNode {
 
     JvmComment(String text) {
         this.text = text;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmImport extends JvmNode {
+    final String name;
+
+    JvmImport(String name) {
+        this.name = name;
     }
 
     @Override

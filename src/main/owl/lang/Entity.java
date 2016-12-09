@@ -63,8 +63,11 @@ abstract class Entity {
 
 // Basically function signature
 final class FunctionEntity extends Entity {
-    FunctionEntity(String moduleName, String name, AstType type) {
+    final boolean runtime;
+
+    FunctionEntity(String moduleName, String name, AstType type, boolean runtime) {
         super(moduleName, name, type);
+        this.runtime = runtime;
     }
 
     @Override

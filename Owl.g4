@@ -19,7 +19,6 @@ grammar Owl;
 package owl.lang;
 }
 
-
 // Parser Rules
 module
 returns [AstModule r = new AstModule()]
@@ -364,7 +363,7 @@ returns [AstNode r]
             app.add($y.r);
             $r = app;
         }
-    )*
+    )?
 ;
 
 expression
@@ -528,7 +527,7 @@ ASSIGN_BIT_OR: '|=';
 OCT: '0o' [0-7]+;
 DEC: [0-9]+;
 HEX: '0x' [0-9a-fA-F]+;
-NAME: [a-zA-Z_] [a-zA-Z0-9_]*;
+NAME: [a-zA-Z] [a-zA-Z0-9_]*;
 STRING: '"' ~[\t\r\n\f"]* '"';
 
 COMMENT: '#' ~[\n]* -> channel(HIDDEN);

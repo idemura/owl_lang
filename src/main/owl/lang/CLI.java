@@ -28,16 +28,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class CLI {
-    private static final class ParserErrorListener extends BaseErrorListener {
+    private static final class OwlANTLRErrorListener extends BaseErrorListener {
         private ErrorListener listener;
 
-        ParserErrorListener(ErrorListener listener) {
+        OwlANTLRErrorListener(ErrorListener listener) {
             this.listener = listener;
         }
 
@@ -61,6 +60,8 @@ public final class CLI {
     boolean flagAnalyze = true;
     @Parameter(names = {"--generate"}, description = "Generate code", arity = 1)
     boolean flagGenerate = true;
+    @Parameter(names = {"--out"}, description = "Output directory")
+    String flagOut = ".owl_out";
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
     boolean flagPrintAst = false;
@@ -68,30 +69,37 @@ public final class CLI {
     boolean flagPrintEntityMap = false;
 
     public static void main(String[] args) {
-        new CLI(args).run();
+        System.exit(new CLI(args).run()? 0: 1);
     }
 
     private CLI(String[] args) {
         new JCommander(this, args);
     }
 
-    private void run() {
+    private boolean run() {
         if (flagHelp) {
             System.out.println("owl_lang <files> [parameters...]");
-            return;
+            return true;
         }
+
+        File outDir = new File(flagOut);
+        if (!outDir.exists() && !outDir.mkdirs()) {
+            System.err.println("failed to create directory " + outDir);
+            return false;
+        }
+
         int succeeded = 0, total = 0;
         for (String fileName : files) {
             CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(System.err, fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
-                Ast ast = parse(in, new ParserErrorListener(errorListener));
-                ast.<AstModule>getRoot().fileName = fileName;
                 try {
-                    compileAst(ast, errorListener, System.out, System.out);
+                    Ast ast = parse(in, errorListener);
+                    ast.<AstModule>getRoot().fileName = fileName;
+                    compileAst(ast, errorListener, outDir, System.out);
                 } catch (OwlException e) {
                     // Skip, error listener took care
                 }
-            } catch (IOException | OwlException e) {
+            } catch (IOException e) {
                 errorListener.error(e.getMessage());
             }
 
@@ -102,22 +110,25 @@ public final class CLI {
         }
         if (total == 0) {
             System.err.println("no input files");
+            return false;
         }
-        System.exit(succeeded != total || total == 0? 1: 0);
+        return total == succeeded;
     }
 
-    private static Ast parse(InputStream in, ANTLRErrorListener errorListener) throws OwlException {
+    private static Ast parse(InputStream in, ErrorListener errorListener)
+            throws OwlException {
+        ANTLRErrorListener antlrErrorListener = new OwlANTLRErrorListener(errorListener);
         Lexer lexer;
         try {
             lexer = new OwlLexer(new ANTLRInputStream(in));
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(antlrErrorListener);
         } catch (IOException e) {
             throw new OwlException(e);
         }
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(errorListener);
         OwlParser parser = new OwlParser(new CommonTokenStream(lexer));
         parser.removeErrorListeners();
-        parser.addErrorListener(errorListener);
+        parser.addErrorListener(antlrErrorListener);
         try {
             OwlParser.ModuleContext context = parser.module();
             if (context.exception != null) {
@@ -129,7 +140,8 @@ public final class CLI {
         }
     }
 
-    private void compileAst(Ast ast, CountErrorListener errorListener, OutputStream out, PrintStream debugOut) throws OwlException {
+    private void compileAst(Ast ast, CountErrorListener errorListener, File outDir, PrintStream debugOut)
+            throws OwlException {
         if (flagPrintAst) {
             DebugPrint.printAst(ast,debugOut);
         }
@@ -141,7 +153,9 @@ public final class CLI {
             TypeCheckerAndEntityResolver.run(ast, entityMap, errorListener);
             if (errorListener.getErrorCount() == 0 && flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
-                new JavaTranslator().translate(jvm, out);
+                if (errorListener.getErrorCount() == 0) {
+                    new JavaTranslator().translate(jvm, outDir);
+                }
             }
         }
     }
