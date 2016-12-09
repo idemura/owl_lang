@@ -180,6 +180,16 @@ final class DebugPrint {
             return null;
         }
 
+        @Override
+        public Void visit(AstGroup node) {
+            beginNode(node);
+            for (AstNode c : node.children) {
+                accept(c);
+            }
+            endNode();
+            return null;
+        }
+
         private void prop(String name, String s) {
             printer.println(name + ": " + s);
         }

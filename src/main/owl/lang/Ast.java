@@ -55,6 +55,7 @@ interface AstVisitor<T> {
     default T visit(AstConstant node) { return visitError(); }
     default T visit(AstExpr node) { return visitError(); }
     default T visit(AstFunction node) { return visitError(); }
+    default T visit(AstGroup node) { return visitError(); }
     default T visit(AstIf node) { return visitError(); }
     default T visit(AstMatch node) { return visitError(); }
     default T visit(AstMember node) { return visitError(); }
@@ -527,5 +528,21 @@ final class AstExpr extends AstNode {
     @Override
     AstType getType() {
         return expr.getType();
+    }
+}
+
+final class AstGroup extends AstNode {
+    List<AstNode> children = new ArrayList<>();
+
+    AstGroup() {}
+
+    @Override
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
+    }
+
+    @Override
+    void add(AstNode node) {
+        children.add(node);
     }
 }

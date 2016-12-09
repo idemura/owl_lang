@@ -107,26 +107,13 @@ final class JavaTranslator implements JvmTranslator {
     private static final class Visitor implements JvmVisitor {
         private final IndentPrinter printer;
         private final NameGen gen = new NameGen();
-        private final List<String> names = new ArrayList<>();
+        private final Stack<String> temps = new Stack<>();
         private File outDir;
         private File outJavaCode;
 
         private Visitor(File outDir, IndentPrinter printer) {
             this.outDir = outDir;
             this.printer = printer;
-        }
-
-        private String genTempLocal() {
-            String s = gen.newName();
-            names.add(s);
-            return s;
-        }
-
-        private String popTempLocal() {
-            int last = names.size() - 1;
-            String s = names.get(last);
-            names.remove(last);
-            return s;
         }
 
         @Override
@@ -185,18 +172,29 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmVariable node) {
-            printer.println(
-                    javaAccessModifier(node.access),
-                    javaMemoryModifier(node.memory),
-                    javaTypeName(node.type),
-                    node.name, ";");
-            // TODO: Init expression generation
+            if (node.memory == MemoryModifier.LOCAL) {
+                accept(node.expr);
+                printer.println(
+                        javaTypeName(node.type),
+                        node.name,
+                        "=",
+                        temps.pop(),
+                        ";");
+            } else {
+                // TODO: Init expression generation
+                printer.println(
+                        javaAccessModifier(node.access),
+                        javaMemoryModifier(node.memory),
+                        javaTypeName(node.type),
+                        node.name, ";");
+            }
             return null;
         }
 
         @Override
         public Void visit(JvmValue node) {
-            printer.println(javaTypeName(node.type), genTempLocal(), "=", node.text, ";");
+            temps.push(gen.newName());
+            printer.println(javaTypeName(node.type), temps.top(), "=", node.text, ";");
             return null;
         }
 
@@ -206,20 +204,21 @@ final class JavaTranslator implements JvmTranslator {
                 accept(a);
             }
             // In reverse to the right order
-            List<String> temps = new ArrayList<>();
+            List<String> args = new ArrayList<>();
             for (int i = 0; i < node.args.size(); i++) {
-                   temps.add(popTempLocal());
+                args.add(temps.pop());
             }
             if (!node.returnType.equals(AstType.NONE)) {
+                temps.push(gen.newName());
                 printer.print(
                         javaTypeName(node.returnType),
-                        genTempLocal(),
+                        temps.top(),
                         "= ");  // Extra space before expression
             }
             printer.println(
                     (node.object == null? "": node.object + ".") + node.method,
                     "(",
-                    String.join(", ", Lists.reverse(temps)),
+                    String.join(", ", Lists.reverse(args)),
                     ");");
             return null;
         }
@@ -228,9 +227,10 @@ final class JavaTranslator implements JvmTranslator {
         public Void visit(JvmBinary node) {
             accept(node.l);
             accept(node.r);
-            String r = popTempLocal();
-            String l = popTempLocal();
-            printer.print(javaTypeName(node.returnType), genTempLocal(), "=");
+            String r = temps.pop();
+            String l = temps.pop();
+            temps.push(gen.newName());
+            printer.print(javaTypeName(node.returnType), temps.top(), "=");
             if (node.op.equals("[]")) {
                 printer.println(l, "[", r, "];");
             } else {
@@ -250,13 +250,21 @@ final class JavaTranslator implements JvmTranslator {
         @Override
         public Void visit(JvmReturn node) {
             accept(node.expr);
-            printer.println("return", popTempLocal(), ";");
+            printer.println("return", temps.pop(), ";");
             return null;
         }
 
         @Override
         public Void visit(JvmComment node) {
             printer.println("//", node.text);
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmGroup node) {
+            for (JvmNode child : node.getChildren()) {
+                accept(child);
+            }
             return null;
         }
     }

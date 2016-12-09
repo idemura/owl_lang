@@ -14,36 +14,33 @@
  */
 package owl.lang;
 
-import java.util.ArrayList;
-import java.util.List;
-
 final class NameGen {
     static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private List<Integer> counters = new ArrayList<>();
+    private Stack<Integer> counters = new Stack<>();
 
     NameGen() {
-        counters.add(0);
+        counters.push(0);
     }
 
     String newName() {
         char[] buf = new char[16];
         int j = 0;
-        int counter = counters.get(counters.size() - 1);
+        int counter = counters.pop();
         int n = counter;
         do {
             int mod = ALPHABET.length();
             buf[j++] = ALPHABET.charAt(n % mod);
             n /= mod;
         } while (n != 0);
-        counters.set(counters.size() - 1, counter + 1);
+        counters.push(counter + 1);
         return "_tmp_" + new String(buf, 0, j);
     }
 
     void push() {
-        counters.add(0);
+        counters.push(0);
     }
 
     void pop() {
-        counters.remove(counters.size() - 1);
+        counters.pop();
     }
 }

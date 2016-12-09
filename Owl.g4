@@ -333,12 +333,17 @@ returns [AstNode r]
     )*
 ;
 
+exprRValue
+returns [AstNode r]
+:   x = exprOr { $r = $x.r; }
+;
+
 // TODO:
 //  - Comma assignment x, y =  10 + 12, 10 * 12;
 //  - Lambda expression
 exprAssign
 returns [AstNode r]
-:   x = exprOr { $r = $x.r; }
+:   x = exprRValue { $r = $x.r; }
     (
         op =
         (
@@ -355,7 +360,7 @@ returns [AstNode r]
         |   ASSIGN_BIT_XOR
         |   ASSIGN_BIT_OR
         )
-        y = exprOr
+        y = exprRValue
         {
             AstApply app = new AstApply();
             app.add(new AstName($op.text));
@@ -373,7 +378,7 @@ returns [AstNode r]
 
 ifCond
 returns [AstCond r]
-:   c = expression b = block
+:   c = exprRValue b = block
     {
         $r = new AstCond(new AstExpr($c.r), $b.r);
     }
@@ -400,7 +405,7 @@ returns [AstCase r]
 
 stmtMatch
 returns [AstMatch r = new AstMatch()]
-:   MATCH e = expression { $r.expr = new AstExpr($e.r); }
+:   MATCH e = exprRValue { $r.expr = new AstExpr($e.r); }
     LCURLY
     (
         c = matchCase { $r.add($c.r); }
@@ -417,6 +422,24 @@ returns [AstReturn r = new AstReturn()]
     SEMICOLON
 ;
 
+stmtVarAssign
+returns  [AstVariable r]
+:   NAME ASSIGN e = exprRValue
+    {
+        $r = new AstVariable($NAME.text, $e.r);
+    }
+;
+
+stmtVar
+returns [AstGroup r = new AstGroup(); ]
+:   VAR
+        v = stmtVarAssign { $r.add($v.r); }
+    (
+        COMMA  v = stmtVarAssign { $r.add($v.r); }
+    )*
+    SEMICOLON
+;
+
 // TODO:
 //  - While
 //  - For
@@ -427,6 +450,7 @@ returns [AstNode r]
 |   s = stmtIf { $r = $s.r; }
 |   m = stmtMatch { $r = $m.r; }
 |   ret = stmtReturn { $r = $ret.r; }
+|   v = stmtVar { $r = $v.r; }
 ;
 
 // Type Instance
@@ -475,6 +499,7 @@ MATCH: 'match';
 MODULE: 'module';
 NEW: 'new';
 RETURN: 'return';
+VAR: 'var';
 
 DOT: '.';
 COMMA: ',';

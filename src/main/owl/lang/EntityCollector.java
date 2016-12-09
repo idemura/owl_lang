@@ -107,5 +107,13 @@ final class EntityCollector {
             }
             return null;
         }
+
+        @Override
+        public Void visit(AstGroup node) {
+            for (AstNode c : node.children) {
+                accept(c);
+            }
+            return null;
+        }
     }
 }

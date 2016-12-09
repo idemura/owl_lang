@@ -56,6 +56,7 @@ interface JvmVisitor<T> {
     default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
     default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmGroup node) { return visitError(); }
     default T visit(JvmImport node) { return visitError(); }
     default T visit(JvmPackage node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
@@ -130,20 +131,26 @@ final class JvmVariable extends JvmNode {
     final MemoryModifier memory;
     final String name;
     final AstType type;
+    final JvmNode expr;
 
-    static JvmVariable local(AstType type, String name) {
-        return new JvmVariable(AccessModifier.PRIVATE, MemoryModifier.LOCAL, type, name);
+    static JvmVariable fnArg(AstType type, String name) {
+        return new JvmVariable(AccessModifier.PRIVATE, MemoryModifier.LOCAL, type, name, null);
+    }
+    static JvmVariable local(AstType type, String name, JvmNode expr) {
+        return new JvmVariable(AccessModifier.PRIVATE, MemoryModifier.LOCAL, type, name, expr);
     }
 
     JvmVariable(
             AccessModifier access,
             MemoryModifier memory,
             AstType type,
-            String name) {
+            String name,
+            JvmNode expr) {
         this.access = access;
         this.memory = memory;
         this.name = name;
         this.type = type;
+        this.expr = expr;
     }
 
     @Override
@@ -287,6 +294,25 @@ final class JvmImport extends JvmNode {
 
     JvmImport(String name) {
         this.name = name;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmGroup extends JvmNode {
+    private List<JvmNode> children = new ArrayList<>();
+
+    JvmGroup() {}
+
+    void add(JvmNode node) {
+        children.add(node);
+    }
+
+    List<JvmNode> getChildren() {
+        return ImmutableList.copyOf(children);
     }
 
     @Override

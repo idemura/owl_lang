@@ -36,12 +36,13 @@ final class CodeGenerator {
                 MemoryModifier.STATIC,
                 AstType.NONE,
                 "main",
-                ImmutableList.of(JvmVariable.local(AstType.arrayOf(AstType.STRING), "args")),
+                ImmutableList.of(JvmVariable.fnArg(AstType.arrayOf(AstType.STRING), "args")),
                 block);
     }
 
     private static final class Visitor implements AstVisitor<JvmNode> {
         private final ErrorListener errorListener;
+        private final Stack<AstFunction> fnStack = new Stack<>();
 
         private Visitor(ErrorListener errorListener) {
             this.errorListener = errorListener;
@@ -91,15 +92,18 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstFunction node) {
-            return new JvmFunction(
+            fnStack.push(node);
+            JvmNode r = new JvmFunction(
                     AccessModifier.PACKAGE,
                     MemoryModifier.STATIC,
                     node.returnType,
                     node.name,
                     node.args.stream()
-                            .map(a -> JvmVariable.local(a.getType(), a.name))
+                            .map(a -> JvmVariable.fnArg(a.getType(), a.name))
                             .collect(Collectors.toList()),
                     accept(node.block));
+            fnStack.pop();
+            return r;
         }
 
         @Override
@@ -109,11 +113,21 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstVariable node) {
-            return new JvmVariable(
-                    AccessModifier.PACKAGE,
-                    MemoryModifier.STATIC,
-                    node.getType(),
-                    node.name);
+            if (fnStack.isEmpty()) {
+                return new JvmVariable(
+                        AccessModifier.PACKAGE,
+                        MemoryModifier.STATIC,
+                        node.getType(),
+                        node.name,
+                        accept(node.expr));
+            } else {
+                return new JvmVariable(
+                        AccessModifier.PRIVATE,
+                        MemoryModifier.LOCAL,
+                        node.getType(),
+                        node.name,
+                        accept(node.expr));
+            }
         }
 
         @Override
@@ -140,7 +154,7 @@ final class CodeGenerator {
                                 node.getType(),
                                 fnName.name,
                                 accept(node.args.get(1)),
-                                accept(node.args.get(1)));
+                                accept(node.args.get(2)));
 
                     default:
                         throw new IllegalStateException("unknown operator " + fnName.name);
@@ -211,6 +225,15 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstExpr node) {
             return accept(node.expr);
+        }
+
+        @Override
+        public JvmNode visit(AstGroup node) {
+            JvmGroup g = new JvmGroup();
+            for (AstNode c : node.children) {
+                g.add(accept(c));
+            }
+            return g;
         }
     }
 }
