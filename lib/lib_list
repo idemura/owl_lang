@@ -1,6 +1,6 @@
 junit junit
-org.antlr antlr4-runtime
-org.antlr antlr4
+org.antlr antlr4-runtime 4.5.3
+org.antlr antlr4 4.5.3
 com.beust jcommander
 com.google.guava guava
 

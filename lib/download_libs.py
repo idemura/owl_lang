@@ -66,8 +66,19 @@ class Library:
         return 'prebuilt_jar(\n' + '\n'.join(lines) + '\n)\n'
 
 
-def fetch(group, artifact, version):
+def replace_version_macro(dep_version, version):
+    if dep_version:
+        return dep_version.replace('${project.version}', version)
+    else:
+        return dep_version
+
+
+def fetch(cache, group, artifact, version):
     version = version or get_version(group, artifact)
+
+    jar_name = version_name(artifact, version, '.jar')
+    if jar_name in cache:
+        return cache[jar_name]
 
     pom_name = version_name(artifact, version, '.pom')
     print('Reading POM', pom_name)
@@ -79,17 +90,18 @@ def fetch(group, artifact, version):
             continue;
 
         deps.append(fetch(
+            cache,
             d.findtext(mvn_tag('groupId')),
             d.findtext(mvn_tag('artifactId')),
-            d.findtext(mvn_tag('version'))
+            replace_version_macro(d.findtext(mvn_tag('version')), version),
         ))
 
-    jar_name = version_name(artifact, version, '.jar')
     print('Reading JAR', jar_name)
     with open(os.path.basename(jar_name), 'w') as f:
         f.write(fetch_file(group, artifact, jar_name))
 
-    return Library(artifact, version, deps)
+    cache[jar_name] = Library(artifact, version, deps)
+    return cache[jar_name]
 
 
 def walk_lib(lib, public=True):
@@ -106,6 +118,7 @@ if __name__ == '__main__':
 
     libs = []
     with open(sys.argv[1], 'rt') as f:
+        cache = {}
         for s in f:
             s = s.strip()
             if len(s) == 0: continue
@@ -113,6 +126,7 @@ if __name__ == '__main__':
             if len(args) < 2 or len(args) > 3:
                 raise ValueError('invalid libs entry')
             libs.append(fetch(
+                cache=cache,
                 group=args[0],
                 artifact=args[1],
                 version=args[2] if len(args) == 3 else None,
