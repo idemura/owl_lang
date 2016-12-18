@@ -28,12 +28,16 @@ import static java.util.stream.Collectors.toList;
 
 final class IndentPrinter {
     private static final String TAB = "  ";
-    private PrintStream out;
+    private final List<PrintStream> out = new ArrayList<>();
     private int tab = 0;
     private boolean newLine = true;
 
-    IndentPrinter(PrintStream out) {
-        this.out = out;
+    IndentPrinter(PrintStream... out) {
+        for (PrintStream s : out) {
+            if (s != null) {
+                this.out.add(s);
+            }
+        }
     }
 
     void indent() {
@@ -55,7 +59,7 @@ final class IndentPrinter {
     private void printLineIndent() {
         if (newLine) {
             for (int i = 0; i < tab; i++) {
-                out.print(TAB);
+                printToStream(TAB);
             }
         }
     }
@@ -69,15 +73,22 @@ final class IndentPrinter {
                 continue;
             }
             if (!first) {
-                out.print(" ");
+                printToStream(" ");
             }
-            out.print(o.toString());
+            printToStream(o.toString());
             first = false;
         }
-        if (ln)
-            out.println();
+        if (ln) {
+            printToStream("\n");
+        }
         newLine = ln;
         return this;
+    }
+
+    private void printToStream(String s) {
+        for (PrintStream ps : out) {
+            ps.print(s);
+        }
     }
 }
 

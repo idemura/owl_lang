@@ -65,8 +65,12 @@ public final class CLI {
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
     boolean flagPrintAst = false;
+    @Parameter(names = {"--print_desugar_ast"}, description = "Print desugared AST")
+    boolean flagPrintDesugarAst = false;
     @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
     boolean flagPrintEntityMap = false;
+    @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
+    boolean flagEcho = false;
 
     public static void main(String[] args) {
         System.exit(new CLI(args).run()? 0: 1);
@@ -153,11 +157,15 @@ public final class CLI {
                 debugOut.println(variables.toString());
                 debugOut.println(overloads.toString());
             }
+            Desugar.run(ast, errorListener);
+            if (flagPrintDesugarAst) {
+                DebugPrint.printAst(ast,debugOut);
+            }
             TypeCheckerAndEntityResolver.run(ast, variables, overloads, errorListener);
             if (errorListener.getErrorCount() == 0 && flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
                 if (errorListener.getErrorCount() == 0) {
-                    new JavaTranslator().translate(jvm, outDir);
+                    new JavaTranslator().translate(jvm, outDir, flagEcho? System.out: null);
                 }
             }
         }

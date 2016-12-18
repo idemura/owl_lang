@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkState;
+
 final class CodeGenerator {
     private CodeGenerator() {}
 
@@ -180,9 +182,8 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstAssign node) {
-            return new JvmAssign(node.op,
-                    accept(node.l),
-                    accept(node.r));
+            checkState(node.op == null);
+            return new JvmAssign(accept(node.l), accept(node.r));
         }
 
         @Override

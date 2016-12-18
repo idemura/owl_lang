@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 public class NameGenTest {
     @Test
     public void testNameGen() {
-        NameGen gen = new NameGen();
+        NameGen gen = new NameGen("_t_");
         assertEquals("_t_a", gen.newName());
         assertEquals("_t_b", gen.newName());
         assertEquals("_t_c", gen.newName());

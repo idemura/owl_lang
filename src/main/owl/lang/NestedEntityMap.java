@@ -80,6 +80,15 @@ final class NestedEntityMap {
         scope.top().put(e);
     }
 
+    boolean isBlockVar(String name) {
+        for (EntityMap map : scope) {
+            if (map.contains(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean contains(String name) {
         for (EntityMap map : scope) {
             if (map.contains(name)) {

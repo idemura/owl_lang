@@ -17,6 +17,7 @@ package owl.lang;
 import com.google.common.collect.ImmutableList;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ final class Jvm {
 }
 
 interface JvmTranslator {
-    void translate(Jvm jvm, File outDir) throws OwlException;
+    void translate(Jvm jvm, File outDir, PrintStream echo) throws OwlException;
 }
 
 interface JvmVisitor<T> {
@@ -263,12 +264,10 @@ final class JvmBinary extends JvmNode {
 }
 
 final class JvmAssign extends JvmNode {
-    final String op;
     final JvmNode l;
     final JvmNode r;
 
-    JvmAssign(String op, JvmNode l, JvmNode r) {
-        this.op = op;
+    JvmAssign(JvmNode l, JvmNode r) {
         this.l = l;
         this.r = r;
     }

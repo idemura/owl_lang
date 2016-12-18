@@ -29,9 +29,9 @@ final class JavaTranslator implements JvmTranslator {
     JavaTranslator() {}
 
     @Override
-    public void translate(Jvm jvm, File outDir) throws OwlException {
+    public void translate(Jvm jvm, File outDir, PrintStream echo) throws OwlException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            Visitor v = new Visitor(outDir, new IndentPrinter(new PrintStream(bos)));
+            Visitor v = new Visitor(outDir, new IndentPrinter(new PrintStream(bos), echo));
             v.accept(jvm.root);
             try (OutputStream fos = new FileOutputStream(v.outJavaCode)) {
                 fos.write(bos.toByteArray());
@@ -106,7 +106,7 @@ final class JavaTranslator implements JvmTranslator {
 
     private static final class Visitor implements JvmVisitor {
         private final IndentPrinter printer;
-        private final NameGen gen = new NameGen();
+        private final NameGen gen = new NameGen("_t_");
         private final Stack<String> args = new Stack<>();
         private File outDir;
         private File outJavaCode;
@@ -248,7 +248,7 @@ final class JavaTranslator implements JvmTranslator {
             accept(node.r);
             String r = args.pop();
             String l = args.pop();
-            printer.println(l, "=", r);
+            printer.println(l, "=", r, ";");
             return null;
         }
 

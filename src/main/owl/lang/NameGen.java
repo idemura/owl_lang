@@ -16,9 +16,11 @@ package owl.lang;
 
 final class NameGen {
     static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private final String prefix;
     private Stack<Integer> counters = new Stack<>();
 
-    NameGen() {
+    NameGen(String prefix) {
+        this.prefix = prefix;
         counters.push(0);
     }
 
@@ -33,7 +35,7 @@ final class NameGen {
             n /= mod;
         } while (n != 0);
         counters.push(counter + 1);
-        return "_t_" + new String(buf, 0, j);
+        return prefix + new String(buf, 0, j);
     }
 
     void push() {

@@ -1,0 +1,8 @@
+#! /bin/bash
+
+OWL_OUT=.owl_out
+CLASS_PATH=$OWL_OUT/owl_runtime.jar:$OWL_OUT
+JAVA=`python java_owl_out.py $1`
+
+javac -d $OWL_OUT -cp $CLASS_PATH $JAVA && java -cp $CLASS_PATH $1
+

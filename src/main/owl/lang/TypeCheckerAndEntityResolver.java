@@ -14,8 +14,6 @@
  */
 package owl.lang;
 
-import java.util.List;
-
 // Check types of function applications. Resolves entity names and function overloads.
 final class TypeCheckerAndEntityResolver {
     private TypeCheckerAndEntityResolver() {}
@@ -27,22 +25,17 @@ final class TypeCheckerAndEntityResolver {
         new Visitor(variables, overloads, errorListener).accept(ast.root);
     }
 
-    private static final class Context {
-
-    }
-
     private static final class Visitor implements AstVisitor {
         private final ErrorListener errorListener;
         private final NestedEntityMap entityMap;
-        private String moduleName;
-        private Stack<List<AstType>> applyContext = new Stack<>();
-        private Stack<AstBlock> block = new Stack<>();
+        private final Stack<AstBlock> block = new Stack<>();
+        private final NameGen gen = new NameGen("_l_");
 
         private Visitor(
                 EntityMap variables,
                 OverloadEntityMap overloads,
                 ErrorListener errorListener) {
-            this.errorListener = new CountErrorListener(errorListener);
+            this.errorListener = errorListener;
             this.entityMap = new NestedEntityMap(variables, overloads);
         }
 
@@ -75,7 +68,6 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstModule node) {
-            moduleName = node.name;
             for (AstNode f : node.children) {
                 accept(f);
             }
@@ -85,10 +77,12 @@ final class TypeCheckerAndEntityResolver {
         @Override
         public Void visit(AstFunction node) {
             entityMap.push();
+            gen.push();
             for (AstArgument a : node.args) {
                 accept(a);
             }
             accept(node.block);
+            gen.pop();
             entityMap.pop();
             return null;
         }
@@ -154,7 +148,7 @@ final class TypeCheckerAndEntityResolver {
                 accept(node.r);
                 AstName local = (AstName) node.l;
                 Entity ent;
-                if (entityMap.top().contains(local.name)) {
+                if (entityMap.isBlockVar(local.name)) {
                     // TODO: What if it's a function, lambda?
                     ent = entityMap.get(local.name);
                 } else {
@@ -169,6 +163,7 @@ final class TypeCheckerAndEntityResolver {
                 }
                 local.entity = ent;
             } else {
+                Util.unsupported("assign left op is not a name");
                 accept(node.l);
                 accept(node.r);
             }

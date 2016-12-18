@@ -1,18 +1,19 @@
 #! /bin/bash
 
+DIFF_OPT=-Bu
 ok=1
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
-    out=`tempfile`
-    err=`tempfile`
+    out=`mktemp`
+    err=`mktemp`
     ./owl $flags $owl 1> $out 2> $err
     if [ $? == 0 ]; then
-        diff -ZBu $owl.out $out
+        diff $DIFF_OPT $owl.out $out
         if [ $? != 0 ]; then
             ok=0
         fi
     else
-        diff -ZBu $owl.err $err
+        diff $DIFF_OPT $owl.err $err
         if [ $? != 0 ]; then
             ok=0
         fi
