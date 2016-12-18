@@ -21,22 +21,30 @@ import java.util.HashMap;
 final class EntityCollector {
     private EntityCollector() {}
 
-    static EntityMap run(Ast ast, ErrorListener errorListener) throws OwlException {
+    static void run(Ast ast,
+            EntityMap variables,
+            OverloadEntityMap overloads,
+            ErrorListener errorListener) throws OwlException {
         CountErrorListener newErrorListener = new CountErrorListener(errorListener);
-        Visitor v = new Visitor(newErrorListener);
+        Visitor v = new Visitor(variables, overloads, newErrorListener);
         v.accept(ast.root);
         if (newErrorListener.getErrorCount() > 0) {
             throw new OwlException("metadata analysis error");
         }
-        return v.entityMap.freeze();
     }
 
     private static final class Visitor implements AstVisitor {
         private final ErrorListener errorListener;
-        private final EntityMap entityMap = Runtime.ENTITY_MAP.clone();
+        private EntityMap variables;
+        private OverloadEntityMap overloads;
         private String moduleName;
 
-        private Visitor(ErrorListener errorListener) {
+        private Visitor(
+                EntityMap variables,
+                OverloadEntityMap overloads,
+                ErrorListener errorListener) {
+            this.variables = variables;
+            this.overloads = overloads;
             this.errorListener = errorListener;
         }
 
@@ -56,54 +64,49 @@ final class EntityCollector {
         @Override
         public Void visit(AstFunction node) {
             // TODO: Lambda
-            boolean err = false;
-            if (!node.args.isEmpty()) {
-                HashMap<String, AstArgument> arguments = new HashMap<>();
-                AstType t = AstType.NONE;
-                for (int i = node.args.size(); i > 0; ) {
-                    AstArgument a = node.args.get(--i);
-                    if (arguments.containsKey(a.name)) {
-                        error(node, "function " + node.name + " argument " + a.name + " duplicated, first at line " +
-                                arguments.get(a.name).getType());
-                        err = true;
-                        continue;
-                    }
-                    arguments.put(a.name, a);
-                    if (a.type == AstType.NONE) {
-                        if (t == AstType.NONE) {
-                            error(node, "function " + node.name + " argument " + a.name + " type None");
-                            err = true;
-                        } else {
-                            a.type = t;
+            try {
+                if (node.name == null) {
+                    throw new OwlException("unnamed module level function");
+                }
+                if (variables.contains(node.name)) {
+                    throw new OwlException("duplicated entity " + node.name);
+                }
+                if (!node.args.isEmpty()) {
+                    // Deduce all arguments types
+                    HashMap<String, AstArgument> arguments = new HashMap<>();
+                    AstType t = AstType.NONE;
+                    for (int i = node.args.size(); i > 0; ) {
+                        AstArgument a = node.args.get(--i);
+                        if (arguments.containsKey(a.name)) {
+                            throw new OwlException("function argument " + a.name + " duplicated");
                         }
-                    } else {
-                        t = a.type;
+                        arguments.put(a.name, a);
+                        if (a.type == AstType.NONE) {
+                            if (t == AstType.NONE) {
+                                throw new OwlException("function argument " + a.name + " missing type");
+                            }
+                            a.type = t;
+                        } else {
+                            t = a.type;
+                        }
                     }
                 }
-            }
-            if (node.name == null) {
-                error(node, "function unnamed");
-            } else if (!err) {
-                // Add only if no errors during function signature analysis
-                Entity s = node.getEntity(moduleName);
-                try {
-                    entityMap.put(s);
-                } catch (OwlException e) {
-                    errorListener.error(node.getLine(), node.getCharPosition(),
-                            "duplicated module member " + node.name);
-                }
+                overloads.put(new Entity(moduleName, node.name, node.getType()));
+            } catch (OwlException e) {
+                error(node, e.getMessage());
             }
             return null;
         }
 
         @Override
         public Void visit(AstVariable node) {
-            Entity s = node.getEntity(moduleName);
             try {
-                entityMap.put(s);
+                if (overloads.contains(node.name)) {
+                    throw new OwlException("duplicated entity " + node.name);
+                }
+                variables.put(new Entity(moduleName, node.name, node.getType()));
             } catch (OwlException e) {
-                errorListener.error(node.getLine(), node.getCharPosition(),
-                        "duplicated module member " + node.name);
+                error(node, e.getMessage());
             }
             return null;
         }

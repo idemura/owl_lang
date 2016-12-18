@@ -54,7 +54,7 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstName node) {
-            return new JvmValue(node.name, node.getType());
+            return new JvmNameRef(node.name, node.getType());
         }
 
         @Override
@@ -133,6 +133,7 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstBlock node) {
             JvmBlock block = new JvmBlock();
+            block.vars = node.vars;
             for (AstNode s : node.children) {
                 block.add(accept(s));
             }
@@ -149,12 +150,17 @@ final class CodeGenerator {
                     case "*":
                     case "/":
                     case "%":
-                    case "[]":
                         return new JvmBinary(
                                 node.getType(),
                                 fnName.name,
                                 accept(node.args.get(1)),
                                 accept(node.args.get(2)));
+
+                    // In JavaTranslator, takes left and right from the stack and puts "l[r]" back on the stack
+//                    case "[]":
+//                        return new JvmIndex(node.getType(),
+//                                accept(node.args.get(1)),
+//                                accept(node.args.get(2)));
 
                     default:
                         throw new IllegalStateException("unknown operator " + fnName.name);
@@ -170,6 +176,13 @@ final class CodeGenerator {
                     fnName.entity.isRT()? Runtime.CLASS_NAME: null,
                     fnName.name,
                     args);
+        }
+
+        @Override
+        public JvmNode visit(AstAssign node) {
+            return new JvmAssign(node.op,
+                    accept(node.l),
+                    accept(node.r));
         }
 
         @Override

@@ -107,7 +107,7 @@ final class JavaTranslator implements JvmTranslator {
     private static final class Visitor implements JvmVisitor {
         private final IndentPrinter printer;
         private final NameGen gen = new NameGen();
-        private final Stack<String> temps = new Stack<>();
+        private final Stack<String> args = new Stack<>();
         private File outDir;
         private File outJavaCode;
 
@@ -131,11 +131,14 @@ final class JavaTranslator implements JvmTranslator {
         public Void visit(JvmClass node) {
             outJavaCode = new File(outDir, node.name + ".java");
             gen.push();
-            printer.println(javaAccessModifier(node.access), "final class", node.name).curlyOpen();
+            printer.println(javaAccessModifier(node.access), "final class", node.name);
+            printer.println("{");
+            printer.indent();
             for (JvmNode child : node.getChildren()) {
                 accept(child);
             }
-            printer.curlyClose();
+            printer.unindent();
+            printer.println("}");
             gen.pop();
             return null;
         }
@@ -163,9 +166,8 @@ final class JavaTranslator implements JvmTranslator {
             }
             printer.unindent();
             printer.unindent();
-            printer.println(")").curlyOpen();
+            printer.println(")");
             accept(node.block);
-            printer.curlyClose();
             gen.pop();
             return null;
         }
@@ -178,7 +180,7 @@ final class JavaTranslator implements JvmTranslator {
                         javaTypeName(node.type),
                         node.name,
                         "=",
-                        temps.pop(),
+                        args.pop(),
                         ";");
             } else {
                 // TODO: Init expression generation
@@ -193,8 +195,14 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmValue node) {
-            temps.push(gen.newName());
-            printer.println(javaTypeName(node.type), temps.top(), "=", node.text, ";");
+            args.push(gen.newName());
+            printer.println(javaTypeName(node.type), args.top(), "=", node.text, ";");
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmNameRef node) {
+            args.push(node.name);
             return null;
         }
 
@@ -206,13 +214,13 @@ final class JavaTranslator implements JvmTranslator {
             // In reverse to the right order
             List<String> args = new ArrayList<>();
             for (int i = 0; i < node.args.size(); i++) {
-                args.add(temps.pop());
+                args.add(this.args.pop());
             }
             if (!node.returnType.equals(AstType.NONE)) {
-                temps.push(gen.newName());
+                this.args.push(gen.newName());
                 printer.print(
                         javaTypeName(node.returnType),
-                        temps.top(),
+                        this.args.top(),
                         "= ");  // Extra space before expression
             }
             printer.println(
@@ -227,30 +235,44 @@ final class JavaTranslator implements JvmTranslator {
         public Void visit(JvmBinary node) {
             accept(node.l);
             accept(node.r);
-            String r = temps.pop();
-            String l = temps.pop();
-            temps.push(gen.newName());
-            printer.print(javaTypeName(node.returnType), temps.top(), "=");
-            if (node.op.equals("[]")) {
-                printer.println(l, "[", r, "];");
-            } else {
-                printer.println(l, node.op, r, ";");
-            }
+            String r = args.pop();
+            String l = args.pop();
+            args.push(gen.newName());
+            printer.println(javaTypeName(node.returnType), args.top(), "=", l, node.op, r, ";");
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmAssign node) {
+            accept(node.l);
+            accept(node.r);
+            String r = args.pop();
+            String l = args.pop();
+            printer.println(l, "=", r);
             return null;
         }
 
         @Override
         public Void visit(JvmBlock node) {
+            printer.println("{");
+            printer.indent();
+            if (node.vars != null) {
+                for (Entity e : node.vars) {
+                    printer.println(javaTypeName(e.type), e.name, ";");
+                }
+            }
             for (JvmNode s : node.getStatements()) {
                 accept(s);
             }
+            printer.unindent();
+            printer.println("}");
             return null;
         }
 
         @Override
         public Void visit(JvmReturn node) {
             accept(node.expr);
-            printer.println("return", temps.pop(), ";");
+            printer.println("return", args.pop(), ";");
             return null;
         }
 

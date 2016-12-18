@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkState;
+
 final class Ast {
     AstNode root;
 
@@ -49,6 +51,7 @@ interface AstVisitor<T> {
 
     default T visit(AstApply node) { return visitError(); }
     default T visit(AstArgument node) { return visitError(); }
+    default T visit(AstAssign node) { return visitError(); }
     default T visit(AstBlock node) { return visitError(); }
     default T visit(AstCase node) { return visitError(); }
     default T visit(AstCond node) { return visitError(); }
@@ -81,12 +84,14 @@ abstract class AstNode {
     int getCharPosition() { return charPosition; }
 
     void add(AstNode node) {
-        throw new UnsupportedOperationException("add node");
+        Util.unsupported("add node");
     }
 
     abstract Object accept(AstVisitor visitor);
+
     AstType getType() {
-        throw new UnsupportedOperationException(getClass().getName() + " is not typed");
+        Util.unsupported(getClass().getName() + " is not typed");
+        return null;
     }
 }
 
@@ -137,7 +142,7 @@ final class AstName extends AstNode {
 
     @Override
     AstType getType() {
-        return entity.getType();
+        return entity.type;
     }
 }
 
@@ -170,6 +175,15 @@ final class AstType extends AstNode {
     AstType(AstName name, List<AstType> args) {
         this(name);
         this.args = args;
+    }
+
+    boolean isFunction() {
+        return name.equals(AstName.FUNCTION);
+    }
+
+    AstType returnType() {
+        checkState(isFunction());
+        return args.get(args.size() - 1);
     }
 
     @Override
@@ -283,10 +297,6 @@ final class AstFunction extends AstNode {
         args.add((AstArgument) node);
     }
 
-    Entity getEntity(String moduleName) {
-        return new FunctionEntity(moduleName, name, getType(), false);
-    }
-
     @Override
     AstType getType() {
         // Shouldn't be called multiple times
@@ -311,10 +321,6 @@ final class AstArgument extends AstNode {
         return v.visit(this);
     }
 
-    Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name, getType(), VariableScope.FUNCTION);
-    }
-
     @Override
     AstType getType() {
         return type;
@@ -323,6 +329,7 @@ final class AstArgument extends AstNode {
 
 final class AstVariable extends AstNode {
     String name;
+    AstType type;
     AstNode expr;
 
     AstVariable() {}
@@ -337,10 +344,6 @@ final class AstVariable extends AstNode {
         return v.visit(this);
     }
 
-    Entity getEntity(String moduleName) {
-        return new VariableEntity(moduleName, name, AstType.NONE, VariableScope.MODULE);
-    }
-
     @Override
     AstType getType() {
         return expr.getType();
@@ -349,6 +352,7 @@ final class AstVariable extends AstNode {
 
 final class AstBlock extends AstNode {
     List<AstNode> children = new ArrayList<>();
+    List<Entity> vars = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
@@ -544,5 +548,21 @@ final class AstGroup extends AstNode {
     @Override
     void add(AstNode node) {
         children.add(node);
+    }
+}
+
+final class AstAssign extends AstNode {
+    String op;
+    AstNode l, r;
+
+    AstAssign(String op, AstNode l, AstNode r) {
+        this.op = op;
+        this.l = l;
+        this.r = r;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
     }
 }

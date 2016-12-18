@@ -14,7 +14,7 @@ fn f3(x, y: I32) {
     f1();
     f2(x);
     f3(x, y);
-    module.f3(mod.x, y);
+    modname.f3(mod.x, y);
     arr[x];
     map[x, z];
     f4()(x)[10];
@@ -79,7 +79,7 @@ fn f9 {
 }
 
 fn f10 {
-    if a < b && !width(x) + 10 = height(x) {
+    if a < b && !width(x) + 10 == height(x) {
         print(10);
     }
 
@@ -110,24 +110,24 @@ fn f10 {
 
 fn f11 {
     match f(5) + 14 {
-        case None {
+        None {
             print(s());
         }
-        case Just x {
+        Just x {
             print(x);
         }
     }
 
     match f(24) {
-        case Blue
-        case Green {
+        # Blue,
+        Green {
             print(color);
         }
     }
 
     match g {
-        case Blue
-        case Yellow {
+        # Blue,
+        Yellow {
         }
     } else {
         print(zzz);

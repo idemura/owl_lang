@@ -16,9 +16,7 @@ package owl.lang;
 
 import java.util.Objects;
 
-import static owl.lang.TypeUtil.fnEqualSignatures;
-
-abstract class Entity {
+class Entity {
     final String moduleName;
     final String name;
     final AstType type;
@@ -29,79 +27,30 @@ abstract class Entity {
         this.type = type;
     }
 
-    String getName() {
-        return name;
-    }
-
     boolean isRT() {
         return moduleName.isEmpty();
     }
 
-    String getModuleName() {
-        return isRT()? "<runtime>": moduleName;
-    }
-
-    AstType getType() {
-        return type;
+    boolean isFunction() {
+        return type.isFunction();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, moduleName);
+        return Objects.hash(name);
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Entity) {
             Entity otherEnt = (Entity) other;
-            return name.equals(otherEnt.name) && moduleName.equals(otherEnt.moduleName);
-        } else {
-            throw new IllegalArgumentException("entity expected");
-        }
-    }
-}
-
-// Basically function signature
-final class FunctionEntity extends Entity {
-    final boolean runtime;
-
-    FunctionEntity(String moduleName, String name, AstType type, boolean runtime) {
-        super(moduleName, name, type);
-        this.runtime = runtime;
-    }
-
-    @Override
-    public String toString() {
-        return "Function " + getModuleName() + " " + name + ": " + type;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (super.equals(other)) {
-            if (other instanceof FunctionEntity) {
-                return fnEqualSignatures(type, ((Entity) other).type);
-            }
-            return true;
+            return name.equals(otherEnt.name);
         }
         return false;
     }
-}
-
-enum VariableScope {
-    MODULE,
-    FUNCTION,
-}
-
-final class VariableEntity extends Entity {
-    VariableScope scope;
-
-    VariableEntity(String moduleName, String name, AstType type, VariableScope scope) {
-        super(moduleName, name, type);
-        this.scope = scope;
-    }
 
     @Override
     public String toString() {
-        return "Variable " + getModuleName() + " " + name + ": " + type;
+        return (moduleName == null || moduleName.isEmpty()? "": moduleName + ".") + name + ": " + type;
     }
 }

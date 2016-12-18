@@ -14,13 +14,16 @@
  */
 package owl.lang;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
 
 final class TypeUtil {
     private TypeUtil() {}
 
-    static boolean fnEqualSignatures(AstType a, AstType b) {
-        if (!a.name.equals(AstName.FUNCTION) || !b.name.equals(AstName.FUNCTION)) {
+    // Not sure if needed
+    static boolean equalSignatures(AstType a, AstType b) {
+        if (!a.isFunction() || !b.isFunction()) {
             throw new IllegalArgumentException("function type expected");
         }
         if (a.args.size() != b.args.size()) {
@@ -40,5 +43,17 @@ final class TypeUtil {
             throw new IllegalArgumentException("makeFnType args 0 length");
         }
         return AstType.functionOf(asList(typeArgs));
+    }
+
+    static boolean accepts(AstType fn, List<AstType> args) {
+        // Do not count return type
+        if (fn.args.size() - 1 == args.size()) {
+            for (int i = 0; i < args.size(); i++) {
+                if (!fn.args.get(i).equals(args.get(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

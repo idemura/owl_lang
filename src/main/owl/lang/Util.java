@@ -52,16 +52,6 @@ final class IndentPrinter {
         return doPrint(objs, true);
     }
 
-    void curlyOpen() {
-        println("{");
-        indent();
-    }
-
-    void curlyClose() {
-        unindent();
-        println("}");
-    }
-
     private void printLineIndent() {
         if (newLine) {
             for (int i = 0; i < tab; i++) {
@@ -151,6 +141,14 @@ final class Util {
         return l;
     }
 
+    static String removeSuffix(String s, int len) {
+        return s.substring(0, s.length() - len);
+    }
+
+    static void unsupported(String s) {
+        throw new UnsupportedOperationException(s);
+    }
+
     private static String getManifestAttribute(String name) {
         try {
             Attributes.Name attrName = new Attributes.Name(name);
@@ -163,6 +161,7 @@ final class Util {
                 }
             }
         } catch (IOException e) {
+            // Fall through
         }
         throw new IllegalStateException("manifest missing attribute");
     }

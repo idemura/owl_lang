@@ -333,7 +333,7 @@ returns [AstNode r]
     )*
 ;
 
-exprRValue
+expression
 returns [AstNode r]
 :   x = exprOr { $r = $x.r; }
 ;
@@ -341,9 +341,9 @@ returns [AstNode r]
 // TODO:
 //  - Comma assignment x, y =  10 + 12, 10 * 12;
 //  - Lambda expression
-exprAssign
+assignment
 returns [AstNode r]
-:   x = exprRValue { $r = $x.r; }
+:   x = expression { $r = $x.r; }
     (
         op =
         (
@@ -360,25 +360,16 @@ returns [AstNode r]
         |   ASSIGN_BIT_XOR
         |   ASSIGN_BIT_OR
         )
-        y = exprRValue
+        y = expression
         {
-            AstApply app = new AstApply();
-            app.add(new AstName($op.text));
-            app.add($r);
-            app.add($y.r);
-            $r = app;
+            $r = new AstAssign(Util.removeSuffix($op.text, 1), $r, $y.r);
         }
     )?
 ;
 
-expression
-returns [AstNode r]
-:   e = exprAssign { $r = $e.r; }
-;
-
 ifCond
 returns [AstCond r]
-:   c = exprRValue b = block
+:   c = expression b = block
     {
         $r = new AstCond(new AstExpr($c.r), $b.r);
     }
@@ -405,38 +396,23 @@ returns [AstCase r]
 
 stmtMatch
 returns [AstMatch r = new AstMatch()]
-:   MATCH e = exprRValue { $r.expr = new AstExpr($e.r); }
+:   MATCH e = expression { $r.expr = new AstExpr($e.r); }
     LCURLY
     (
         c = matchCase { $r.add($c.r); }
     )+
     RCURLY
+    (
+        ELSE b = block { $r.add(new AstCase(null, null, $b.r)); }
+    )?
 ;
 
 stmtReturn
 returns [AstReturn r = new AstReturn()]
 :   RETURN
     (
-        e = expression { $r.expr = new AstExpr($e.r); }
+        e = expression { $r.expr = $e.r; }
     )?
-    SEMICOLON
-;
-
-stmtVarAssign
-returns  [AstVariable r]
-:   NAME ASSIGN e = exprRValue
-    {
-        $r = new AstVariable($NAME.text, $e.r);
-    }
-;
-
-stmtVar
-returns [AstGroup r = new AstGroup(); ]
-:   VAR
-        v = stmtVarAssign { $r.add($v.r); }
-    (
-        COMMA  v = stmtVarAssign { $r.add($v.r); }
-    )*
     SEMICOLON
 ;
 
@@ -446,11 +422,10 @@ returns [AstGroup r = new AstGroup(); ]
 //  - Yield (add to return)
 statement
 returns [AstNode r]
-:   e = expression SEMICOLON { $r = new AstExpr($e.r); }
+:   e = assignment SEMICOLON { $r = new AstExpr($e.r); }
 |   s = stmtIf { $r = $s.r; }
 |   m = stmtMatch { $r = $m.r; }
 |   ret = stmtReturn { $r = $ret.r; }
-|   v = stmtVar { $r = $v.r; }
 ;
 
 // Type Instance

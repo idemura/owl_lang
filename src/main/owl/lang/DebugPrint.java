@@ -190,6 +190,15 @@ final class DebugPrint {
             return null;
         }
 
+        @Override
+        public Void visit(AstAssign node) {
+            beginNode(node, node.op);
+            accept(node.l);
+            accept(node.r);
+            endNode();
+            return null;
+        }
+
         private void prop(String name, String s) {
             printer.println(name + ": " + s);
         }

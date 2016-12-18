@@ -22,29 +22,29 @@ public class NameGenTest {
     @Test
     public void testNameGen() {
         NameGen gen = new NameGen();
-        assertEquals("_tmp_a", gen.newName());
-        assertEquals("_tmp_b", gen.newName());
-        assertEquals("_tmp_c", gen.newName());
+        assertEquals("_t_a", gen.newName());
+        assertEquals("_t_b", gen.newName());
+        assertEquals("_t_c", gen.newName());
         for (int i = 0; i < 26 - 3; i++) {
             gen.newName();
         }
-        assertEquals("_tmp_A", gen.newName());
-        assertEquals("_tmp_B", gen.newName());
+        assertEquals("_t_A", gen.newName());
+        assertEquals("_t_B", gen.newName());
         for (int i = 0; i < 26 - 2; i++) {
             gen.newName();
         }
-        assertEquals("_tmp_0", gen.newName());
-        assertEquals("_tmp_1", gen.newName());
+        assertEquals("_t_0", gen.newName());
+        assertEquals("_t_1", gen.newName());
         for (int i = 0; i < 10 - 2; i++) {
             gen.newName();
         }
-        assertEquals("_tmp_ab", gen.newName());
-        assertEquals("_tmp_bb", gen.newName());
-        assertEquals("_tmp_cb", gen.newName());
+        assertEquals("_t_ab", gen.newName());
+        assertEquals("_t_bb", gen.newName());
+        assertEquals("_t_cb", gen.newName());
         gen.push();
-        assertEquals("_tmp_a", gen.newName());
-        assertEquals("_tmp_b", gen.newName());
+        assertEquals("_t_a", gen.newName());
+        assertEquals("_t_b", gen.newName());
         gen.pop();
-        assertEquals("_tmp_db", gen.newName());
+        assertEquals("_t_db", gen.newName());
     }
 }

@@ -146,11 +146,14 @@ public final class CLI {
             DebugPrint.printAst(ast,debugOut);
         }
         if (flagAnalyze) {
-            EntityMap entityMap = EntityCollector.run(ast, errorListener);
+            EntityMap variables = new EntityMap();
+            OverloadEntityMap overloads = Runtime.ENTITY_MAP.clone();
+            EntityCollector.run(ast, variables, overloads, errorListener);
             if (flagPrintEntityMap) {
-                entityMap.print(debugOut);
+                debugOut.println(variables.toString());
+                debugOut.println(overloads.toString());
             }
-            TypeCheckerAndEntityResolver.run(ast, entityMap, errorListener);
+            TypeCheckerAndEntityResolver.run(ast, variables, overloads, errorListener);
             if (errorListener.getErrorCount() == 0 && flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
                 if (errorListener.getErrorCount() == 0) {

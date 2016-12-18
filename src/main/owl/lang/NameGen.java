@@ -33,7 +33,7 @@ final class NameGen {
             n /= mod;
         } while (n != 0);
         counters.push(counter + 1);
-        return "_tmp_" + new String(buf, 0, j);
+        return "_t_" + new String(buf, 0, j);
     }
 
     void push() {

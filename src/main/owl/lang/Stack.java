@@ -15,9 +15,10 @@
 package owl.lang;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-final class Stack<T> {
+final class Stack<T> implements Iterable<T> {
     private List<T> stack = new ArrayList<>();
 
     void push(T x) {
@@ -36,5 +37,28 @@ final class Stack<T> {
 
     boolean isEmpty() {
         return stack.isEmpty();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new StackIterator(stack.size());
+    }
+
+    private class StackIterator implements Iterator<T> {
+        private int n;
+
+        StackIterator(int n) {
+            this.n = n;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return n > 0;
+        }
+
+        @Override
+        public T next() {
+            return stack.get(--n);
+        }
     }
 }

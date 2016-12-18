@@ -14,23 +14,36 @@
  */
 package owl.lang;
 
+import java.util.List;
+
 // Check types of function applications. Resolves entity names and function overloads.
 final class TypeCheckerAndEntityResolver {
     private TypeCheckerAndEntityResolver() {}
 
-    static void run(Ast ast, EntityMap entityMap, ErrorListener errorListener) throws OwlException {
-        new Visitor(entityMap, errorListener).accept(ast.root);
+    static void run(Ast ast,
+            EntityMap variables,
+            OverloadEntityMap overloads,
+            ErrorListener errorListener) throws OwlException {
+        new Visitor(variables, overloads, errorListener).accept(ast.root);
+    }
+
+    private static final class Context {
+
     }
 
     private static final class Visitor implements AstVisitor {
         private final ErrorListener errorListener;
-        private final EntityMap entityMap;
-        private EntityMap locals;
+        private final NestedEntityMap entityMap;
         private String moduleName;
+        private Stack<List<AstType>> applyContext = new Stack<>();
+        private Stack<AstBlock> block = new Stack<>();
 
-        private Visitor(EntityMap entityMap, ErrorListener errorListener) {
+        private Visitor(
+                EntityMap variables,
+                OverloadEntityMap overloads,
+                ErrorListener errorListener) {
             this.errorListener = new CountErrorListener(errorListener);
-            this.entityMap = entityMap;
+            this.entityMap = new NestedEntityMap(variables, overloads);
         }
 
         private void error(AstNode node, String msg) {
@@ -39,13 +52,13 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstName node) {
-            // Should not resolve named function here, but in apply
-            if (!locals.isFunction(node.name)) {
-                try {
-                    node.entity = locals.resolveVariable(node.name);
-                } catch (OwlException e) {
-                    error(node, e.getMessage());
+            if (entityMap.contains(node.name)) {
+                // Should not resolve named function here, but in apply
+                if (!entityMap.isFunction(node.name)) {
+                    node.entity = entityMap.get(node.name);
                 }
+            } else {
+                error(node, "name " + node.name + " not found");
             }
             return null;
         }
@@ -71,17 +84,23 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstFunction node) {
-            locals = entityMap.clone();
+            entityMap.push();
             for (AstArgument a : node.args) {
-                locals.replace(a.getEntity(moduleName));
+                accept(a);
             }
             accept(node.block);
+            entityMap.pop();
             return null;
         }
 
         @Override
         public Void visit(AstArgument node) {
-            throw new UnsupportedOperationException("type checker");
+            try {
+                entityMap.put(new Entity(null, node.name, node.getType()));
+            } catch (OwlException e) {
+                throw new IllegalStateException("argument " + node.name + " duplicated in " + node.name);
+            }
+            return null;
         }
 
         @Override
@@ -92,9 +111,11 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstBlock node) {
+            block.push(node);
             for (AstNode s : node.children) {
                 accept(s);
             }
+            block.pop();
             return null;
         }
 
@@ -106,16 +127,50 @@ final class TypeCheckerAndEntityResolver {
             // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
             if (node.args.get(0) instanceof AstName) {
                 AstName fn = (AstName) node.args.get(0);
-                try {
-                    fn.entity = entityMap.resolveFunction(fn.name, node.getArgTypes());
-                } catch (OwlException e) {
-                    error(node, e.getMessage());
+                if (!entityMap.contains(fn.name)) {
+                    // Error printed while visiting name
                     return null;
                 }
-                AstType fnType = fn.entity.getType();
-                node.type = fnType.args.get(fnType.args.size() - 1);
+                if (!entityMap.isFunction(fn.name)) {
+                    error(fn, fn.name + " is not a function");
+                    return null;
+                }
+                try {
+                    fn.entity = entityMap.resolve(fn.name, node.getArgTypes());
+                } catch (ResolveError e) {
+                    error(fn, e.getMessage());
+                    return null;
+                }
+                node.type = fn.entity.type.returnType();
             } else {
                 throw new UnsupportedOperationException("apply function expr");
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstAssign node) {
+            if (node.l instanceof AstName) {
+                accept(node.r);
+                AstName local = (AstName) node.l;
+                Entity ent;
+                if (entityMap.top().contains(local.name)) {
+                    // TODO: What if it's a function, lambda?
+                    ent = entityMap.get(local.name);
+                } else {
+                    ent = new Entity(null, local.name, node.r.getType());
+                    try {
+                        entityMap.put(ent);
+                    } catch (OwlException e) {
+                        // Never here
+                        throw new IllegalStateException("error put local");
+                    }
+                    block.top().vars.add(ent);
+                }
+                local.entity = ent;
+            } else {
+                accept(node.l);
+                accept(node.r);
             }
             return null;
         }

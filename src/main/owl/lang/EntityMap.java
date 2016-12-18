@@ -14,120 +14,135 @@
  */
 package owl.lang;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-import static owl.lang.Util.joinLines;
+import static com.google.common.base.Preconditions.checkArgument;
+import static owl.lang.TypeUtil.equalSignatures;
 
+// Entity map without overload support for local scopes
 final class EntityMap implements Cloneable {
-    private HashMap<String, List<Entity>> ents = new HashMap<>();
-
-    EntityMap() {}
+    private HashMap<String, Entity> map = new HashMap<>();
 
     @Override
     public EntityMap clone() {
         EntityMap other = new EntityMap();
-        for (Map.Entry<String, List<Entity>> entry : ents.entrySet()) {
-            other.ents.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        for (Map.Entry<String, Entity> entry : map.entrySet()) {
+            other.map.put(entry.getKey(), entry.getValue());
         }
         return other;
     }
 
     void put(Entity e) throws OwlException {
-        int j = findInsertIfMissing(e);
-        if (j >= 0) {
-            throw new OwlException("duplicated entity");
-        }
-    }
-
-    void replace(Entity e) {
-        int j = findInsertIfMissing(e);
-        if (j >= 0) {
-            ents.get(e.getName()).set(j, e);
-        }
-    }
-
-    private int findInsertIfMissing(Entity e) {
-        if (ents.containsKey(e.getName())) {
-            int i = 0;
-            for (Entity existing : ents.get(e.getName())) {
-                if (e.equals(existing)) {
-                    return i;
-                }
-                i++;
-            }
+        Entity inMap = map.get(e.name);
+        if (inMap == null) {
+            map.put(e.name, e);
         } else {
-            ents.put(e.getName(), new ArrayList<>());
+            throw new OwlException("duplicated entity: " + e.name);
         }
-        ents.get(e.getName()).add(e);
-        return -1;
     }
 
-    EntityMap freeze() {
-        return this;
+    boolean contains(String name) {
+        return map.containsKey(name);
     }
 
     boolean isFunction(String name) {
-        return ents.containsKey(name) && ents.get(name).get(0) instanceof FunctionEntity;
+        return map.get(name).isFunction();
     }
 
-    Entity resolveVariable(String name) throws OwlException {
-        if (ents.containsKey(name)) {
-            List<Entity> entList = ents.get(name);
-            if (entList.size() == 1 && entList.get(0) instanceof VariableEntity) {
-                return entList.get(0);
-            }
-        }
-        throw new OwlException("variable entity not found " + name);
+    Entity get(String name) {
+        return map.get(name);
     }
 
-    Entity resolveFunction(String name, List<AstType> argTypes) throws OwlException {
-        if (ents.containsKey(name)) {
-            List<Entity> matched = ents.get(name).stream()
-                    .filter(e -> fnMatchesArgs(e, argTypes))
-                    .collect(toList());
-            if (matched.size() == 1) {
-                return matched.get(0);
-            }
-            if (matched.size() == 0) {
-                throw new OwlException("no candidates for call " + name);
-            }
-            throw new OwlException("ambiguous call to " + name + "; candidates:\n" + joinLines(matched));
-        }
-        throw new OwlException("function entity not found: " + name);
+    @Override
+    public String toString() {
+        return Util.joinLines(map.values().stream().map(Object::toString).collect(Collectors.toList()));
+    }
+}
+
+final class Overload implements Cloneable {
+    final String name;
+    private List<Entity> overload = new ArrayList<>();
+
+    Overload(String name) {
+        this.name = name;
     }
 
-    private static boolean fnMatchesArgs(Entity e, List<AstType> argTypes) {
-        if (!(e instanceof FunctionEntity)) {
-            return false;
-        }
-        AstType fnType = e.getType();
-        // Do not count return type
-        if (fnType.args.size() - 1 == argTypes.size()) {
-            for (int i = 0; i < argTypes.size(); i++) {
-                if (!fnType.args.get(i).equals(argTypes.get(i))) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    @Override
+    public Overload clone() {
+        Overload other = new Overload(name);
+        overload.forEach(e -> other.overload.add(e));
+        return other;
     }
 
-    void print(PrintStream out) {
-        for (String name : ents.keySet()) {
-            List<Entity> entList = ents.get(name);
-            if (entList.size() == 1) {
-                out.println(entList.get(0));
-            } else {
-                out.println(name);
-                for (Entity e : entList) {
-                    out.println("  " + e);
-                }
+    void add(Entity ent) throws OwlException {
+        // TODO: Check other way, because this is effectively O(N^2)
+        for (Entity f : overload) {
+            if (equalSignatures(f.type, ent.type)) {
+                throw new OwlException("overload with same signature");
             }
         }
+        overload.add(ent);
+    }
+
+    List<Entity> resolve(List<AstType> args) {
+        List<Entity> res = new ArrayList<>();
+        for (Entity f : overload) {
+            if (TypeUtil.accepts(f.type, args)) {
+                res.add(f);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public String toString() {
+        String text = "overload " + name + "\n";
+        for (Entity f : overload) {
+            text += "  ";
+            text += f.toString();
+            text += "\n";
+        }
+        return text;
+    }
+}
+
+// This is an entity map just for function overloads
+final class OverloadEntityMap implements Cloneable {
+    private HashMap<String, Overload> map = new HashMap<>();
+
+    @Override
+    public OverloadEntityMap clone() {
+        OverloadEntityMap other = new OverloadEntityMap();
+        for (Map.Entry<String, Overload> entry : map.entrySet()) {
+            other.map.put(entry.getKey(), entry.getValue().clone());
+        }
+        return other;
+    }
+
+    void put(Entity e) throws OwlException {
+        checkArgument(e.isFunction());
+        Overload ovl = map.get(e.name);
+        if (ovl == null) {
+            ovl = new Overload(e.name);
+            map.put(e.name, ovl);
+        }
+        ovl.add(e);
+    }
+
+    boolean contains(String name) {
+        return map.containsKey(name);
+    }
+
+    Overload get(String name) {
+        return map.get(name);
+    }
+
+    @Override
+    public String toString() {
+        return Util.joinLines(map.values().stream().map(Object::toString).collect(Collectors.toList()));
     }
 }

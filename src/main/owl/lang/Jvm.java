@@ -51,6 +51,7 @@ interface JvmVisitor<T> {
     }
 
     default T visit(JvmApply node) { return visitError(); }
+    default T visit(JvmAssign node) { return visitError(); }
     default T visit(JvmBlock node) { return visitError(); }
     default T visit(JvmBinary node) { return visitError(); }
     default T visit(JvmClass node) { return visitError(); }
@@ -58,6 +59,7 @@ interface JvmVisitor<T> {
     default T visit(JvmFunction node) { return visitError(); }
     default T visit(JvmGroup node) { return visitError(); }
     default T visit(JvmImport node) { return visitError(); }
+    default T visit(JvmNameRef node) { return visitError(); }
     default T visit(JvmPackage node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
     default T visit(JvmValue node) { return visitError(); }
@@ -188,13 +190,27 @@ final class JvmFunction extends JvmNode {
     }
 }
 
-// Includes literals and variable names
 final class JvmValue extends JvmNode {
     final String text;
     final AstType type;
 
     JvmValue(String text, AstType type) {
         this.text = text;
+        this.type = type;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmNameRef extends JvmNode {
+    final String name;
+    final AstType type;
+
+    JvmNameRef(String name, AstType type) {
+        this.name = name;
         this.type = type;
     }
 
@@ -246,8 +262,26 @@ final class JvmBinary extends JvmNode {
     }
 }
 
+final class JvmAssign extends JvmNode {
+    final String op;
+    final JvmNode l;
+    final JvmNode r;
+
+    JvmAssign(String op, JvmNode l, JvmNode r) {
+        this.op = op;
+        this.l = l;
+        this.r = r;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
 final class JvmBlock extends JvmNode {
     private List<JvmNode> statements = new ArrayList<>();
+    List<Entity> vars;
 
     void add(JvmNode node) {
         statements.add(node);
