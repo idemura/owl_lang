@@ -70,6 +70,10 @@ interface AstVisitor<T> {
     default T visit(AstVariable node) { return visitError(); }
 }
 
+interface Typed {
+    AstType getType();
+}
+
 abstract class AstNode {
     private int line;
     private int charPosition;
@@ -84,29 +88,14 @@ abstract class AstNode {
     int getCharPosition() { return charPosition; }
 
     void add(AstNode node) {
-        Util.unsupported("add node");
+        throw new UnsupportedOperationException("add node");
     }
 
     abstract Object accept(AstVisitor visitor);
-
-    AstType getType() {
-        Util.unsupported(getClass().getName() + " is not typed");
-        return null;
-    }
 }
 
-final class AstName extends AstNode {
-    static final AstName BOOL = new AstName("Bool");
-    static final AstName CHAR = new AstName("Char");
-    static final AstName F32 = new AstName("F32");
-    static final AstName F64 = new AstName("F64");
-    static final AstName I32 = new AstName("I32");
-    static final AstName I64 = new AstName("I64");
-    static final AstName NONE = new AstName("None");
-    static final AstName STRING = new AstName("String");
-    static final AstName ARRAY = new AstName("Array");
-    static final AstName FUNCTION = new AstName("Fn");
-
+final class AstName extends AstNode
+        implements Typed {
     String name;
     Entity entity;
 
@@ -141,44 +130,53 @@ final class AstName extends AstNode {
     }
 
     @Override
-    AstType getType() {
+    public AstType getType() {
         return entity.type;
     }
 }
 
 // Generic type with parameters
 final class AstType extends AstNode {
-    static final AstType BOOL = new AstType(AstName.BOOL);
-    static final AstType CHAR = new AstType(AstName.CHAR);
-    static final AstType F32 = new AstType(AstName.F32);
-    static final AstType F64 = new AstType(AstName.F64);
-    static final AstType I32 = new AstType(AstName.I32);
-    static final AstType I64 = new AstType(AstName.I64);
-    static final AstType NONE = new AstType(AstName.NONE);
-    static final AstType STRING = new AstType(AstName.STRING);
+    static final String ARRAY = "Array";
+    static final String FUNCTION = "Fn";
 
-    AstName name;
-    List<AstType> args = new ArrayList<>();
+    static final AstType BOOL = new AstType("Bool");
+    static final AstType CHAR = new AstType("Char");
+    static final AstType F32 = new AstType("F32");
+    static final AstType F64 = new AstType("F64");
+    static final AstType I32 = new AstType("I32");
+    static final AstType I64 = new AstType("I64");
+    static final AstType NONE = new AstType("None");
+    static final AstType STRING = new AstType("String");
+
+    final String name;
+    final List<AstType> args = new ArrayList<>();
 
     static AstType arrayOf(AstType type) {
-        return new AstType(AstName.ARRAY, ImmutableList.of(type));
+        return new AstType(ARRAY, ImmutableList.of(type));
     }
 
     static AstType functionOf(List<AstType> args) {
-        return new AstType(AstName.FUNCTION, args);
+        return new AstType(FUNCTION, args);
     }
 
-    AstType(AstName name) {
+    AstType(String name) {
         this.name = name;
     }
 
-    AstType(AstName name, List<AstType> args) {
+    AstType(String name, List<AstType> args) {
         this(name);
-        this.args = args;
+        for (AstType t : args) {
+            this.args.add(t);
+        }
+    }
+
+    boolean isArray() {
+        return name.equals(ARRAY);
     }
 
     boolean isFunction() {
-        return name.equals(AstName.FUNCTION);
+        return name.equals(FUNCTION);
     }
 
     AstType returnType() {
@@ -232,7 +230,7 @@ final class AstType extends AstNode {
 
         @Override
         public String visit(AstType node) {
-            String name = node.name.name;
+            String name = node.name;
             if (!node.args.isEmpty()) {
                 List<String> pieces = node.args.stream().map(this::accept).collect(Collectors.toList());
                 name += "(" + String.join(", ", pieces) + ")";
@@ -242,7 +240,8 @@ final class AstType extends AstNode {
     }
 }
 
-final class AstMember extends AstNode {
+final class AstMember extends AstNode
+        implements Typed {
     AstNode object;
     String member;
     AstType type;  // Deduced
@@ -260,7 +259,7 @@ final class AstMember extends AstNode {
     }
 
     @Override
-    AstType getType() {
+    public AstType getType() {
         return type;
     }
 }
@@ -281,7 +280,8 @@ final class AstModule extends AstNode {
     }
 }
 
-final class AstFunction extends AstNode {
+final class AstFunction extends AstNode
+        implements Typed {
     String name;
     List<AstArgument> args = new ArrayList<>();
     AstType returnType = AstType.NONE;
@@ -297,8 +297,9 @@ final class AstFunction extends AstNode {
         args.add((AstArgument) node);
     }
 
+    // Full function type, not return
     @Override
-    AstType getType() {
+    public AstType getType() {
         // Shouldn't be called multiple times
         List<AstType> typeArgs = new ArrayList<>();
         for (AstArgument a : args) {
@@ -312,7 +313,8 @@ final class AstFunction extends AstNode {
     }
 }
 
-final class AstArgument extends AstNode {
+final class AstArgument extends AstNode
+        implements Typed {
     String name;
     AstType type = AstType.NONE;
 
@@ -322,12 +324,13 @@ final class AstArgument extends AstNode {
     }
 
     @Override
-    AstType getType() {
+    public AstType getType() {
         return type;
     }
 }
 
-final class AstVariable extends AstNode {
+final class AstVariable extends AstNode
+        implements Typed {
     String name;
     AstType type;
     AstNode expr;
@@ -345,8 +348,8 @@ final class AstVariable extends AstNode {
     }
 
     @Override
-    AstType getType() {
-        return expr.getType();
+    public AstType getType() {
+        return ((Typed) expr).getType();
     }
 }
 
@@ -365,7 +368,8 @@ final class AstBlock extends AstNode {
     }
 }
 
-final class AstApply extends AstNode {
+final class AstApply extends AstNode
+        implements Typed {
     List<AstNode> args = new ArrayList<>();
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
@@ -378,7 +382,7 @@ final class AstApply extends AstNode {
     }
 
     @Override
-    AstType getType() {
+    public AstType getType() {
         return type;
     }
 
@@ -390,13 +394,14 @@ final class AstApply extends AstNode {
     List<AstType> getArgTypes() {
         List<AstType> types = new ArrayList<>();
         for (int i = 1; i < args.size(); i++) {
-            types.add(args.get(i).getType());
+            types.add(((Typed) args.get(i)).getType());
         }
         return ImmutableList.copyOf(types);
     }
 }
 
-final class AstConstant extends AstNode {
+final class AstConstant extends AstNode
+        implements Typed {
     String name;
     AstNode expr;
 
@@ -406,12 +411,13 @@ final class AstConstant extends AstNode {
     }
 
     @Override
-    AstType getType() {
-        return expr.getType();
+    public AstType getType() {
+        return ((Typed) expr).getType();
     }
 }
 
-final class AstValue extends AstNode {
+final class AstValue extends AstNode
+        implements Typed {
     enum Format {
         DEC,
         OCT,
@@ -436,7 +442,7 @@ final class AstValue extends AstNode {
     }
 
     @Override
-    AstType getType() {
+    public AstType getType() {
         return type;
     }
 }
@@ -515,7 +521,8 @@ final class AstReturn extends AstNode {
     }
 }
 
-final class AstExpr extends AstNode {
+final class AstExpr extends AstNode
+        implements Typed {
     AstNode expr;
 
     AstExpr() {}
@@ -530,8 +537,8 @@ final class AstExpr extends AstNode {
     }
 
     @Override
-    AstType getType() {
-        return expr.getType();
+    public AstType getType() {
+        return ((Typed) expr).getType();
     }
 }
 

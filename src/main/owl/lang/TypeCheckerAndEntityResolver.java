@@ -152,7 +152,7 @@ final class TypeCheckerAndEntityResolver {
                     // TODO: What if it's a function, lambda?
                     ent = entityMap.get(local.name);
                 } else {
-                    ent = new Entity(null, local.name, node.r.getType());
+                    ent = new Entity(null, local.name, ((Typed) node.r).getType());
                     try {
                         entityMap.put(ent);
                     } catch (OwlException e) {
@@ -163,9 +163,9 @@ final class TypeCheckerAndEntityResolver {
                 }
                 local.entity = ent;
             } else {
-                Util.unsupported("assign left op is not a name");
-                accept(node.l);
-                accept(node.r);
+                throw new UnsupportedOperationException("assign left op is not a name");
+//                accept(node.l);
+//                accept(node.r);
             }
             return null;
         }

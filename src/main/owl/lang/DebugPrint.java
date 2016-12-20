@@ -38,7 +38,7 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstType node) {
-            beginNode(node, node.name.name);
+            beginNode(node, node.name);
             for (AstType t : node.args) {
                 accept(t);
             }

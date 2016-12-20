@@ -23,7 +23,7 @@ package owl.lang;
 module
 returns [AstModule r = new AstModule()]
 :
-    MODULE n = absoluteName { $r.name = $n.r.name; } SEMICOLON
+    MODULE n = absoluteName { $r.name = $n.r; } SEMICOLON
     (
         f = function { $r.add($f.r); }
     |   NAME ASSIGN e = expression SEMICOLON
@@ -34,7 +34,7 @@ returns [AstModule r = new AstModule()]
 ;
 
 absoluteName
-returns [AstName r]
+returns [String r]
 :   {
         List<String> pieces = new ArrayList<>();
     }
@@ -43,7 +43,7 @@ returns [AstName r]
         DOT NAME { pieces.add($NAME.text); }
     )*
     {
-        $r = new AstName(pieces);
+        $r = String.join(".", pieces);
     }
 ;
 
@@ -450,7 +450,7 @@ returns [AstType r]
 ;
 
 typeInstance
-returns [AstType r = new AstType(AstName.FUNCTION)]
+returns [AstType r = new AstType(AstType.FUNCTION)]
 :   x = typeNonLambda { $r.add($x.r); }
     (
         ARROW y = typeNonLambda { $r.add($y.r); }

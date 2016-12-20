@@ -2,12 +2,12 @@
 
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
-    out=`tempfile`
-    err=`tempfile`
+    out=${owl}.out
+    err=${owl}.err
     ./owl $flags $owl 1> $out 2> $err
     if [ $? == 0 ]; then
-        mv $out $owl.out
+        rm -f $err
     else
-        mv $err $owl.err
+        rm -f $out
     fi
 done

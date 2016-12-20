@@ -1,0 +1,15 @@
+module main;
+
+fn f1(x: String): String {
+    return "hello";
+}
+
+fn f1(x: I32): I32 {
+    y = 9 * 2;
+    y += 1;
+    return x + y;
+}
+
+fn owl_main() {
+    println(f1(1));
+}

@@ -53,7 +53,7 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public String visit(AstType node) {
-            if (node.name.equals(AstName.ARRAY)) {
+            if (node.isArray()) {
                 return accept(node.args.get(0)) + "[]";
             }
             if (node.args.size() > 0) {
@@ -76,7 +76,7 @@ final class JavaTranslator implements JvmTranslator {
             } else if (node.equals(AstType.NONE)) {
                 return "void";
             } else {
-                return accept(node.name);
+                return node.name;
             }
         }
     }

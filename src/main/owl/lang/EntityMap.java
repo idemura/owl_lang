@@ -41,7 +41,7 @@ final class EntityMap implements Cloneable {
         if (inMap == null) {
             map.put(e.name, e);
         } else {
-            throw new OwlException("duplicated entity: " + e.name);
+            throw new OwlException("duplicated entity " + e.name);
         }
     }
 

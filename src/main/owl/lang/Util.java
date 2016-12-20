@@ -156,8 +156,8 @@ final class Util {
         return s.substring(0, s.length() - len);
     }
 
-    static void unsupported(String s) {
-        throw new UnsupportedOperationException(s);
+    static boolean isTyped(AstNode node) {
+        return node instanceof Typed;
     }
 
     private static String getManifestAttribute(String name) {

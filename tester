@@ -1,24 +1,18 @@
 #! /bin/bash
 
-DIFF_OPT=-Bu
-ok=1
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
-    out=`mktemp`
-    err=`mktemp`
+    out=${owl}.out
+    err=${owl}.err
     ./owl $flags $owl 1> $out 2> $err
     if [ $? == 0 ]; then
-        diff $DIFF_OPT $owl.out $out
-        if [ $? != 0 ]; then
-            ok=0
-        fi
+        rm -f $err
     else
-        diff $DIFF_OPT $owl.err $err
-        if [ $? != 0 ]; then
-            ok=0
-        fi
+        rm -f $out
     fi
 done
-if [ $ok == 1 ]; then
-    echo 'ALL TESTS PASSED'
+if [[ $(git diff-index --name-only HEAD) ]]; then
+    echo 'TESTS FAILED'
+else
+    echo 'TESTS PASSED'
 fi

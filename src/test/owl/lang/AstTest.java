@@ -24,15 +24,15 @@ public class AstTest {
     public void testTypeToString() {
         AstType t;
 
-        t = new AstType(new AstName("Foo"),
+        t = new AstType("Foo",
                 ImmutableList.of(AstType.I32, AstType.F32));
         assertEquals("Foo(I32, F32)", t.toString());
 
-        t = new AstType(new AstName("Foo"),
+        t = new AstType("Foo",
                 ImmutableList.of(AstType.BOOL));
         assertEquals("Foo(Bool)", t.toString());
 
-        t = new AstType(new AstName("Foo"));
+        t = new AstType("Foo");
         assertEquals("Foo", t.toString());
     }
 }

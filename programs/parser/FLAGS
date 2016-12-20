@@ -1,1 +1,1 @@
---print_ast --print_entity_map --analyze false --generate false
+--echo --print_ast --print_entity_map --analyze false --generate false

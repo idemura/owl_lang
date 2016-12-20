@@ -1,4 +1,4 @@
-programs/analyzer/signatures_err.owl:3: error: function unnamed
-programs/analyzer/signatures_err.owl:6: error: function f10 argument y type None
-programs/analyzer/signatures_err.owl:9: error: function f11 argument x duplicated, first at line I32
-programs/analyzer/signatures_err.owl: error: duplicated module member x
+programs/analyzer/signatures_err.owl:3: error: unnamed module level function
+programs/analyzer/signatures_err.owl:6: error: function argument y missing type
+programs/analyzer/signatures_err.owl:9: error: function argument x duplicated
+programs/analyzer/signatures_err.owl: error: duplicated entity x

@@ -527,8 +527,7 @@ Module
     returnType: None
     Block
       Expr
-        Apply
-          Name =
+        Assign 
           Name x
           Apply
             Name >>>
@@ -549,8 +548,7 @@ Module
             Value DEC 2
       ;
       Expr
-        Apply
-          Name +=
+        Assign +
           Apply
             Name []
             Name a
