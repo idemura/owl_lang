@@ -2,16 +2,18 @@
 
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
-    out=${owl}.out
-    err=${owl}.err
+    out=`mktemp`
+    err=`mktemp`
     ./owl $flags $owl 1> $out 2> $err
     if [ $? == 0 ]; then
-        rm -f $err
+        mv $out ${owl}.out
+        rm -f ${owl}.err
     else
-        rm -f $out
+        mv $err ${owl}.err
+        rm -f ${owl}.out
     fi
 done
-if [[ $(git diff-index --name-only HEAD) ]]; then
+if git status -s programs | grep '\.owl$'; then
     echo 'TESTS FAILED'
 else
     echo 'TESTS PASSED'
