@@ -69,7 +69,10 @@ returns [AstFunction r = new AstFunction()]
     (
         COLON type = typeInstance { $r.returnType = $type.r; }
     )?
-    b = block { $r.block = $b.r; }
+    b = block
+    {
+        $r.block = $b.r;
+    }
 ;
 
 argument
@@ -114,7 +117,7 @@ returns [AstNode r]
         }
     |   {
             AstApply app = new AstApply();
-            app.add($r);
+            app.fn = $r;
             $r = app;
         }
         LPAREN
@@ -127,7 +130,7 @@ returns [AstNode r]
         RPAREN
     |   {
             AstApply app = new AstApply();
-            app.add(new AstName("[]"));
+            app.fn = new AstName("[]");
             app.add($r);
             $r = app;
         }
@@ -138,6 +141,43 @@ returns [AstNode r]
         )*
         RBRACKET
     )*
+|   NEW t = typeInstance
+    (
+        i = exprInit
+    )?
+    {
+        $r = new AstNew($t.r, $i.r);
+    }
+;
+
+exprInitArg
+returns [AstNode r]
+:   e = expression
+    {
+        $r = $e.r;
+    }
+|   i = exprInit
+    {
+        $r = $i.r;
+    }
+;
+
+exprInit
+returns [AstGroup r = new AstGroup()]
+:   LCURLY
+    (
+        a = exprInitArg
+        {
+            $r.add($a.r);
+        }
+        (
+            COMMA a = exprInitArg
+            {
+                $r.add($a.r);
+            }
+        )*
+    )?
+    RCURLY
 ;
 
 exprCoerce
@@ -147,7 +187,7 @@ returns [AstNode r]
         COLON y = typeInstance
         {
             AstApply app = new AstApply();
-            app.add(new AstName(":"));
+            app.fn = new AstName(":");
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -161,7 +201,7 @@ returns [AstNode r]
     {
         if ($op != null) {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($x.r);
             $r = app;
         } else {
@@ -177,7 +217,7 @@ returns [AstNode r]
         op = (MUL | DIV | MOD) y = exprUnary
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -192,7 +232,7 @@ returns [AstNode r]
         op = (PLS | MNS) y = exprMulDiv
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -207,7 +247,7 @@ returns [AstNode r]
         op = (LSHIFT | RSHIFT | SIGNED_RSHIFT) y = exprAddSub
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -222,7 +262,7 @@ returns [AstNode r]
         op = BIT_AND y = exprShift
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -237,7 +277,7 @@ returns [AstNode r]
         op = BIT_XOR y = exprBitAnd
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -252,7 +292,7 @@ returns [AstNode r]
         op = BIT_OR y = exprBitXor
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -267,7 +307,7 @@ returns [AstNode r]
         op = (LT | LE | GT | GE) y = exprBitOr
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -282,7 +322,7 @@ returns [AstNode r]
         op = (EQ | NE | IS) y = exprComparison
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -296,7 +336,7 @@ returns [AstNode r]
     {
         if ($op != null) {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             $r = app;
         }
@@ -310,7 +350,7 @@ returns [AstNode r]
         op = AND y = exprNot
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -325,7 +365,7 @@ returns [AstNode r]
         op = OR y = exprAnd
         {
             AstApply app = new AstApply();
-            app.add(new AstName($op.text));
+            app.fn = new AstName($op.text);
             app.add($r);
             app.add($y.r);
             $r = app;
@@ -429,7 +469,7 @@ returns [AstNode r]
 ;
 
 // Type Instance
-typeNonLambda
+typeNotFn
 returns [AstType r]
 :   n = absoluteName { $r = new AstType($n.r); }
     (
@@ -451,9 +491,9 @@ returns [AstType r]
 
 typeInstance
 returns [AstType r = new AstType(AstType.FUNCTION)]
-:   x = typeNonLambda { $r.add($x.r); }
+:   x = typeNotFn { $r.add($x.r); }
     (
-        ARROW y = typeNonLambda { $r.add($y.r); }
+        ARROW y = typeNotFn { $r.add($y.r); }
     )*
     {
         if ($r.args.size() == 1) {

@@ -98,6 +98,11 @@ final class Util {
     private static String LANGUAGE_VERSION;
     private static String COMPILER_NAME;
 
+    static boolean startsWithLetter(String s) {
+        char c = Character.toLowerCase(s.charAt(0));
+        return 'a' <= c && c <= 'z';
+    }
+
     static boolean isName(String s) {
         char c = Character.toLowerCase(s.charAt(0));
         if (!('a' <= c && c <= 'z')) {

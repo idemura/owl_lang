@@ -106,7 +106,7 @@ final class Desugar {
             String temp = gen.newName();
             g.add(new AstAssign(null, new AstName(temp), node.l));
             AstApply app = new AstApply();
-            app.add(new AstName(node.op));
+            app.fn = new AstName(node.op);
             app.add(new AstName(temp));
             app.add(node.r);
             g.add(new AstAssign(null, node.l, app));

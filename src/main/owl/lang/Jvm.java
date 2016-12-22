@@ -353,3 +353,26 @@ final class JvmGroup extends JvmNode {
         return v.visit(this);
     }
 }
+
+/*
+final class JvmPush extends JvmNode {
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmPop extends JvmNode {
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmSet extends JvmNode {
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+*/

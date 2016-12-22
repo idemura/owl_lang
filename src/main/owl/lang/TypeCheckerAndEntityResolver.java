@@ -115,12 +115,13 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstApply node) {
+            accept(node.fn);
             for (AstNode e : node.args) {
                 accept(e);
             }
             // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
-            if (node.args.get(0) instanceof AstName) {
-                AstName fn = (AstName) node.args.get(0);
+            if (node.fn instanceof AstName) {
+                AstName fn = (AstName) node.fn;
                 if (!entityMap.contains(fn.name)) {
                     // Error printed while visiting name
                     return null;
@@ -236,6 +237,14 @@ final class TypeCheckerAndEntityResolver {
             for (AstNode c : node.children) {
                 accept(c);
             }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstNew node) {
+            accept(node.type);
+            accept(node.type);
+            // TODO: Resolve constructor call here
             return null;
         }
     }

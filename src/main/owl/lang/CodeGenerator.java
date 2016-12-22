@@ -61,7 +61,7 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstType node) {
-            throw new UnsupportedOperationException("code generator");
+            throw new IllegalStateException("code generator");
         }
 
         @Override
@@ -110,7 +110,7 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstArgument node) {
-            throw new UnsupportedOperationException("code generator");
+            throw new IllegalStateException("code generator");
         }
 
         @Override
@@ -144,8 +144,8 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstApply node) {
-            AstName fnName = (AstName) node.args.get(0);
-            if (!Util.isName(fnName.name)) {
+            AstName fnName = (AstName) node.fn;
+            if (!Util.startsWithLetter(fnName.name)) {
                 switch (fnName.name) {
                     case "+":
                     case "-":
@@ -155,8 +155,8 @@ final class CodeGenerator {
                         return new JvmBinary(
                                 node.getType(),
                                 fnName.name,
-                                accept(node.args.get(1)),
-                                accept(node.args.get(2)));
+                                accept(node.args.get(0)),
+                                accept(node.args.get(1)));
 
                     // In JavaTranslator, takes left and right from the stack and puts "l[r]" back on the stack
 //                    case "[]":
@@ -170,8 +170,8 @@ final class CodeGenerator {
 
             }
             List<JvmNode> args = new ArrayList<>();
-            for (int i = 1; i < node.args.size(); i++) {
-                args.add(accept(node.args.get(i)));
+            for (AstNode a : node.args) {
+                args.add(accept(a));
             }
             return new JvmApply(
                     node.getType(),
@@ -238,7 +238,16 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstExpr node) {
-            return accept(node.expr);
+            JvmNode expr = accept(node.expr);
+            return expr;
+//            if (node.expr instanceof AstApply) {
+//                JvmGroup g = new JvmGroup();
+//                g.add(expr);
+//                g.add(new JvmPop());
+//                return g;
+//            } else {
+//                return expr;
+//            }
         }
 
         @Override

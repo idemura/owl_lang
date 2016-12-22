@@ -106,6 +106,7 @@ final class DebugPrint {
         @Override
         public Void visit(AstApply node) {
             beginNode(node);
+            accept(node.fn);
             for (AstNode e : node.args) {
                 accept(e);
             }
@@ -195,6 +196,15 @@ final class DebugPrint {
             beginNode(node, node.op);
             accept(node.l);
             accept(node.r);
+            endNode();
+            return null;
+        }
+
+        @Override
+        public Void visit(AstNew node) {
+            beginNode(node);
+            accept(node.type);
+            accept(node.init);
             endNode();
             return null;
         }

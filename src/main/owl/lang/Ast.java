@@ -64,6 +64,7 @@ interface AstVisitor<T> {
     default T visit(AstMember node) { return visitError(); }
     default T visit(AstModule node) { return visitError(); }
     default T visit(AstName node) { return visitError(); }
+    default T visit(AstNew node) { return visitError(); }
     default T visit(AstReturn node) { return visitError(); }
     default T visit(AstType node) { return visitError(); }
     default T visit(AstValue node) { return visitError(); }
@@ -86,10 +87,6 @@ abstract class AstNode {
 
     int getLine() { return line; }
     int getCharPosition() { return charPosition; }
-
-    void add(AstNode node) {
-        throw new UnsupportedOperationException("add node");
-    }
 
     abstract Object accept(AstVisitor visitor);
 }
@@ -184,9 +181,8 @@ final class AstType extends AstNode {
         return args.get(args.size() - 1);
     }
 
-    @Override
-    void add(AstNode node) {
-        args.add((AstType) node);
+    void add(AstType node) {
+        args.add(node);
     }
 
     @Override
@@ -274,7 +270,6 @@ final class AstModule extends AstNode {
         return v.visit(this);
     }
 
-    @Override
     void add(AstNode node) {
         children.add(node);
     }
@@ -292,9 +287,8 @@ final class AstFunction extends AstNode
         return v.visit(this);
     }
 
-    @Override
-    void add(AstNode node) {
-        args.add((AstArgument) node);
+    void add(AstArgument node) {
+        args.add(node);
     }
 
     // Full function type, not return
@@ -362,7 +356,6 @@ final class AstBlock extends AstNode {
         return v.visit(this);
     }
 
-    @Override
     void add(AstNode node) {
         children.add(node);
     }
@@ -370,6 +363,7 @@ final class AstBlock extends AstNode {
 
 final class AstApply extends AstNode
         implements Typed {
+    AstNode fn;
     List<AstNode> args = new ArrayList<>();
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
@@ -386,15 +380,14 @@ final class AstApply extends AstNode
         return type;
     }
 
-    @Override
     void add(AstNode node) {
         args.add(node);
     }
 
     List<AstType> getArgTypes() {
         List<AstType> types = new ArrayList<>();
-        for (int i = 1; i < args.size(); i++) {
-            types.add(((Typed) args.get(i)).getType());
+        for (AstNode a  : args) {
+            types.add(((Typed) a).getType());
         }
         return ImmutableList.copyOf(types);
     }
@@ -455,9 +448,8 @@ final class AstIf extends AstNode {
         return v.visit(this);
     }
 
-    @Override
-    void add(AstNode node) {
-        children.add((AstCond) node);
+    void add(AstCond node) {
+        children.add(node);
     }
 }
 
@@ -487,9 +479,8 @@ final class AstMatch extends AstNode {
         return v.visit(this);
     }
 
-    @Override
-    void add(AstNode node) {
-        children.add((AstCase) node);
+    void add(AstCase node) {
+        children.add(node);
     }
 }
 
@@ -552,7 +543,6 @@ final class AstGroup extends AstNode {
         return v.visit(this);
     }
 
-    @Override
     void add(AstNode node) {
         children.add(node);
     }
@@ -571,5 +561,26 @@ final class AstAssign extends AstNode {
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
+    }
+}
+
+final class AstNew extends AstNode
+        implements Typed {
+    AstType type;
+    AstGroup init;
+
+    AstNew(AstType type, AstGroup init) {
+        this.type = type;
+        this.init = init;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
+    }
+
+    @Override
+    public AstType getType() {
+        return type;
     }
 }
