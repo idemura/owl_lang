@@ -1,0 +1,17 @@
+enum Maybe(T) {
+    None;
+    Just: T;
+}
+
+fn test {
+    match (open("file")) {
+        None: {
+            println("error");
+        }
+        Just content: {
+            println(content);
+        }
+    }
+}
+
+const PI = 3.14;
