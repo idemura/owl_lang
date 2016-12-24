@@ -1,4 +1,0 @@
-programs/analyzer/signatures_err.owl:3: error: unnamed module level function
-programs/analyzer/signatures_err.owl:6: error: function argument y missing type
-programs/analyzer/signatures_err.owl:9: error: function argument x duplicated
-programs/analyzer/signatures_err.owl: error: duplicated entity x
