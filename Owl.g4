@@ -50,18 +50,15 @@ returns [String r]
 function
 returns [AstFunction r = new AstFunction()]
 :   FN
-    {
-        $r.setPosition($FN.line, $FN.pos);
-    }
     (
         NAME { $r.name = $NAME.text; }
     )?
     (
         LPAREN
         (
-            a = argument { $r.add($a.r); }
+            a = argument { $r.addArg($a.r); }
             (
-                COMMA a = argument { $r.add($a.r); }
+                COMMA a = argument { $r.addArg($a.r); }
             )*
         )?
         RPAREN
@@ -77,11 +74,7 @@ returns [AstFunction r = new AstFunction()]
 
 argument
 returns [AstArgument r = new AstArgument()]
-:   NAME
-    {
-        $r.name = $NAME.text;
-        $r.setPosition($NAME.line, $NAME.pos);
-    }
+:   NAME { $r.name = $NAME.text; }
     (
         COLON t = typeInstance { $r.type = $t.r; }
     )?
@@ -113,7 +106,7 @@ returns [AstNode r]
     (
         DOT NAME
         {
-            $r = new AstMember($r, $NAME.text);
+            $r = new AstField($r, $NAME.text);
         }
     |   {
             AstApply app = new AstApply();
@@ -184,14 +177,7 @@ exprCoerce
 returns [AstNode r]
 :   x = exprApply { $r = $x.r; }
     (
-        COLON y = typeInstance
-        {
-            AstApply app = new AstApply();
-            app.fn = new AstName(":");
-            app.add($r);
-            app.add($y.r);
-            $r = app;
-        }
+        COLON y = typeInstance { $r = new AstCast($r, $y.r); }
     )?
 ;
 
@@ -407,44 +393,31 @@ returns [AstNode r]
     )?
 ;
 
-ifCond
-returns [AstCond r]
+ifBlock
+returns [AstIfBlock r]
 :   c = expression b = block
     {
-        $r = new AstCond(new AstExpr($c.r), $b.r);
+        $r = new AstIfBlock(new AstExpr($c.r), $b.r);
     }
 ;
 
 stmtIf
 returns [AstIf r = new AstIf()]
-:   IF c = ifCond { $r.add($c.r); }
+:   IF c = ifBlock { $r.add($c.r); }
     (
-        ELIF c = ifCond { $r.add($c.r); }
+        ELIF c = ifBlock { $r.add($c.r); }
     )*
     (
-        ELSE b = block { $r.add(new AstCond(null, $b.r)); }
+        ELSE b = block { $r.add(new AstIfBlock(null, $b.r)); }
     )?
 ;
 
-matchCase
-returns [AstCase r]
-:   l = NAME (v = NAME)? (b = block)?
+stmtVar
+returns [AstVariable r]
+:   VAR n = NAME ASSIGN x = expression SEMICOLON
     {
-        $r = new AstCase($l.text, $v.text, $b.r);
+        $r = new AstVariable($n.text, $x.r);
     }
-;
-
-stmtMatch
-returns [AstMatch r = new AstMatch()]
-:   MATCH e = expression { $r.expr = new AstExpr($e.r); }
-    LCURLY
-    (
-        c = matchCase { $r.add($c.r); }
-    )+
-    RCURLY
-    (
-        ELSE b = block { $r.add(new AstCase(null, null, $b.r)); }
-    )?
 ;
 
 stmtReturn
@@ -464,14 +437,14 @@ statement
 returns [AstNode r]
 :   e = assignment SEMICOLON { $r = new AstExpr($e.r); }
 |   s = stmtIf { $r = $s.r; }
-|   m = stmtMatch { $r = $m.r; }
 |   ret = stmtReturn { $r = $ret.r; }
+|   v = stmtVar { $r = $v.r; }
 ;
 
 // Type Instance
 typeNotFn
-returns [AstType r]
-:   n = absoluteName { $r = new AstType($n.r); }
+returns [Type r]
+:   n = absoluteName { $r = new Type($n.r); }
     (
         LPAREN
         a = typeInstance { $r.add($a.r); }
@@ -483,14 +456,14 @@ returns [AstType r]
             LBRACKET
             RBRACKET
             {
-                $r = AstType.arrayOf($r);
+                $r = Type.arrayOf($r);
             }
         )+
     )?
 ;
 
 typeInstance
-returns [AstType r = new AstType(AstType.FUNCTION)]
+returns [Type r = new Type(Type.FUNCTION)]
 :   x = typeNotFn { $r.add($x.r); }
     (
         ARROW y = typeNotFn { $r.add($y.r); }
@@ -510,7 +483,6 @@ ELSE: 'else';
 FN: 'fn';
 IF: 'if';
 IS: 'is';
-MATCH: 'match';
 MODULE: 'module';
 NEW: 'new';
 RETURN: 'return';

@@ -37,18 +37,8 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstType node) {
-            beginNode(node, node.name);
-            for (AstType t : node.args) {
-                accept(t);
-            }
-            endNode();
-            return null;
-        }
-
-        @Override
-        public Void visit(AstMember node) {
-            beginNode(node, node.member);
+        public Void visit(AstField node) {
+            beginNode(node, node.field);
             accept(node.object);
             endNode();
             return null;
@@ -70,16 +60,10 @@ final class DebugPrint {
             beginNode(node, node.name);
             prop("returnType", node.returnType.toString());
             for (AstArgument a : node.args) {
-                accept(a);
+                leaf(a, a.name + ": " + a.type);
             }
             accept(node.block);
             endNode();
-            return null;
-        }
-
-        @Override
-        public Void visit(AstArgument node) {
-            leaf(node, node.name + ": " + node.type);
             return null;
         }
 
@@ -115,14 +99,6 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstConstant node) {
-            beginNode(node, node.name);
-            accept(node.expr);
-            endNode();
-            return null;
-        }
-
-        @Override
         public Void visit(AstValue node) {
             leaf(node, node.format + " " + node.text);
             return null;
@@ -131,36 +107,10 @@ final class DebugPrint {
         @Override
         public Void visit(AstIf node) {
             beginNode(node);
-            for (AstNode n : node.children) {
-                accept(n);
+            for (AstIfBlock n : node.children) {
+                accept(n.condition);
+                accept(n.block);
             }
-            endNode();
-            return null;
-        }
-
-        @Override
-        public Void visit(AstCond node) {
-            beginNode(node);
-            accept(node.condition);
-            accept(node.block);
-            endNode();
-            return null;
-        }
-
-        @Override
-        public Void visit(AstMatch node) {
-            beginNode(node);
-            for (AstNode n : node.children) {
-                accept(n);
-            }
-            endNode();
-            return null;
-        }
-
-        @Override
-        public Void visit(AstCase node) {
-            beginNode(node, node.label + ", " + node.variable);
-            accept(node.block);
             endNode();
             return null;
         }
@@ -176,6 +126,14 @@ final class DebugPrint {
         @Override
         public Void visit(AstExpr node) {
             beginNode(node);
+            accept(node.expr);
+            endNode();
+            return null;
+        }
+
+        @Override
+        public Void visit(AstCast node) {
+            beginNode(node, node.getType().toString());
             accept(node.expr);
             endNode();
             return null;
@@ -202,8 +160,7 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstNew node) {
-            beginNode(node);
-            accept(node.type);
+            beginNode(node, node.type.toString());
             accept(node.init);
             endNode();
             return null;
@@ -213,20 +170,20 @@ final class DebugPrint {
             printer.println(name + ": " + s);
         }
 
-        private void leaf(AstNode node) {
+        private void leaf(Object node) {
             printer.println(getClassName(node));
         }
 
-        private void leaf(AstNode node, String s) {
+        private void leaf(Object node, String s) {
             printer.println(getClassName(node) + " " + s);
         }
 
-        private void beginNode(AstNode node) {
+        private void beginNode(Object node) {
             printer.println(getClassName(node));
             printer.indent();
         }
 
-        private void beginNode(AstNode node, String s) {
+        private void beginNode(Object node, String s) {
             printer.println(getClassName(node) + " " + s);
             printer.indent();
         }
@@ -235,7 +192,7 @@ final class DebugPrint {
             printer.unindent();
         }
 
-        private static String getClassName(AstNode node) {
+        private static String getClassName(Object node) {
             String fullName = node.getClass().getName();
             String name = fullName.substring(fullName.lastIndexOf('.') + 1);
             if (name.startsWith("Ast")) {

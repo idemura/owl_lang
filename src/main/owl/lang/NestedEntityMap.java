@@ -89,6 +89,15 @@ final class NestedEntityMap {
         return false;
     }
 
+    boolean inTopBlock(String name) {
+        for (EntityMap map : scope) {
+            if (map.contains(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean contains(String name) {
         for (EntityMap map : scope) {
             if (map.contains(name)) {
@@ -120,7 +129,7 @@ final class NestedEntityMap {
         return variables.get(name);
     }
 
-    Entity resolve(String name, List<AstType> args) throws ResolveError {
+    Entity resolve(String name, List<Type> args) throws ResolveError {
         for (EntityMap map : scope) {
             Entity e = map.get(name);
             if (e != null) {

@@ -41,12 +41,7 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstType node) {
-            return node;
-        }
-
-        @Override
-        public AstNode visit(AstMember node) {
+        public AstNode visit(AstField node) {
             return node;
         }
 
@@ -61,14 +56,8 @@ final class Desugar {
         @Override
         public AstNode visit(AstFunction node) {
             gen.push();
-            // Do not desugar arguments, nothing will happen anyways.
             node.block = (AstBlock) accept(node.block);
             gen.pop();
-            return node;
-        }
-
-        @Override
-        public AstNode visit(AstArgument node) {
             return node;
         }
 
@@ -95,6 +84,11 @@ final class Desugar {
         }
 
         @Override
+        public AstNode visit(AstCast node) {
+            return node;
+        }
+
+        @Override
         public AstNode visit(AstAssign node) {
             node.l = accept(node.l);
             node.r = accept(node.r);
@@ -102,20 +96,16 @@ final class Desugar {
                 node.op = null;
                 return node;
             }
-            AstGroup g = new AstGroup();
-            String temp = gen.newName();
-            g.add(new AstAssign(null, new AstName(temp), node.l));
-            AstApply app = new AstApply();
-            app.fn = new AstName(node.op);
-            app.add(new AstName(temp));
-            app.add(node.r);
-            g.add(new AstAssign(null, node.l, app));
-            return g;
-        }
+            if (node.l instanceof AstName) {
+                AstApply app = new AstApply();
+                app.fn = new AstName(node.op);
+                app.add(node.l);
+                app.add(node.r);
 
-        @Override
-        public AstNode visit(AstConstant node) {
-            return accept(node.expr);
+                return new AstAssign(null, node.l, app);
+            }
+            // TODO: Support field and index
+            throw new UnsupportedOperationException("different code if left side is field or index");
         }
 
         @Override
@@ -125,30 +115,6 @@ final class Desugar {
 
         @Override
         public AstNode visit(AstIf node) {
-            node.children = node.children.stream()
-                    .map(n -> (AstCond) accept(n))
-                    .collect(Collectors.toList());
-            return node;
-        }
-
-        @Override
-        public AstNode visit(AstCond node) {
-            node.condition = (AstExpr) accept(node.condition);
-            node.block = (AstBlock) accept(node.block);
-            return node;
-        }
-
-        @Override
-        public AstNode visit(AstMatch node) {
-            node.children = node.children.stream()
-                    .map(n -> (AstCase) accept(n))
-                    .collect(Collectors.toList());
-            return node;
-        }
-
-        @Override
-        public AstNode visit(AstCase node) {
-            node.block = (AstBlock) accept(node.block);
             return node;
         }
 

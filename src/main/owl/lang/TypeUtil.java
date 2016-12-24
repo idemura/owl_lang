@@ -22,7 +22,7 @@ final class TypeUtil {
     private TypeUtil() {}
 
     // Not sure if needed
-    static boolean equalSignatures(AstType a, AstType b) {
+    static boolean equalSignatures(Type a, Type b) {
         if (!a.isFunction() || !b.isFunction()) {
             throw new IllegalArgumentException("function type expected");
         }
@@ -38,14 +38,14 @@ final class TypeUtil {
         return true;
     }
 
-    static AstType makeFnType(AstType... typeArgs) {
+    static Type makeFnType(Type... typeArgs) {
         if (typeArgs.length < 1) {
             throw new IllegalArgumentException("makeFnType args 0 length");
         }
-        return AstType.functionOf(asList(typeArgs));
+        return Type.functionOf(asList(typeArgs));
     }
 
-    static boolean accepts(AstType fn, List<AstType> args) {
+    static boolean accepts(Type fn, List<Type> args) {
         // Do not count return type
         if (fn.args.size() - 1 == args.size()) {
             for (int i = 0; i < args.size(); i++) {
@@ -55,5 +55,9 @@ final class TypeUtil {
             }
         }
         return true;
+    }
+
+    static boolean assignable(Type dst, Type src) {
+        return dst.equals(src);
     }
 }

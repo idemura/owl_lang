@@ -88,7 +88,7 @@ final class Overload implements Cloneable {
         overload.add(ent);
     }
 
-    List<Entity> resolve(List<AstType> args) {
+    List<Entity> resolve(List<Type> args) {
         List<Entity> res = new ArrayList<>();
         for (Entity f : overload) {
             if (TypeUtil.accepts(f.type, args)) {
@@ -125,12 +125,7 @@ final class OverloadEntityMap implements Cloneable {
 
     void put(Entity e) throws OwlException {
         checkArgument(e.isFunction());
-        Overload ovl = map.get(e.name);
-        if (ovl == null) {
-            ovl = new Overload(e.name);
-            map.put(e.name, ovl);
-        }
-        ovl.add(e);
+        map.computeIfAbsent(e.name, k -> new Overload(e.name)).add(e);
     }
 
     boolean contains(String name) {

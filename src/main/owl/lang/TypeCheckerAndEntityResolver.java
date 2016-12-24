@@ -28,7 +28,7 @@ final class TypeCheckerAndEntityResolver {
     private static final class Visitor implements AstVisitor {
         private final ErrorListener errorListener;
         private final NestedEntityMap entityMap;
-        private final Stack<AstBlock> block = new Stack<>();
+        private final Stack<AstFunction> fnStack = new Stack<>();
         private final NameGen gen = new NameGen("_l_");
 
         private Visitor(
@@ -45,24 +45,17 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstName node) {
-            if (entityMap.contains(node.name)) {
-                // Should not resolve named function here, but in apply
-                if (!entityMap.isFunction(node.name)) {
-                    node.entity = entityMap.get(node.name);
-                }
+            if (entityMap.isBlockVar(node.name)) {
+                node.entity = entityMap.get(node.name);
             } else {
+                // TODO: Support module variables
                 error(node, "name " + node.name + " not found");
             }
             return null;
         }
 
         @Override
-        public Void visit(AstType node) {
-            throw new UnsupportedOperationException("type checker");
-        }
-
-        @Override
-        public Void visit(AstMember node) {
+        public Void visit(AstField node) {
             throw new UnsupportedOperationException("type checker");
         }
 
@@ -78,44 +71,54 @@ final class TypeCheckerAndEntityResolver {
         public Void visit(AstFunction node) {
             entityMap.push();
             gen.push();
+            fnStack.push(node);
             for (AstArgument a : node.args) {
-                accept(a);
+                try {
+                    Entity ent = new Entity(null, a.name, a.getType());
+                    node.addVar(ent);
+                    entityMap.put(ent);
+                } catch (OwlException e) {
+                    throw new IllegalStateException("argument " + a.name + " duplicated in " + a.name);
+                }
             }
             accept(node.block);
+            fnStack.pop();
             gen.pop();
             entityMap.pop();
             return null;
         }
 
         @Override
-        public Void visit(AstArgument node) {
-            try {
-                entityMap.put(new Entity(null, node.name, node.getType()));
-            } catch (OwlException e) {
-                throw new IllegalStateException("argument " + node.name + " duplicated in " + node.name);
-            }
-            return null;
-        }
-
-        @Override
         public Void visit(AstVariable node) {
             accept(node.expr);
+            if (!fnStack.isEmpty()) {
+                if (entityMap.inTopBlock(node.name)) {
+                    error(node, "variable already exist in the current scope");
+                    return null;
+                }
+                Entity ent = new Entity(null, node.name, ((Typed) node.expr).getType());
+                try {
+                    entityMap.put(ent);
+                } catch (OwlException e) {
+                    // Never here
+                    throw new IllegalStateException("error put local");
+                }
+                node.entity = ent;
+                fnStack.top().addVar(ent);
+            }
             return null;
         }
 
         @Override
         public Void visit(AstBlock node) {
-            block.push(node);
             for (AstNode s : node.children) {
                 accept(s);
             }
-            block.pop();
             return null;
         }
 
         @Override
         public Void visit(AstApply node) {
-            accept(node.fn);
             for (AstNode e : node.args) {
                 accept(e);
             }
@@ -124,6 +127,7 @@ final class TypeCheckerAndEntityResolver {
                 AstName fn = (AstName) node.fn;
                 if (!entityMap.contains(fn.name)) {
                     // Error printed while visiting name
+                    error(node, "function " + fn.name + " not found");
                     return null;
                 }
                 if (!entityMap.isFunction(fn.name)) {
@@ -145,35 +149,22 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstAssign node) {
+            accept(node.l);
+            accept(node.r);
+
+            Type lType = ((Typed) node.l).getType();
+            Type rType = ((Typed) node.r).getType();
+            if (!TypeUtil.assignable(lType, rType)) {
+                error(node, rType + " not assignable to " + lType);
+                return null;
+            }
+
+            // TODO: This is basically LValue check
             if (node.l instanceof AstName) {
-                accept(node.r);
-                AstName local = (AstName) node.l;
-                Entity ent;
-                if (entityMap.isBlockVar(local.name)) {
-                    // TODO: What if it's a function, lambda?
-                    ent = entityMap.get(local.name);
-                } else {
-                    ent = new Entity(null, local.name, ((Typed) node.r).getType());
-                    try {
-                        entityMap.put(ent);
-                    } catch (OwlException e) {
-                        // Never here
-                        throw new IllegalStateException("error put local");
-                    }
-                    block.top().vars.add(ent);
-                }
-                local.entity = ent;
+                // Pass
             } else {
                 throw new UnsupportedOperationException("assign left op is not a name");
-//                accept(node.l);
-//                accept(node.r);
             }
-            return null;
-        }
-
-        @Override
-        public Void visit(AstConstant node) {
-            accept(node.expr);
             return null;
         }
 
@@ -183,10 +174,10 @@ final class TypeCheckerAndEntityResolver {
                 case DEC:
                 case HEX:
                 case OCT:
-                    node.type = AstType.I32;
+                    node.type = Type.I32;
                     break;
                 case STRING:
-                    node.type = AstType.STRING;
+                    node.type = Type.STRING;
                     break;
                 default:
                     throw new IllegalStateException("unknown literal format " + node.format);
@@ -196,38 +187,31 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstIf node) {
-            for (AstNode n : node.children) {
-                accept(n);
+            for (AstIfBlock n : node.children) {
+                accept(n.condition);
+                accept(n.block);
             }
             return null;
-        }
-
-        @Override
-        public Void visit(AstCond node) {
-            throw new UnsupportedOperationException("type checker");
-        }
-
-        @Override
-        public Void visit(AstMatch node) {
-            for (AstNode n : node.children) {
-                accept(n);
-            }
-            return null;
-        }
-
-        @Override
-        public Void visit(AstCase node) {
-            throw new UnsupportedOperationException("type checker");
         }
 
         @Override
         public Void visit(AstReturn node) {
             accept(node.expr);
+            if (!TypeUtil.assignable(fnStack.top().returnType, ((Typed) node.expr).getType())) {
+                error(node, "return type not compatible");
+                return null;
+            }
             return null;
         }
 
         @Override
         public Void visit(AstExpr node) {
+            accept(node.expr);
+            return null;
+        }
+
+        @Override
+        public Void visit(AstCast node) {
             accept(node.expr);
             return null;
         }
@@ -242,8 +226,6 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstNew node) {
-            accept(node.type);
-            accept(node.type);
             // TODO: Resolve constructor call here
             return null;
         }

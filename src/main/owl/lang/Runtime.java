@@ -23,19 +23,20 @@ final class Runtime {
     static final OverloadEntityMap ENTITY_MAP;
     static {
         ENTITY_MAP = new OverloadEntityMap();
-        AstType binaryI32 = makeFnType(AstType.I32, AstType.I32, AstType.I32);
-        AstType binaryI64 = makeFnType(AstType.I64, AstType.I64, AstType.I64);
+        Type binaryI32 = makeFnType(Type.I32, Type.I32, Type.I32);
+        Type binaryI64 = makeFnType(Type.I64, Type.I64, Type.I64);
         try {
             ENTITY_MAP.put(new Entity("", "+", binaryI32));
             ENTITY_MAP.put(new Entity("", "+", binaryI64));
             ENTITY_MAP.put(new Entity("", "*", binaryI32));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.BOOL, AstType.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.CHAR, AstType.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.I32, AstType.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.I64, AstType.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.F32, AstType.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.F64, AstType.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(AstType.STRING, AstType.NONE)));
+            ENTITY_MAP.put(new Entity("", "/", binaryI32));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.BOOL, Type.NONE)));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.CHAR, Type.NONE)));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.I32, Type.NONE)));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.I64, Type.NONE)));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.F32, Type.NONE)));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.F64, Type.NONE)));
+            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.STRING, Type.NONE)));
         } catch (OwlException e) {
             throw new IllegalArgumentException(e);
         }

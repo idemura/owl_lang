@@ -74,15 +74,15 @@ final class EntityCollector {
                 if (!node.args.isEmpty()) {
                     // Deduce all arguments types
                     HashMap<String, AstArgument> arguments = new HashMap<>();
-                    AstType t = AstType.NONE;
+                    Type t = Type.NONE;
                     for (int i = node.args.size(); i > 0; ) {
                         AstArgument a = node.args.get(--i);
                         if (arguments.containsKey(a.name)) {
                             throw new OwlException("function argument " + a.name + " duplicated");
                         }
                         arguments.put(a.name, a);
-                        if (a.type == AstType.NONE) {
-                            if (t == AstType.NONE) {
+                        if (a.type == Type.NONE) {
+                            if (t == Type.NONE) {
                                 throw new OwlException("function argument " + a.name + " missing type");
                             }
                             a.type = t;

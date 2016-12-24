@@ -18,10 +18,6 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkState;
 
 final class Ast {
     AstNode root;
@@ -50,29 +46,24 @@ interface AstVisitor<T> {
     }
 
     default T visit(AstApply node) { return visitError(); }
-    default T visit(AstArgument node) { return visitError(); }
     default T visit(AstAssign node) { return visitError(); }
     default T visit(AstBlock node) { return visitError(); }
-    default T visit(AstCase node) { return visitError(); }
-    default T visit(AstCond node) { return visitError(); }
-    default T visit(AstConstant node) { return visitError(); }
+    default T visit(AstCast node) { return visitError(); }
     default T visit(AstExpr node) { return visitError(); }
+    default T visit(AstField node) { return visitError(); }
     default T visit(AstFunction node) { return visitError(); }
     default T visit(AstGroup node) { return visitError(); }
     default T visit(AstIf node) { return visitError(); }
-    default T visit(AstMatch node) { return visitError(); }
-    default T visit(AstMember node) { return visitError(); }
     default T visit(AstModule node) { return visitError(); }
     default T visit(AstName node) { return visitError(); }
     default T visit(AstNew node) { return visitError(); }
     default T visit(AstReturn node) { return visitError(); }
-    default T visit(AstType node) { return visitError(); }
     default T visit(AstValue node) { return visitError(); }
     default T visit(AstVariable node) { return visitError(); }
 }
 
 interface Typed {
-    AstType getType();
+    Type getType();
 }
 
 abstract class AstNode {
@@ -103,10 +94,6 @@ final class AstName extends AstNode
         this.name = name;
     }
 
-    AstName(List<String> pieces) {
-        this(String.join(".", pieces));
-    }
-
     @Override
     public int hashCode() {
         return name.hashCode();
@@ -127,126 +114,22 @@ final class AstName extends AstNode
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
         return entity.type;
     }
 }
 
-// Generic type with parameters
-final class AstType extends AstNode {
-    static final String ARRAY = "Array";
-    static final String FUNCTION = "Fn";
-
-    static final AstType BOOL = new AstType("Bool");
-    static final AstType CHAR = new AstType("Char");
-    static final AstType F32 = new AstType("F32");
-    static final AstType F64 = new AstType("F64");
-    static final AstType I32 = new AstType("I32");
-    static final AstType I64 = new AstType("I64");
-    static final AstType NONE = new AstType("None");
-    static final AstType STRING = new AstType("String");
-
-    final String name;
-    final List<AstType> args = new ArrayList<>();
-
-    static AstType arrayOf(AstType type) {
-        return new AstType(ARRAY, ImmutableList.of(type));
-    }
-
-    static AstType functionOf(List<AstType> args) {
-        return new AstType(FUNCTION, args);
-    }
-
-    AstType(String name) {
-        this.name = name;
-    }
-
-    AstType(String name, List<AstType> args) {
-        this(name);
-        for (AstType t : args) {
-            this.args.add(t);
-        }
-    }
-
-    boolean isArray() {
-        return name.equals(ARRAY);
-    }
-
-    boolean isFunction() {
-        return name.equals(FUNCTION);
-    }
-
-    AstType returnType() {
-        checkState(isFunction());
-        return args.get(args.size() - 1);
-    }
-
-    void add(AstType node) {
-        args.add(node);
-    }
-
-    @Override
-    public String toString() {
-        return TypeNameVisitor.run(this);
-    }
-
-    @Override
-    public int hashCode() {
-        int h = name.hashCode();
-        for (AstType t : args) {
-            h = Objects.hash(h, t.hashCode());
-        }
-        return h;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof AstType) {
-            AstType otherType = (AstType) other;
-            if (!Objects.equals(name, otherType.name)) {
-                return false;
-            }
-            if (!Objects.equals(args, otherType.args)) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Object accept(AstVisitor v) {
-        return v.visit(this);
-    }
-
-    private static final class TypeNameVisitor implements AstVisitor<String> {
-        static String run(AstType type) {
-            return new TypeNameVisitor().accept(type);
-        }
-
-        @Override
-        public String visit(AstType node) {
-            String name = node.name;
-            if (!node.args.isEmpty()) {
-                List<String> pieces = node.args.stream().map(this::accept).collect(Collectors.toList());
-                name += "(" + String.join(", ", pieces) + ")";
-            }
-            return name;
-        }
-    }
-}
-
-final class AstMember extends AstNode
+final class AstField extends AstNode
         implements Typed {
     AstNode object;
-    String member;
-    AstType type;  // Deduced
+    String field;
+    Type type;  // Deduced
 
-    AstMember() {}
+    AstField() {}
 
-    AstMember(AstNode object, String member) {
+    AstField(AstNode object, String member) {
         this.object = object;
-        this.member = member;
+        this.field = member;
     }
 
     @Override
@@ -255,7 +138,7 @@ final class AstMember extends AstNode
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
         return type;
     }
 }
@@ -279,46 +162,51 @@ final class AstFunction extends AstNode
         implements Typed {
     String name;
     List<AstArgument> args = new ArrayList<>();
-    AstType returnType = AstType.NONE;
+    Type returnType = Type.NONE;
     AstBlock block;
+    private List<Entity> vars = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 
-    void add(AstArgument node) {
+    void addArg(AstArgument node) {
         args.add(node);
+    }
+
+    void addVar(Entity ent) {
+        ent.setIndex(vars.size());
+        vars.add(ent);
+    }
+
+    List<Entity> getVars() {
+        return ImmutableList.copyOf(vars);
     }
 
     // Full function type, not return
     @Override
-    public AstType getType() {
+    public Type getType() {
         // Shouldn't be called multiple times
-        List<AstType> typeArgs = new ArrayList<>();
+        List<Type> typeArgs = new ArrayList<>();
         for (AstArgument a : args) {
-            if (a.getType().equals(AstType.NONE)) {
+            if (a.getType().equals(Type.NONE)) {
                 throw new IllegalStateException("argument type is None");
             }
             typeArgs.add(a.getType());
         }
         typeArgs.add(returnType);
-        return AstType.functionOf(typeArgs);
+        return Type.functionOf(typeArgs);
     }
 }
 
-final class AstArgument extends AstNode
+final class AstArgument
         implements Typed {
     String name;
-    AstType type = AstType.NONE;
+    Type type = Type.NONE;
 
     @Override
-    public Object accept(AstVisitor v) {
-        return v.visit(this);
-    }
-
-    @Override
-    public AstType getType() {
+    public Type getType() {
         return type;
     }
 }
@@ -326,10 +214,8 @@ final class AstArgument extends AstNode
 final class AstVariable extends AstNode
         implements Typed {
     String name;
-    AstType type;
     AstNode expr;
-
-    AstVariable() {}
+    Entity entity;
 
     AstVariable(String name, AstNode expr) {
         this.name = name;
@@ -342,14 +228,13 @@ final class AstVariable extends AstNode
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
         return ((Typed) expr).getType();
     }
 }
 
 final class AstBlock extends AstNode {
     List<AstNode> children = new ArrayList<>();
-    List<Entity> vars = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
@@ -368,7 +253,7 @@ final class AstApply extends AstNode
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
     // function application contexts.
-    AstType type;  // Deduced
+    Type type;  // Deduced
 
     @Override
     public Object accept(AstVisitor v) {
@@ -376,7 +261,7 @@ final class AstApply extends AstNode
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
         return type;
     }
 
@@ -384,8 +269,8 @@ final class AstApply extends AstNode
         args.add(node);
     }
 
-    List<AstType> getArgTypes() {
-        List<AstType> types = new ArrayList<>();
+    List<Type> getArgTypes() {
+        List<Type> types = new ArrayList<>();
         for (AstNode a  : args) {
             types.add(((Typed) a).getType());
         }
@@ -393,34 +278,18 @@ final class AstApply extends AstNode
     }
 }
 
-final class AstConstant extends AstNode
-        implements Typed {
-    String name;
-    AstNode expr;
-
-    @Override
-    public Object accept(AstVisitor v) {
-        return v.visit(this);
-    }
-
-    @Override
-    public AstType getType() {
-        return ((Typed) expr).getType();
-    }
-}
-
 final class AstValue extends AstNode
         implements Typed {
     enum Format {
         DEC,
-        OCT,
         HEX,
+        OCT,
         STRING,
     }
 
     String text;
     Format format;
-    AstType type;  // Deduced
+    Type type;  // Deduced
 
     AstValue() {}
 
@@ -435,71 +304,33 @@ final class AstValue extends AstNode
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
         return type;
     }
 }
 
 final class AstIf extends AstNode {
-    List<AstCond> children = new ArrayList<>();
+    List<AstIfBlock> children = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 
-    void add(AstCond node) {
+    void add(AstIfBlock node) {
         children.add(node);
     }
 }
 
-final class AstCond extends AstNode {
+final class AstIfBlock {
     AstExpr condition;
     AstBlock block;
 
-    AstCond() {}
+    AstIfBlock() {}
 
-    AstCond(AstExpr condition, AstBlock block) {
+    AstIfBlock(AstExpr condition, AstBlock block) {
         this.condition = condition;
         this.block = block;
-    }
-
-    @Override
-    public Object accept(AstVisitor v) {
-        return v.visit(this);
-    }
-}
-
-final class AstMatch extends AstNode {
-    AstExpr expr;
-    List<AstCase> children = new ArrayList<>();
-
-    @Override
-    public Object accept(AstVisitor v) {
-        return v.visit(this);
-    }
-
-    void add(AstCase node) {
-        children.add(node);
-    }
-}
-
-final class AstCase extends AstNode {
-    String label;
-    String variable;
-    AstBlock block;
-
-    AstCase() {}
-
-    AstCase(String label, String variable, AstBlock block) {
-        this.label = label;
-        this.variable = variable;
-        this.block = block;
-    }
-
-    @Override
-    public Object accept(AstVisitor v) {
-        return v.visit(this);
     }
 }
 
@@ -522,13 +353,17 @@ final class AstExpr extends AstNode
         this.expr = expr;
     }
 
+    boolean discards() {
+        return expr instanceof AstApply && !((AstApply) expr).getType().equals(Type.NONE);
+    }
+
     @Override
     public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
         return ((Typed) expr).getType();
     }
 }
@@ -566,10 +401,10 @@ final class AstAssign extends AstNode {
 
 final class AstNew extends AstNode
         implements Typed {
-    AstType type;
+    Type type;
     AstGroup init;
 
-    AstNew(AstType type, AstGroup init) {
+    AstNew(Type type, AstGroup init) {
         this.type = type;
         this.init = init;
     }
@@ -580,7 +415,28 @@ final class AstNew extends AstNode
     }
 
     @Override
-    public AstType getType() {
+    public Type getType() {
+        return type;
+    }
+}
+
+final class AstCast extends AstNode
+        implements Typed {
+    AstNode expr;
+    Type type;
+
+    AstCast(AstNode expr, Type type) {
+        this.expr = expr;
+        this.type = type;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) {
+        return v.visit(this);
+    }
+
+    @Override
+    public Type getType() {
         return type;
     }
 }

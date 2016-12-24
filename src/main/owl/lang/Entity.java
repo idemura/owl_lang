@@ -19,20 +19,46 @@ import java.util.Objects;
 class Entity {
     final String moduleName;
     final String name;
-    final AstType type;
+    final Type type;
+    private int index = -1;
+    private String alias;
 
-    Entity(String moduleName, String name, AstType type) {
+    Entity(String moduleName, String name, Type type) {
         this.moduleName = moduleName;
         this.name = name;
         this.type = type;
     }
 
     boolean isRT() {
-        return moduleName.isEmpty();
+        return moduleName != null && moduleName.isEmpty();
+    }
+
+    boolean isBlockVar() {
+        return moduleName == null;
     }
 
     boolean isFunction() {
         return type.isFunction();
+    }
+
+    void setIndex(int index) {
+        this.index = index;
+    }
+
+    int getIndex() {
+        return index;
+    }
+
+    void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    String getAlias() {
+        return alias == null? name: alias;
+    }
+
+    boolean hasAlias() {
+        return alias != null;
     }
 
     @Override

@@ -31,6 +31,10 @@ final class Stack<T> implements Iterable<T> {
         return x;
     }
 
+    void pop(int n) {
+        stack.remove(stack.size() - n);
+    }
+
     T top() {
         return stack.get(stack.size() - 1);
     }
