@@ -20,7 +20,11 @@ final class DebugPrint {
     private DebugPrint() {}
 
     static void printAst(Ast ast, PrintStream out) {
-        new AstPrintVisitor(new IndentPrinter(out)).accept(ast.root);
+        try {
+            new AstPrintVisitor(new IndentPrinter(out)).accept(ast.root);
+        } catch (OwlException e) {
+            // Pass
+        }
     }
 
     private static final class AstPrintVisitor implements AstVisitor {
@@ -31,13 +35,13 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstName node) {
+        public Void visit(AstName node) throws OwlException {
             leaf(node, node.name);
             return null;
         }
 
         @Override
-        public Void visit(AstField node) {
+        public Void visit(AstField node) throws OwlException {
             beginNode(node, node.field);
             accept(node.object);
             endNode();
@@ -45,7 +49,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstModule node) {
+        public Void visit(AstModule node) throws OwlException {
             beginNode(node);
             for (AstNode f : node.children) {
                 accept(f);
@@ -56,7 +60,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstFunction node) {
+        public Void visit(AstFunction node) throws OwlException {
             beginNode(node, node.name);
             prop("returnType", node.returnType.toString());
             for (AstArgument a : node.args) {
@@ -68,7 +72,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstVariable node) {
+        public Void visit(AstVariable node) throws OwlException {
             beginNode(node, node.name);
             accept(node.expr);
             endNode();
@@ -76,7 +80,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstBlock node) {
+        public Void visit(AstBlock node) throws OwlException {
             beginNode(node);
             for (AstNode s : node.children) {
                 accept(s);
@@ -88,7 +92,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstApply node) {
+        public Void visit(AstApply node) throws OwlException {
             beginNode(node);
             accept(node.fn);
             for (AstNode e : node.args) {
@@ -99,13 +103,13 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstValue node) {
+        public Void visit(AstValue node) throws OwlException {
             leaf(node, node.format + " " + node.text);
             return null;
         }
 
         @Override
-        public Void visit(AstIf node) {
+        public Void visit(AstIf node) throws OwlException {
             beginNode(node);
             for (AstIfBlock n : node.children) {
                 accept(n.condition);
@@ -116,7 +120,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstReturn node) {
+        public Void visit(AstReturn node) throws OwlException {
             beginNode(node);
             accept(node.expr);
             endNode();
@@ -124,7 +128,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstExpr node) {
+        public Void visit(AstExpr node) throws OwlException {
             beginNode(node);
             accept(node.expr);
             endNode();
@@ -132,7 +136,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstCast node) {
+        public Void visit(AstCast node) throws OwlException {
             beginNode(node, node.getType().toString());
             accept(node.expr);
             endNode();
@@ -140,7 +144,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstGroup node) {
+        public Void visit(AstGroup node) throws OwlException {
             beginNode(node);
             for (AstNode c : node.children) {
                 accept(c);
@@ -150,7 +154,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstAssign node) {
+        public Void visit(AstAssign node) throws OwlException {
             beginNode(node, node.op);
             accept(node.l);
             accept(node.r);
@@ -159,7 +163,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstNew node) {
+        public Void visit(AstNew node) throws OwlException {
             beginNode(node, node.type.toString());
             accept(node.init);
             endNode();

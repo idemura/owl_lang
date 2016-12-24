@@ -48,16 +48,12 @@ final class CodeGenerator {
             this.errorListener = errorListener;
         }
 
-        private void error(AstNode node, String msg) {
-            errorListener.error(node.getLine(), node.getCharPosition(), msg);
-        }
-
         private void addInstruction(JvmNode instr) {
             fnStack.top().block.add(instr);
         }
 
         @Override
-        public JvmNode visit(AstName node) {
+        public JvmNode visit(AstName node) throws OwlException {
             // TODO: Support module variables
             if (node.entity.isBlockVar()) {
                 addInstruction(new JvmGetLocal(node.entity.getIndex()));
@@ -68,19 +64,18 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstField node) {
+        public JvmNode visit(AstField node) throws OwlException {
             throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public JvmNode visit(AstModule node) {
+        public JvmNode visit(AstModule node) throws OwlException {
             if (node.fileName == null) {
-                error(node, "module file name is empty");
-                return null;
+                throw new OwlException("module file name is empty");
             }
             String className = Files.getNameWithoutExtension(node.fileName);
             if (!Util.isName(className)) {
-                error(node, "invalid file name to generate Java class name: " + className);
+                throw new OwlException("file name must be java identifier: " + className);
             }
             clazz = new JvmClass(AccessModifier.PUBLIC, className);
             clazz.addFunction(javaMain());
@@ -95,7 +90,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstFunction node) {
+        public JvmNode visit(AstFunction node) throws OwlException {
             JvmFunction f = new JvmFunction(
                     AccessModifier.PACKAGE,
                     MemoryModifier.STATIC,
@@ -111,7 +106,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstVariable node) {
+        public JvmNode visit(AstVariable node) throws OwlException {
             if (fnStack.isEmpty()) {
                 // TODO: Generate initializer block
                 clazz.addVariable(new JvmVariable(
@@ -128,7 +123,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstBlock node) {
+        public JvmNode visit(AstBlock node) throws OwlException {
             for (AstNode c : node.children) {
                 accept(c);
             }
@@ -136,7 +131,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstApply node) {
+        public JvmNode visit(AstApply node) throws OwlException {
             AstName fnName = (AstName) node.fn;
             if (!Util.startsWithLetter(fnName.name)) {
                 switch (fnName.name) {
@@ -171,12 +166,12 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstCast node) {
+        public JvmNode visit(AstCast node) throws OwlException {
             throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public JvmNode visit(AstAssign node) {
+        public JvmNode visit(AstAssign node) throws OwlException {
             checkState(node.op == null);
             accept(node.r);
             if (node.l instanceof AstName) {
@@ -189,7 +184,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstValue node) {
+        public JvmNode visit(AstValue node) throws OwlException {
             String value;
             switch (node.format) {
                 case OCT:
@@ -210,19 +205,19 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstIf node) {
+        public JvmNode visit(AstIf node) throws OwlException {
             throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public JvmNode visit(AstReturn node) {
+        public JvmNode visit(AstReturn node) throws OwlException {
             accept(node.expr);
             addInstruction(new JvmReturn());
             return null;
         }
 
         @Override
-        public JvmNode visit(AstExpr node) {
+        public JvmNode visit(AstExpr node) throws OwlException {
             accept(node.expr);
             if (node.discards()) {
                 addInstruction(new JvmPop());
@@ -231,7 +226,7 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstGroup node) {
+        public JvmNode visit(AstGroup node) throws OwlException {
             for (AstNode c : node.children) {
                 accept(c);
             }

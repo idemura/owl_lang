@@ -147,10 +147,6 @@ final class Util {
         return LANGUAGE_VERSION;
     }
 
-    static void visitError(Class clazz) {
-        throw new UnsupportedOperationException("visitor incomplete " + clazz.getName());
-    }
-
     static <T> List<T> listOf(T x1) {
         List<T> l = new ArrayList<>();
         l.add(x1);

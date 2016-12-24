@@ -39,28 +39,29 @@ final class TypeCheckerAndEntityResolver {
             this.entityMap = new NestedEntityMap(variables, overloads);
         }
 
-        private void error(AstNode node, String msg) {
-            errorListener.error(node.getLine(), node.getCharPosition(), msg);
+        private void error(OwlException e) {
+            errorListener.error(e.line, e.charPosition, e.getMessage());
         }
 
         @Override
-        public Void visit(AstName node) {
+        public Void visit(AstName node) throws OwlException {
             if (entityMap.isBlockVar(node.name)) {
                 node.entity = entityMap.get(node.name);
             } else {
                 // TODO: Support module variables
-                error(node, "name " + node.name + " not found");
+                throw new OwlException(node.getLine(), node.getCharPosition(),
+                        "name " + node.name + " not found");
             }
             return null;
         }
 
         @Override
-        public Void visit(AstField node) {
+        public Void visit(AstField node) throws OwlException {
             throw new UnsupportedOperationException("type checker");
         }
 
         @Override
-        public Void visit(AstModule node) {
+        public Void visit(AstModule node) throws OwlException {
             for (AstNode f : node.children) {
                 accept(f);
             }
@@ -68,18 +69,18 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstFunction node) {
+        public Void visit(AstFunction node) throws OwlException {
             entityMap.push();
             gen.push();
             fnStack.push(node);
             for (AstArgument a : node.args) {
+                Entity ent = new Entity(null, a.name, a.getType());
                 try {
-                    Entity ent = new Entity(null, a.name, a.getType());
-                    node.addVar(ent);
                     entityMap.put(ent);
                 } catch (OwlException e) {
-                    throw new IllegalStateException("argument " + a.name + " duplicated in " + a.name);
+                    throw new IllegalStateException("error put local");
                 }
+                node.addVar(ent);
             }
             accept(node.block);
             fnStack.pop();
@@ -89,18 +90,17 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstVariable node) {
+        public Void visit(AstVariable node) throws OwlException {
             accept(node.expr);
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.name)) {
-                    error(node, "variable already exist in the current scope");
-                    return null;
+                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                            "variable already exist in the current scope");
                 }
                 Entity ent = new Entity(null, node.name, ((Typed) node.expr).getType());
                 try {
                     entityMap.put(ent);
                 } catch (OwlException e) {
-                    // Never here
                     throw new IllegalStateException("error put local");
                 }
                 node.entity = ent;
@@ -110,15 +110,19 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstBlock node) {
+        public Void visit(AstBlock node) throws OwlException {
             for (AstNode s : node.children) {
-                accept(s);
+                try {
+                    accept(s);
+                } catch (OwlException e) {
+                    error(e);
+                }
             }
             return null;
         }
 
         @Override
-        public Void visit(AstApply node) {
+        public Void visit(AstApply node) throws OwlException {
             for (AstNode e : node.args) {
                 accept(e);
             }
@@ -127,18 +131,18 @@ final class TypeCheckerAndEntityResolver {
                 AstName fn = (AstName) node.fn;
                 if (!entityMap.contains(fn.name)) {
                     // Error printed while visiting name
-                    error(node, "function " + fn.name + " not found");
-                    return null;
+                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                            "function " + fn.name + " not found");
                 }
                 if (!entityMap.isFunction(fn.name)) {
-                    error(fn, fn.name + " is not a function");
-                    return null;
+                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                            fn.name + " is not a function");
                 }
                 try {
                     fn.entity = entityMap.resolve(fn.name, node.getArgTypes());
                 } catch (ResolveError e) {
-                    error(fn, e.getMessage());
-                    return null;
+                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                            e.getMessage());
                 }
                 node.type = fn.entity.type.returnType();
             } else {
@@ -148,15 +152,15 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstAssign node) {
+        public Void visit(AstAssign node) throws OwlException {
             accept(node.l);
             accept(node.r);
 
             Type lType = ((Typed) node.l).getType();
             Type rType = ((Typed) node.r).getType();
             if (!TypeUtil.assignable(lType, rType)) {
-                error(node, rType + " not assignable to " + lType);
-                return null;
+                throw new OwlException(node.getLine(), node.getCharPosition(),
+                        rType + " not assignable to " + lType);
             }
 
             // TODO: This is basically LValue check
@@ -169,7 +173,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstValue node) {
+        public Void visit(AstValue node) throws OwlException {
             switch (node.format) {
                 case DEC:
                 case HEX:
@@ -186,7 +190,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstIf node) {
+        public Void visit(AstIf node) throws OwlException {
             for (AstIfBlock n : node.children) {
                 accept(n.condition);
                 accept(n.block);
@@ -195,29 +199,29 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstReturn node) {
+        public Void visit(AstReturn node) throws OwlException {
             accept(node.expr);
             if (!TypeUtil.assignable(fnStack.top().returnType, ((Typed) node.expr).getType())) {
-                error(node, "return type not compatible");
-                return null;
+                throw new OwlException(node.getLine(), node.getCharPosition(),
+                        "return type not compatible");
             }
             return null;
         }
 
         @Override
-        public Void visit(AstExpr node) {
+        public Void visit(AstExpr node) throws OwlException {
             accept(node.expr);
             return null;
         }
 
         @Override
-        public Void visit(AstCast node) {
+        public Void visit(AstCast node) throws OwlException {
             accept(node.expr);
             return null;
         }
 
         @Override
-        public Void visit(AstGroup node) {
+        public Void visit(AstGroup node) throws OwlException {
             for (AstNode c : node.children) {
                 accept(c);
             }
@@ -225,7 +229,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Void visit(AstNew node) {
+        public Void visit(AstNew node) throws OwlException {
             // TODO: Resolve constructor call here
             return null;
         }

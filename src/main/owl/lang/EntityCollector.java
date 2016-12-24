@@ -48,71 +48,72 @@ final class EntityCollector {
             this.errorListener = errorListener;
         }
 
-        private void error(AstNode node, String msg) {
-            errorListener.error(node.getLine(), node.getCharPosition(), msg);
+        private void error(OwlException e) {
+            errorListener.error(e.line, e.charPosition, e.getMessage());
         }
 
         @Override
-        public Void visit(AstModule node) {
+        public Void visit(AstModule node) throws OwlException {
             moduleName = node.name;
             for (AstNode m : node.children) {
-                accept(m);
+                try {
+                    accept(m);
+                } catch (OwlException e) {
+                    error(e);
+                }
             }
             return null;
         }
 
         @Override
-        public Void visit(AstFunction node) {
+        public Void visit(AstFunction node) throws OwlException {
             // TODO: Lambda
-            try {
-                if (node.name == null) {
-                    throw new OwlException("unnamed module level function");
-                }
-                if (variables.contains(node.name)) {
-                    throw new OwlException("duplicated entity " + node.name);
-                }
-                if (!node.args.isEmpty()) {
-                    // Deduce all arguments types
-                    HashMap<String, AstArgument> arguments = new HashMap<>();
-                    Type t = Type.NONE;
-                    for (int i = node.args.size(); i > 0; ) {
-                        AstArgument a = node.args.get(--i);
-                        if (arguments.containsKey(a.name)) {
-                            throw new OwlException("function argument " + a.name + " duplicated");
+            if (node.name == null) {
+                throw new OwlException(node.getLine(), node.getCharPosition(),
+                        "unnamed module level function");
+            }
+            if (variables.contains(node.name)) {
+                throw new OwlException(node.getLine(), node.getCharPosition(),
+                        "duplicated entity " + node.name);
+            }
+            if (!node.args.isEmpty()) {
+                // Deduce all arguments types
+                HashMap<String, AstArgument> arguments = new HashMap<>();
+                Type t = Type.NONE;
+                for (int i = node.args.size(); i > 0; ) {
+                    AstArgument a = node.args.get(--i);
+                    if (arguments.containsKey(a.name)) {
+                        throw new OwlException(node.getLine(), node.getCharPosition(),
+                                "function argument " + a.name + " duplicated");
+                    }
+                    arguments.put(a.name, a);
+                    if (a.type == Type.NONE) {
+                        if (t == Type.NONE) {
+                            throw new OwlException(node.getLine(), node.getCharPosition(),
+                                    "function argument " + a.name + " missing type");
                         }
-                        arguments.put(a.name, a);
-                        if (a.type == Type.NONE) {
-                            if (t == Type.NONE) {
-                                throw new OwlException("function argument " + a.name + " missing type");
-                            }
-                            a.type = t;
-                        } else {
-                            t = a.type;
-                        }
+                        a.type = t;
+                    } else {
+                        t = a.type;
                     }
                 }
-                overloads.put(new Entity(moduleName, node.name, node.getType()));
-            } catch (OwlException e) {
-                error(node, e.getMessage());
             }
+            overloads.put(new Entity(moduleName, node.name, node.getType()));
             return null;
         }
 
         @Override
-        public Void visit(AstVariable node) {
-            try {
-                if (overloads.contains(node.name)) {
-                    throw new OwlException("duplicated entity " + node.name);
-                }
-                variables.put(new Entity(moduleName, node.name, node.getType()));
-            } catch (OwlException e) {
-                error(node, e.getMessage());
+        public Void visit(AstVariable node) throws OwlException {
+            if (overloads.contains(node.name)) {
+                throw new OwlException(node.getLine(), node.getCharPosition(),
+                        "duplicated entity " + node.name);
             }
+            variables.put(new Entity(moduleName, node.name, node.getType()));
             return null;
         }
 
         @Override
-        public Void visit(AstGroup node) {
+        public Void visit(AstGroup node) throws OwlException {
             for (AstNode c : node.children) {
                 accept(c);
             }

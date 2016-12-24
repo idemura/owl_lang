@@ -39,8 +39,7 @@ interface JvmTranslator {
 
 interface JvmVisitor<T> {
     default T visitError() {
-        Util.visitError(getClass());
-        return null;
+        throw new UnsupportedOperationException("visitor incomplete " + getClass().getName());
     }
 
     default T accept(JvmNode node) {

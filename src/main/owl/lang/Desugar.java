@@ -14,6 +14,8 @@
  */
 package owl.lang;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 final class Desugar {
@@ -31,30 +33,24 @@ final class Desugar {
             this.errorListener = errorListener;
         }
 
-        private void error(AstNode node, String msg) {
-            errorListener.error(node.getLine(), node.getCharPosition(), msg);
-        }
-
         @Override
-        public AstNode visit(AstName node) {
+        public AstNode visit(AstName node) throws OwlException {
             return node;
         }
 
         @Override
-        public AstNode visit(AstField node) {
+        public AstNode visit(AstField node) throws OwlException {
             return node;
         }
 
         @Override
-        public AstNode visit(AstModule node) {
-            node.children = node.children.stream()
-                    .map(this::accept)
-                    .collect(Collectors.toList());
+        public AstNode visit(AstModule node) throws OwlException {
+            mapChildren(node.children);
             return node;
         }
 
         @Override
-        public AstNode visit(AstFunction node) {
+        public AstNode visit(AstFunction node) throws OwlException {
             gen.push();
             node.block = (AstBlock) accept(node.block);
             gen.pop();
@@ -62,21 +58,19 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstVariable node) {
+        public AstNode visit(AstVariable node) throws OwlException {
             node.expr = accept(node.expr);
             return node;
         }
 
         @Override
-        public AstNode visit(AstBlock node) {
-            node.children = node.children.stream()
-                    .map(this::accept)
-                    .collect(Collectors.toList());
+        public AstNode visit(AstBlock node) throws OwlException {
+            mapChildren(node.children);
             return node;
         }
 
         @Override
-        public AstNode visit(AstApply node) {
+        public AstNode visit(AstApply node) throws OwlException {
             // TODO: Desugar a < b < c to a < b && b < c or even
             //      var _l_b = b;
             //      a < _l_b && _l_b < c;
@@ -84,12 +78,12 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstCast node) {
+        public AstNode visit(AstCast node) throws OwlException {
             return node;
         }
 
         @Override
-        public AstNode visit(AstAssign node) {
+        public AstNode visit(AstAssign node) throws OwlException {
             node.l = accept(node.l);
             node.r = accept(node.r);
             if (node.op.isEmpty()) {
@@ -109,33 +103,37 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstValue node) {
+        public AstNode visit(AstValue node) throws OwlException {
             return node;
         }
 
         @Override
-        public AstNode visit(AstIf node) {
+        public AstNode visit(AstIf node) throws OwlException {
             return node;
         }
 
         @Override
-        public AstNode visit(AstReturn node) {
+        public AstNode visit(AstReturn node) throws OwlException {
             node.expr = accept(node.expr);
             return node;
         }
 
         @Override
-        public AstNode visit(AstExpr node) {
+        public AstNode visit(AstExpr node) throws OwlException {
             node.expr = accept(node.expr);
             return node;
         }
 
         @Override
-        public AstNode visit(AstGroup node) {
-            node.children = node.children.stream()
-                    .map(this::accept)
-                    .collect(Collectors.toList());
+        public AstNode visit(AstGroup node) throws OwlException {
+            mapChildren(node.children);
             return node;
+        }
+
+        private static void mapChildren(List<AstNode> children) throws OwlException {
+            for (int i = 0; i < children.size(); i++) {
+                children.set(i, children.get(i));
+            }
         }
     }
 }

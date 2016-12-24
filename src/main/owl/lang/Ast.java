@@ -33,11 +33,10 @@ final class Ast {
 
 interface AstVisitor<T> {
     default T visitError() {
-        Util.visitError(getClass());
-        return null;
+        throw new UnsupportedOperationException("visitor incomplete " + getClass().getName());
     }
 
-    default T accept(AstNode node) {
+    default T accept(AstNode node) throws OwlException {
         if (node != null) {
             return (T) node.accept(this);
         } else {
@@ -45,21 +44,21 @@ interface AstVisitor<T> {
         }
     }
 
-    default T visit(AstApply node) { return visitError(); }
-    default T visit(AstAssign node) { return visitError(); }
-    default T visit(AstBlock node) { return visitError(); }
-    default T visit(AstCast node) { return visitError(); }
-    default T visit(AstExpr node) { return visitError(); }
-    default T visit(AstField node) { return visitError(); }
-    default T visit(AstFunction node) { return visitError(); }
-    default T visit(AstGroup node) { return visitError(); }
-    default T visit(AstIf node) { return visitError(); }
-    default T visit(AstModule node) { return visitError(); }
-    default T visit(AstName node) { return visitError(); }
-    default T visit(AstNew node) { return visitError(); }
-    default T visit(AstReturn node) { return visitError(); }
-    default T visit(AstValue node) { return visitError(); }
-    default T visit(AstVariable node) { return visitError(); }
+    default T visit(AstApply node) throws OwlException { return visitError(); }
+    default T visit(AstAssign node) throws OwlException { return visitError(); }
+    default T visit(AstBlock node) throws OwlException { return visitError(); }
+    default T visit(AstCast node) throws OwlException { return visitError(); }
+    default T visit(AstExpr node) throws OwlException { return visitError(); }
+    default T visit(AstField node) throws OwlException { return visitError(); }
+    default T visit(AstFunction node) throws OwlException { return visitError(); }
+    default T visit(AstGroup node) throws OwlException { return visitError(); }
+    default T visit(AstIf node) throws OwlException { return visitError(); }
+    default T visit(AstModule node) throws OwlException { return visitError(); }
+    default T visit(AstName node) throws OwlException { return visitError(); }
+    default T visit(AstNew node) throws OwlException { return visitError(); }
+    default T visit(AstReturn node) throws OwlException { return visitError(); }
+    default T visit(AstValue node) throws OwlException { return visitError(); }
+    default T visit(AstVariable node) throws OwlException { return visitError(); }
 }
 
 interface Typed {
@@ -79,7 +78,7 @@ abstract class AstNode {
     int getLine() { return line; }
     int getCharPosition() { return charPosition; }
 
-    abstract Object accept(AstVisitor visitor);
+    abstract Object accept(AstVisitor visitor) throws OwlException;
 }
 
 final class AstName extends AstNode
@@ -109,7 +108,7 @@ final class AstName extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -133,7 +132,7 @@ final class AstField extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -149,7 +148,7 @@ final class AstModule extends AstNode {
     List<AstNode> children = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -167,7 +166,7 @@ final class AstFunction extends AstNode
     private List<Entity> vars = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -223,7 +222,7 @@ final class AstVariable extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -237,7 +236,7 @@ final class AstBlock extends AstNode {
     List<AstNode> children = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -256,7 +255,7 @@ final class AstApply extends AstNode
     Type type;  // Deduced
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -299,7 +298,7 @@ final class AstValue extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -313,7 +312,7 @@ final class AstIf extends AstNode {
     List<AstIfBlock> children = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -338,7 +337,7 @@ final class AstReturn extends AstNode {
     AstNode expr;
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 }
@@ -358,7 +357,7 @@ final class AstExpr extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -374,7 +373,7 @@ final class AstGroup extends AstNode {
     AstGroup() {}
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -394,7 +393,7 @@ final class AstAssign extends AstNode {
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 }
@@ -410,7 +409,7 @@ final class AstNew extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
@@ -431,7 +430,7 @@ final class AstCast extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
     }
 
