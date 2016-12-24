@@ -1,0 +1,105 @@
+--- STDOUT
+Module
+  Function f1
+    returnType: None
+    Block
+      Expr
+        Apply
+          Name println
+          Value STRING hello
+      ;
+    ;;
+  
+  Function f2
+    returnType: None
+    Argument a: I32
+    Block
+      Expr
+        Apply
+          Name println
+          Apply
+            Name +
+            Name a
+            Value DEC 10
+      ;
+    ;;
+  
+  Function f2
+    returnType: I32
+    Argument x: String
+    Block
+    ;;
+  
+  Function qq
+    returnType: None
+    Block
+      Expr
+        Apply
+          Name println
+          Apply
+            Name f2
+            Value STRING zzz
+      ;
+    ;;
+  
+  Function f3
+    returnType: None
+    Argument x: None
+    Argument y: I32
+    Block
+      Expr
+        Apply
+          Name +
+          Apply
+            Name *
+            Name x
+            Name y
+          Value DEC 10
+      ;
+    ;;
+  
+  Function f4
+    returnType: Array(I32)
+    Block
+    ;;
+  
+  Variable x
+    Value DEC 10
+  
+test.x: null
+overload qq
+  test.qq: Fn(None)
+
+overload println
+  println: Fn(Bool, None)
+  println: Fn(Char, None)
+  println: Fn(I32, None)
+  println: Fn(I64, None)
+  println: Fn(F32, None)
+  println: Fn(F64, None)
+  println: Fn(String, None)
+
+overload *
+  *: Fn(I32, I32, I32)
+
+overload f1
+  test.f1: Fn(None)
+
+overload +
+  +: Fn(I32, I32, I32)
+  +: Fn(I64, I64, I64)
+
+overload f2
+  test.f2: Fn(I32, None)
+  test.f2: Fn(String, I32)
+
+overload f3
+  test.f3: Fn(I32, I32, None)
+
+overload f4
+  test.f4: Fn(Array(I32))
+
+overload /
+  /: Fn(I32, I32, I32)
+
+--- STDERR

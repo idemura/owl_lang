@@ -3,17 +3,13 @@
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
     out=`mktemp`
+    echo "--- STDOUT" > $out
     err=`mktemp`
-    ./owl $flags $owl 1> $out 2> $err
-    if [ $? == 0 ]; then
-        mv $out ${owl}.out
-        rm -f ${owl}.err
-    else
-        mv $err ${owl}.err
-        rm -f ${owl}.out
-    fi
+    echo "--- STDERR" > $err
+    ./owl $flags $owl 1>> $out 2>> $err
+    cat $out $err > ${owl%.owl}.txt
 done
-if git status -s programs | grep '\.owl$'; then
+if git status -s programs | grep '\.txt$'; then
     echo 'TESTS FAILED'
 else
     echo 'TESTS PASSED'

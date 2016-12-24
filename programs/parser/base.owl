@@ -108,32 +108,6 @@ fn f10 {
     }
 }
 
-fn f11 {
-    match f(5) + 14 {
-        None {
-            print(s());
-        }
-        Just x {
-            print(x);
-        }
-    }
-
-    match f(24) {
-        # Blue,
-        Green {
-            print(color);
-        }
-    }
-
-    match g {
-        # Blue,
-        Yellow {
-        }
-    } else {
-        print(zzz);
-    }
-}
-
 fn f12(x, y: I32): I32 {
     return x + y;
     return a[x].numberInt + y;

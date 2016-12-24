@@ -5,7 +5,7 @@ fn f1(x: String): String {
 }
 
 fn f1(x: I32): I32 {
-    y = 9 * 2;
+    var y = 9 * 2;
     y += 1;
     return x + y;
 }

@@ -1,0 +1,41 @@
+--- STDOUT
+Module
+  Function null
+    returnType: None
+    Argument x: None
+    Argument y: I32
+    Block
+    ;;
+  
+  Function f10
+    returnType: None
+    Argument x: I32
+    Argument y: None
+    Block
+    ;;
+  
+  Function f11
+    returnType: None
+    Argument x: I32
+    Argument y: I32
+    Argument x: I32
+    Block
+    ;;
+  
+  Function f10
+    returnType: None
+    Argument x: I32
+    Block
+    ;;
+  
+  Variable x
+    Value DEC 10
+  
+  Variable x
+    Value DEC 11
+  
+--- STDERR
+programs/analyzer/signatures_err.owl: error: unnamed module level function
+programs/analyzer/signatures_err.owl: error: function argument y missing type
+programs/analyzer/signatures_err.owl: error: function argument x duplicated
+programs/analyzer/signatures_err.owl: error: duplicated entity x
