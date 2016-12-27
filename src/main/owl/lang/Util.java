@@ -121,10 +121,6 @@ final class Util {
         return String.join("\n", c.stream().map(T::toString).collect(toList()));
     }
 
-    static String joinNames(List<String> c) {
-        return String.join(".", c);
-    }
-
     static String quote(String s) {
         // TODO: Handle escapes
         return "\"" + s + "\"";

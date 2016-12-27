@@ -1,0 +1,23 @@
+--- STDOUT
+Module
+  Function bar
+    ReturnType: None
+    Block
+    ;;
+  
+  Function foo
+    ReturnType: I32
+    Variable x: Array(Array(Generic(I32, String)))
+    Block
+      Return
+        Value DEC 0
+      ;
+    ;;
+  
+  Function main
+    ReturnType: None
+    Variable argv: Array(String)
+    Block
+    ;;
+  
+--- STDERR

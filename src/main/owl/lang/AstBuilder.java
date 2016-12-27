@@ -17,6 +17,7 @@ package owl.lang;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,17 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         }
     }
 
+    private String getTextOpt(TerminalNode term) {
+        return term == null? null: term.getText();
+    }
+
+    private String getEntityModuleName() {
+        if (functionNestLevel > 1) {
+            return null;
+        }
+        return moduleName;
+    }
+
     @Override
     public AstNode visitModule(ModuleContext ctx) {
         AstModule m = new AstModule();
@@ -75,7 +87,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     @Override
     public AstNode visitVariable(VariableContext ctx) {
         return new AstVariable(
-                moduleName,
+                getEntityModuleName(),
                 ctx.NAME().getText(),
                 null,
                 accept(ctx.expression()));
@@ -93,8 +105,8 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
                     .collect(Collectors.toList());
         }
         AstNode r = new AstFunction(
-                functionNestLevel > 1? (String) null: moduleName,
-                ctx.NAME().getText(),
+                getEntityModuleName(),
+                getTextOpt(ctx.NAME()),
                 args,
                 (AstType) accept(ctx.type()),
                 (AstBlock) accept(ctx.block()));
@@ -131,7 +143,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         } else if (ctx.STRING() != null) {
             return new AstValue(ctx.STRING().getText(), AstValue.Format.STRING);
         } else {
-            throw new IllegalStateException("illegal ExprPrimeContext");
+            return accept(ctx.expression());
         }
     }
 
@@ -291,14 +303,19 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return new AstExpr(l);
         }
-        return new AstExpr(new AstAssign(ctx.op.getText(), l, accept(ctx.r)));
+        return new AstExpr(new AstAssign(Util.removeSuffix(ctx.op.getText(), 1), l, accept(ctx.r)));
     }
 
     @Override
     public AstNode visitStmtIf(StmtIfContext ctx) {
-        int c = ctx.expression().size();
-        int b = ctx.block().size();
-        return new AstName("asdfasdf");
+        AstIf stmtIf = new AstIf();
+        for (int i = 0; i < ctx.expression().size(); i++) {
+            stmtIf.add(accept(ctx.expression(i)), (AstBlock) accept(ctx.block(i)));
+        }
+        if (ctx.block().size() > ctx.expression().size()) {
+            stmtIf.add(null, (AstBlock) accept(ctx.block(ctx.block().size() - 1)));
+        }
+        return stmtIf;
     }
 
     @Override

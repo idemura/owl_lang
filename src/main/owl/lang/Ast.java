@@ -291,7 +291,9 @@ final class AstFunction extends AstNode
         List<String> list = new ArrayList<>();
         list.add("function");
         if (moduleName == null) {
-            list.add(name);
+            if (name != null) {
+                list.add(name);
+            }
         } else {
             list.add(moduleName + "." + name);
         }
@@ -560,10 +562,10 @@ final class AstValue extends AstNode
 
 final class AstIf extends AstNode {
     final class Branch {
-        AstExpr condition;
+        AstNode condition;
         AstBlock block;
 
-        Branch(AstExpr condition, AstBlock block) {
+        Branch(AstNode condition, AstBlock block) {
             this.condition = condition;
             this.block = block;
         }
@@ -573,6 +575,10 @@ final class AstIf extends AstNode {
     @Override
     public Object accept(AstVisitor v) throws OwlException {
         return v.visit(this);
+    }
+
+    void add(AstNode condition, AstBlock block) {
+        branches.add(new Branch(condition, block));
     }
 }
 

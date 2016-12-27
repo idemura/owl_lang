@@ -120,7 +120,8 @@ public final class CLI {
 
     private static Ast parse(InputStream in, String fileName, ErrorListener errorListener)
             throws OwlException {
-        ANTLRErrorListener antlrErrorListener = new OwlANTLRErrorListener(errorListener);
+        CountErrorListener errorCounter = new CountErrorListener(errorListener);
+        ANTLRErrorListener antlrErrorListener = new OwlANTLRErrorListener(errorCounter);
         Lexer lexer;
         try {
             lexer = new OwlLexer(new ANTLRInputStream(in));
@@ -136,6 +137,9 @@ public final class CLI {
             OwlParser.ModuleContext context = parser.module();
             if (context.exception != null) {
                 throw context.exception;
+            }
+            if (errorCounter.getErrorCount() > 0) {
+                throw new OwlException("parse error");
             }
             return AstBuilder.run(context, fileName);
         } catch (RecognitionException e) {

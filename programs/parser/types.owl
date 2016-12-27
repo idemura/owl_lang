@@ -1,0 +1,11 @@
+module main;
+
+fn bar {
+}
+
+fn foo(x: Generic((I32), String)[][]): I32 {
+    return 0;
+}
+
+fn main(argv: String[]) {
+}
