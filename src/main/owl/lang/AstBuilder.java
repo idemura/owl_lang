@@ -266,33 +266,6 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     @Override
-    public AstNode visitExprNot(ExprNotContext ctx) {
-        AstNode l = accept(ctx.t);
-        if (ctx.op == null) {
-            return l;
-        }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(l));
-    }
-
-    @Override
-    public AstNode visitExprAnd(ExprAndContext ctx) {
-        AstNode l = accept(ctx.t);
-        if (ctx.op == null) {
-            return l;
-        }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(l));
-    }
-
-    @Override
-    public AstNode visitExprOr(ExprOrContext ctx) {
-        AstNode l = accept(ctx.t);
-        if (ctx.op == null) {
-            return l;
-        }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(l));
-    }
-
-    @Override
     public AstNode visitExpression(ExpressionContext ctx) {
         return accept(ctx.t);
     }
