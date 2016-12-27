@@ -16,67 +16,33 @@ package owl.lang;
 
 import java.util.Objects;
 
-class Entity {
-    final String moduleName;
-    final String name;
-    final Type type;
-    private int index = -1;
-    private String alias;
+import static com.google.common.base.Preconditions.checkArgument;
 
-    Entity(String moduleName, String name, Type type) {
-        this.moduleName = moduleName;
-        this.name = name;
-        this.type = type;
+interface Typed {
+    AstType getType();
+}
+
+interface Named {
+    String getModuleName();
+    String getName();
+    default String getUniqueName() {
+        return getName();
+    }
+}
+
+interface Entity extends Typed, Named {
+    default boolean isLocal() {
+        return getModuleName() == null;
     }
 
-    boolean isRT() {
-        return moduleName != null && moduleName.isEmpty();
+    static int getHashCode(Entity e) {
+        checkArgument(e.getType() != null);
+        return Objects.hash(e.getModuleName(), e.getName(), e.getType());
     }
 
-    boolean isBlockVar() {
-        return moduleName == null;
-    }
-
-    boolean isFunction() {
-        return type.isFunction();
-    }
-
-    void setIndex(int index) {
-        this.index = index;
-    }
-
-    int getIndex() {
-        return index;
-    }
-
-    void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    String getAlias() {
-        return alias == null? name: alias;
-    }
-
-    boolean hasAlias() {
-        return alias != null;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof Entity) {
-            Entity otherEnt = (Entity) other;
-            return name.equals(otherEnt.name);
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return (moduleName == null || moduleName.isEmpty()? "": moduleName + ".") + name + ": " + type;
+    static boolean equals(Entity l, Entity r) {
+        return l.getModuleName().equals(r.getModuleName()) &&
+                l.getName().equals(r.getName()) &&
+                l.getType().equals(r.getType());
     }
 }

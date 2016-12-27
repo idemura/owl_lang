@@ -1,5 +1,6 @@
 #! /bin/bash
-java -cp lib/antlr4-4.5.3.jar org.antlr.v4.Tool -no-listener -o src/main/owl/lang/ Owl.g4
+java -cp lib/antlr4-4.5.3.jar org.antlr.v4.Tool -Werror -visitor -no-listener \
+        -o src/main/owl/lang/ Owl.g4
 OWL_TOKENS=src/main/owl/lang/Owl.tokens
-[ -e $OWL_TOKENS ] && rm $OWL_TOKENS
+[ -e $OWL_TOKENS ] && rm $OWL_TOKENS src/main/owl/lang/OwlBaseVisitor.java
 

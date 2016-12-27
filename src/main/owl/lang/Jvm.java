@@ -21,6 +21,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 final class Jvm {
     JvmNode root;
 
@@ -145,23 +147,24 @@ final class JvmClass extends JvmNode {
 }
 
 final class JvmVariable extends JvmNode {
+    final AstVariable variable;
     final AccessModifier access;
     final MemoryModifier memory;
-    final Type type;
-    final String name;
-    final JvmBlock init;
+    final JvmBlock block;
+
+    static JvmVariable local(AstVariable v) {
+        return new JvmVariable(v, null, null, null);
+    }
 
     JvmVariable(
+            AstVariable variable,
             AccessModifier access,
             MemoryModifier memory,
-            Type type,
-            String name,
-            JvmBlock init) {
+            JvmBlock block) {
+        this.variable = variable;
         this.access = access;
         this.memory = memory;
-        this.name = name;
-        this.type = type;
-        this.init = init;
+        this.block = block;
     }
 
     @Override
@@ -171,28 +174,19 @@ final class JvmVariable extends JvmNode {
 }
 
 final class JvmFunction extends JvmNode {
+    final AstFunction function;
     final AccessModifier access;
     final MemoryModifier memory;
-    final String name;
-    final Type returnType;
-    final List<Entity> vars;
-    final int numArgs;
     final JvmBlock block;
 
     JvmFunction(
+            AstFunction function,
             AccessModifier access,
             MemoryModifier memory,
-            Type returnType,
-            String name,
-            List<Entity> vars,
-            int numArgs,
             JvmBlock block) {
+        this.function = function;
         this.access = access;
         this.memory = memory;
-        this.returnType = returnType;
-        this.name = name;
-        this.vars = ImmutableList.copyOf(vars);
-        this.numArgs = numArgs;
         this.block = block;
     }
 
@@ -200,25 +194,13 @@ final class JvmFunction extends JvmNode {
     Object accept(JvmVisitor v) {
         return v.visit(this);
     }
-
-    // Block might have variables with same name, need unique name to locate them in function block
-    // all at once.
-    void generateLocalAliases(NameGen gen) {
-        for (int i = numArgs; i < vars.size(); i++) {
-            vars.get(i).setAlias(gen.newName());
-        }
-    }
-
-    List<Entity> locals() {
-        return vars.subList(numArgs, vars.size());
-    }
 }
 
 final class JvmValue extends JvmNode {
     final String text;
-    final Type type;
+    final AstType type;
 
-    JvmValue(String text, Type type) {
+    JvmValue(String text, AstType type) {
         this.text = text;
         this.type = type;
     }
@@ -233,13 +215,13 @@ final class JvmApply extends JvmNode {
     final String object;
     final String method;
     final int numArgs;
-    final Type returnType;
+    final AstType returnType;
 
     JvmApply(
             String object,
             String method,
             int numArgs,
-            Type returnType) {
+            AstType returnType) {
         this.object = object;
         this.method = method;
         this.numArgs = numArgs;
@@ -254,9 +236,9 @@ final class JvmApply extends JvmNode {
 
 final class JvmBinary extends JvmNode {
     final String op;
-    final Type returnType;
+    final AstType returnType;
 
-    JvmBinary(String op, Type returnType) {
+    JvmBinary(String op, AstType returnType) {
         this.op = op;
         this.returnType = returnType;
     }
@@ -271,6 +253,7 @@ final class JvmGetLocal extends JvmNode {
     final int index;
 
     JvmGetLocal(int index) {
+        checkArgument(index >= 0);
         this.index = index;
     }
 
@@ -284,6 +267,7 @@ final class JvmPutLocal extends JvmNode {
     final int index;
 
     JvmPutLocal(int index) {
+        checkArgument(index >= 0);
         this.index = index;
     }
 

@@ -37,11 +37,11 @@ final class EntityMap implements Cloneable {
     }
 
     void put(Entity e) throws OwlException {
-        Entity inMap = map.get(e.name);
+        Entity inMap = map.get(e.getName());
         if (inMap == null) {
-            map.put(e.name, e);
+            map.put(e.getName(), e);
         } else {
-            throw new OwlException("duplicated entity " + e.name);
+            throw new OwlException("duplicated entity " + e.getName());
         }
     }
 
@@ -50,7 +50,7 @@ final class EntityMap implements Cloneable {
     }
 
     boolean isFunction(String name) {
-        return map.get(name).isFunction();
+        return map.get(name).getType().isFunction();
     }
 
     Entity get(String name) {
@@ -81,17 +81,17 @@ final class Overload implements Cloneable {
     void add(Entity ent) throws OwlException {
         // TODO: Check other way, because this is effectively O(N^2)
         for (Entity f : overload) {
-            if (equalSignatures(f.type, ent.type)) {
+            if (equalSignatures(f.getType(), ent.getType())) {
                 throw new OwlException("overload with same signature");
             }
         }
         overload.add(ent);
     }
 
-    List<Entity> resolve(List<Type> args) {
+    List<Entity> resolve(List<AstType> args) {
         List<Entity> res = new ArrayList<>();
         for (Entity f : overload) {
-            if (TypeUtil.accepts(f.type, args)) {
+            if (TypeUtil.accepts(f.getType(), args)) {
                 res.add(f);
             }
         }
@@ -124,8 +124,8 @@ final class OverloadEntityMap implements Cloneable {
     }
 
     void put(Entity e) throws OwlException {
-        checkArgument(e.isFunction());
-        map.computeIfAbsent(e.name, k -> new Overload(e.name)).add(e);
+        checkArgument(e.getType().isFunction());
+        map.computeIfAbsent(e.getName(), k -> new Overload(e.getName())).add(e);
     }
 
     boolean contains(String name) {

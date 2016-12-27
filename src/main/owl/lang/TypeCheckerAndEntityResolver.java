@@ -29,7 +29,6 @@ final class TypeCheckerAndEntityResolver {
         private final ErrorListener errorListener;
         private final NestedEntityMap entityMap;
         private final Stack<AstFunction> fnStack = new Stack<>();
-        private final NameGen gen = new NameGen("_l_");
 
         private Visitor(
                 EntityMap variables,
@@ -62,7 +61,10 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstModule node) throws OwlException {
-            for (AstNode f : node.children) {
+            for (AstNode f : node.variables) {
+                accept(f);
+            }
+            for (AstNode f : node.functions) {
                 accept(f);
             }
             return null;
@@ -71,40 +73,34 @@ final class TypeCheckerAndEntityResolver {
         @Override
         public Void visit(AstFunction node) throws OwlException {
             entityMap.push();
-            gen.push();
             fnStack.push(node);
-            for (AstArgument a : node.args) {
-                Entity ent = new Entity(null, a.name, a.getType());
+            for (AstVariable a : node.getArgs()) {
                 try {
-                    entityMap.put(ent);
+                    entityMap.put(a);
                 } catch (OwlException e) {
                     throw new IllegalStateException("error put local");
                 }
-                node.addVar(ent);
             }
-            accept(node.block);
+            accept(node.getBlock());
             fnStack.pop();
-            gen.pop();
             entityMap.pop();
             return null;
         }
 
         @Override
         public Void visit(AstVariable node) throws OwlException {
-            accept(node.expr);
+            accept(node.getExpr());
             if (!fnStack.isEmpty()) {
-                if (entityMap.inTopBlock(node.name)) {
+                if (entityMap.inTopBlock(node.getName())) {
                     throw new OwlException(node.getLine(), node.getCharPosition(),
                             "variable already exist in the current scope");
                 }
-                Entity ent = new Entity(null, node.name, ((Typed) node.expr).getType());
                 try {
-                    entityMap.put(ent);
+                    entityMap.put(node);
                 } catch (OwlException e) {
                     throw new IllegalStateException("error put local");
                 }
-                node.entity = ent;
-                fnStack.top().addVar(ent);
+                fnStack.top().addVar(node);
             }
             return null;
         }
@@ -144,7 +140,7 @@ final class TypeCheckerAndEntityResolver {
                     throw new OwlException(node.getLine(), node.getCharPosition(),
                             e.getMessage());
                 }
-                node.type = fn.entity.type.returnType();
+                node.type = fn.entity.getType().getReturnType();
             } else {
                 throw new UnsupportedOperationException("apply function expr");
             }
@@ -156,8 +152,8 @@ final class TypeCheckerAndEntityResolver {
             accept(node.l);
             accept(node.r);
 
-            Type lType = ((Typed) node.l).getType();
-            Type rType = ((Typed) node.r).getType();
+            AstType lType = ((Typed) node.l).getType();
+            AstType rType = ((Typed) node.r).getType();
             if (!TypeUtil.assignable(lType, rType)) {
                 throw new OwlException(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
@@ -178,10 +174,10 @@ final class TypeCheckerAndEntityResolver {
                 case DEC:
                 case HEX:
                 case OCT:
-                    node.type = Type.I32;
+                    node.type = AstType.I32;
                     break;
                 case STRING:
-                    node.type = Type.STRING;
+                    node.type = AstType.STRING;
                     break;
                 default:
                     throw new IllegalStateException("unknown literal format " + node.format);
@@ -191,9 +187,9 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Void visit(AstIf node) throws OwlException {
-            for (AstIfBlock n : node.children) {
-                accept(n.condition);
-                accept(n.block);
+            for (AstIf.Branch b : node.branches) {
+                accept(b.condition);
+                accept(b.block);
             }
             return null;
         }
@@ -201,7 +197,7 @@ final class TypeCheckerAndEntityResolver {
         @Override
         public Void visit(AstReturn node) throws OwlException {
             accept(node.expr);
-            if (!TypeUtil.assignable(fnStack.top().returnType, ((Typed) node.expr).getType())) {
+            if (!TypeUtil.assignable(fnStack.top().getReturnType(), ((Typed) node.expr).getType())) {
                 throw new OwlException(node.getLine(), node.getCharPosition(),
                         "return type not compatible");
             }

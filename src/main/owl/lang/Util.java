@@ -121,6 +121,10 @@ final class Util {
         return String.join("\n", c.stream().map(T::toString).collect(toList()));
     }
 
+    static String joinNames(List<String> c) {
+        return String.join(".", c);
+    }
+
     static String quote(String s) {
         // TODO: Handle escapes
         return "\"" + s + "\"";
@@ -157,8 +161,8 @@ final class Util {
         return s.substring(0, s.length() - len);
     }
 
-    static boolean isTyped(AstNode node) {
-        return node instanceof Typed;
+    static boolean isEmpty(String s) {
+        return s != null && s.isEmpty();
     }
 
     private static String getManifestAttribute(String name) {

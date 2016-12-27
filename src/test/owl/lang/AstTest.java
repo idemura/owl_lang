@@ -22,17 +22,17 @@ import static org.junit.Assert.assertEquals;
 public class AstTest {
     @Test
     public void testTypeToString() {
-        Type t;
+        AstType t;
 
-        t = new Type("Foo",
-                ImmutableList.of(Type.I32, Type.F32));
+        t = new AstType("Foo",
+                ImmutableList.of(AstType.I32, AstType.F32));
         assertEquals("Foo(I32, F32)", t.toString());
 
-        t = new Type("Foo",
-                ImmutableList.of(Type.BOOL));
+        t = new AstType("Foo",
+                ImmutableList.of(AstType.BOOL));
         assertEquals("Foo(Bool)", t.toString());
 
-        t = new Type("Foo");
+        t = new AstType("Foo");
         assertEquals("Foo", t.toString());
     }
 }

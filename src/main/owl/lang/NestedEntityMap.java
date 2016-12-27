@@ -129,12 +129,12 @@ final class NestedEntityMap {
         return variables.get(name);
     }
 
-    Entity resolve(String name, List<Type> args) throws ResolveError {
+    Entity resolve(String name, List<AstType> args) throws ResolveError {
         for (EntityMap map : scope) {
             Entity e = map.get(name);
             if (e != null) {
-                if (e.isFunction()) {
-                    if (TypeUtil.accepts(e.type, args)) {
+                if (e.getType().isFunction()) {
+                    if (TypeUtil.accepts(e.getType(), args)) {
                         return e;
                     }
                     // TODO: Better message

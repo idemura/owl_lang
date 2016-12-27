@@ -14,23 +14,21 @@
  */
 package owl.lang;
 
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 final class Desugar {
     private Desugar() {}
 
-    static void run(Ast ast, ErrorListener errorListener) throws OwlException {
-        ast.root = new Visitor(errorListener).accept(ast.root);
+    static void run(Ast ast) throws OwlException {
+        ast.root = new Visitor().accept(ast.root);
     }
 
     private static final class Visitor implements AstVisitor<AstNode> {
-        private final ErrorListener errorListener;
-        private final NameGen gen = new NameGen("_l_");
+        private final NameGen gen = new NameGen("_d_");
 
-        private Visitor(ErrorListener errorListener) {
-            this.errorListener = errorListener;
+        private Visitor() {
         }
 
         @Override
@@ -45,22 +43,26 @@ final class Desugar {
 
         @Override
         public AstNode visit(AstModule node) throws OwlException {
-            mapChildren(node.children);
+            mapChildren(node.variables);
+            mapChildren(node.functions);
             return node;
         }
 
         @Override
         public AstNode visit(AstFunction node) throws OwlException {
             gen.push();
-            node.block = (AstBlock) accept(node.block);
+            accept(node.getBlock());
             gen.pop();
             return node;
         }
 
         @Override
         public AstNode visit(AstVariable node) throws OwlException {
-            node.expr = accept(node.expr);
-            return node;
+            return new AstVariable(
+                    node.getModuleName(),
+                    node.getName(),
+                    node.getType(),
+                    accept(node.getExpr()));
         }
 
         @Override
@@ -91,11 +93,7 @@ final class Desugar {
                 return node;
             }
             if (node.l instanceof AstName) {
-                AstApply app = new AstApply();
-                app.fn = new AstName(node.op);
-                app.add(node.l);
-                app.add(node.r);
-
+                AstApply app = new AstApply(new AstName(node.op), ImmutableList.of(node.l, node.r));
                 return new AstAssign(null, node.l, app);
             }
             // TODO: Support field and index
@@ -130,9 +128,9 @@ final class Desugar {
             return node;
         }
 
-        private static void mapChildren(List<AstNode> children) throws OwlException {
+        private <T extends AstNode> void mapChildren(List<T> children) throws OwlException {
             for (int i = 0; i < children.size(); i++) {
-                children.set(i, children.get(i));
+                children.set(i, (T) accept(children.get(i)));
             }
         }
     }

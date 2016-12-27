@@ -25,17 +25,8 @@ final class NameGen {
     }
 
     String newName() {
-        char[] buf = new char[16];
-        int j = 0;
-        int counter = counters.pop();
-        int n = counter;
-        do {
-            int mod = ALPHABET.length();
-            buf[j++] = ALPHABET.charAt(n % mod);
-            n /= mod;
-        } while (n != 0);
-        counters.push(counter + 1);
-        return prefix + new String(buf, 0, j);
+        counters.push(counters.pop() + 1);
+        return fromInt(prefix, counters.top() - 1);
     }
 
     void push() {
@@ -44,5 +35,16 @@ final class NameGen {
 
     void pop() {
         counters.pop();
+    }
+
+    static String fromInt(String prefix, int n) {
+        char[] buf = new char[16];
+        int j = 0;
+        do {
+            int mod = ALPHABET.length();
+            buf[j++] = ALPHABET.charAt(n % mod);
+            n /= mod;
+        } while (n != 0);
+        return prefix + new String(buf, 0, j);
     }
 }

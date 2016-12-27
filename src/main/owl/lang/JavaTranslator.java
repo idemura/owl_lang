@@ -65,10 +65,10 @@ final class JavaTranslator implements JvmTranslator {
 
     private static final class Visitor implements JvmVisitor {
         private static final class TypedId {
-            Type type;
+            AstType type;
             String id;
 
-            TypedId(Type type, String id) {
+            TypedId(AstType type, String id) {
                 this.type = type;
                 this.id = id;
             }
@@ -127,17 +127,15 @@ final class JavaTranslator implements JvmTranslator {
             printer.println(
                     javaAccessModifier(node.access),
                     javaMemoryModifier(node.memory),
-                    node.returnType.javaType(),
-                    node.name, "(");
+                    node.function.getReturnType().javaType(),
+                    node.function.getName() , "(");
             printer.indent();
             printer.indent();
             boolean first = true;
-            for (int i = 0; i < node.numArgs; i++) {
-                Entity arg = node.vars.get(i);
-                printer.println(first? "": ",", arg.type.javaType(), arg.name);
+            for (AstVariable a : node.function.getArgs()) {
+                printer.println(first? "": ",", a.getType().javaType(), a.getName());
                 first = false;
             }
-            node.generateLocalAliases(gen);
             printer.unindent();
             printer.unindent();
             printer.println(")");
@@ -153,8 +151,8 @@ final class JavaTranslator implements JvmTranslator {
             printer.println(
                     javaAccessModifier(node.access),
                     javaMemoryModifier(node.memory),
-                    node.type.javaType(),
-                    node.name, ";");
+                    node.variable.getType().javaType(),
+                    node.variable.getName(), ";");
             return null;
         }
 
@@ -166,8 +164,8 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmGetLocal node) {
-            Entity ent = fnStack.top().vars.get(node.index);
-            stack.push(new TypedId(ent.type, ent.getAlias()));
+            Entity ent = fnStack.top().function.getLocal(node.index);
+            stack.push(new TypedId(ent.getType(), ent.getUniqueName()));
             return null;
         }
 
@@ -178,7 +176,7 @@ final class JavaTranslator implements JvmTranslator {
             for (int i = 0; i < node.numArgs; i++) {
                 args.add(stack.pop().id);
             }
-            if (!node.returnType.equals(Type.NONE)) {
+            if (!node.returnType.equals(AstType.NONE)) {
                 this.stack.push(new TypedId(node.returnType, gen.newName()));
                 printer.print(
                         node.returnType.javaType(),
@@ -204,9 +202,9 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmPutLocal node) {
-            Entity ent = fnStack.top().vars.get(node.index);
+            Entity ent = fnStack.top().function.getLocal(node.index);
             String e = stack.pop().id;
-            printer.println(ent.getAlias(), "=", e, ";");
+            printer.println(ent.getUniqueName(), "=", e, ";");
             return null;
         }
 
@@ -215,9 +213,9 @@ final class JavaTranslator implements JvmTranslator {
             printer.println("{");
             printer.indent();
             if (fnStack.top().block == node) {
-                for (Entity ent : fnStack.top().locals()) {
-                    printer.println(ent.type.javaType(), ent.getAlias(), ";",
-                            ent.hasAlias()? "// " + ent.name: "");
+                for (Entity ent : fnStack.top().function.getVars()) {
+                    printer.println(ent.getType().javaType(), ent.getUniqueName(), ";",
+                            ent.getName().equals(ent.getUniqueName())? "":  "// " + ent.getName());
                 }
             }
             for (JvmNode s : node.getInstructions()) {

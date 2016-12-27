@@ -97,8 +97,7 @@ public final class CLI {
             CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(System.err, fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 try {
-                    Ast ast = parse(in, errorListener);
-                    ast.<AstModule>getRoot().fileName = fileName;
+                    Ast ast = parse(in, fileName, errorListener);
                     compileAst(ast, errorListener, outDir, System.out);
                 } catch (OwlException e) {
                     // Skip, error listener took care
@@ -119,7 +118,7 @@ public final class CLI {
         return total == succeeded;
     }
 
-    private static Ast parse(InputStream in, ErrorListener errorListener)
+    private static Ast parse(InputStream in, String fileName, ErrorListener errorListener)
             throws OwlException {
         ANTLRErrorListener antlrErrorListener = new OwlANTLRErrorListener(errorListener);
         Lexer lexer;
@@ -138,7 +137,7 @@ public final class CLI {
             if (context.exception != null) {
                 throw context.exception;
             }
-            return new Ast(context.r);
+            return AstBuilder.run(context, fileName);
         } catch (RecognitionException e) {
             throw new OwlException(e);
         }
@@ -157,7 +156,7 @@ public final class CLI {
                 debugOut.println(variables.toString());
                 debugOut.println(overloads.toString());
             }
-            Desugar.run(ast, errorListener);
+            Desugar.run(ast);
             if (flagPrintDesugarAst) {
                 DebugPrint.printAst(ast,debugOut);
             }

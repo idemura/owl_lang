@@ -23,13 +23,13 @@ public class EntityMapTest {
     public void testPutReplace() {
         EntityMap m = new EntityMap();
         try {
-            m.put(new Entity("test", "x", Type.I32));
-            m.put(new Entity("test", "y", Type.I32));
+            m.put(new AstVariable(null, "x", AstType.I32, null));
+            m.put(new AstVariable(null, "y", AstType.I32, null));
         } catch (OwlException e) {
             fail();
         }
         try {
-            m.put(new Entity("test", "x", Type.STRING));
+            m.put(new AstVariable(null, "x", AstType.STRING, null));
             fail();
         } catch (OwlException e) {
         }

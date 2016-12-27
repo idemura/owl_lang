@@ -51,7 +51,11 @@ final class DebugPrint {
         @Override
         public Void visit(AstModule node) throws OwlException {
             beginNode(node);
-            for (AstNode f : node.children) {
+            for (AstNode f : node.variables) {
+                accept(f);
+                printer.println("");
+            }
+            for (AstNode f : node.functions) {
                 accept(f);
                 printer.println("");
             }
@@ -61,20 +65,22 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstFunction node) throws OwlException {
-            beginNode(node, node.name);
-            prop("returnType", node.returnType.toString());
-            for (AstArgument a : node.args) {
-                leaf(a, a.name + ": " + a.type);
+            beginNode(node, node.getName());
+            if (node.getReturnType() != null) {
+                prop("ReturnType", node.getReturnType().toString());
             }
-            accept(node.block);
+            for (AstVariable a : node.getArgs()) {
+                leaf(a, a.getName() + ": " + a.getType());
+            }
+            accept(node.getBlock());
             endNode();
             return null;
         }
 
         @Override
         public Void visit(AstVariable node) throws OwlException {
-            beginNode(node, node.name);
-            accept(node.expr);
+            beginNode(node, node.getName());
+            accept(node.getExpr());
             endNode();
             return null;
         }
@@ -111,9 +117,9 @@ final class DebugPrint {
         @Override
         public Void visit(AstIf node) throws OwlException {
             beginNode(node);
-            for (AstIfBlock n : node.children) {
-                accept(n.condition);
-                accept(n.block);
+            for (AstIf.Branch b : node.branches) {
+                accept(b.condition);
+                accept(b.block);
             }
             endNode();
             return null;

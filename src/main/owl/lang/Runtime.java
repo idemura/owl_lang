@@ -14,7 +14,8 @@
  */
 package owl.lang;
 
-import static owl.lang.TypeUtil.makeFnType;
+import java.util.ArrayList;
+import java.util.List;
 
 final class Runtime {
     private Runtime() {}
@@ -23,22 +24,30 @@ final class Runtime {
     static final OverloadEntityMap ENTITY_MAP;
     static {
         ENTITY_MAP = new OverloadEntityMap();
-        Type binaryI32 = makeFnType(Type.I32, Type.I32, Type.I32);
-        Type binaryI64 = makeFnType(Type.I64, Type.I64, Type.I64);
         try {
-            ENTITY_MAP.put(new Entity("", "+", binaryI32));
-            ENTITY_MAP.put(new Entity("", "+", binaryI64));
-            ENTITY_MAP.put(new Entity("", "*", binaryI32));
-            ENTITY_MAP.put(new Entity("", "/", binaryI32));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.BOOL, Type.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.CHAR, Type.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.I32, Type.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.I64, Type.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.F32, Type.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.F64, Type.NONE)));
-            ENTITY_MAP.put(new Entity("", "println", makeFnType(Type.STRING, Type.NONE)));
+            ENTITY_MAP.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
+            ENTITY_MAP.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));
+            ENTITY_MAP.put(makeFn("+", AstType.I64, AstType.I64, AstType.I64));
+            ENTITY_MAP.put(makeFn("*", AstType.I32, AstType.I32, AstType.I32));
+            ENTITY_MAP.put(makeFn("/", AstType.I32, AstType.I32, AstType.I32));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.BOOL));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.CHAR));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.I32));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.I64));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.F32));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.F64));
+            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.STRING));
         } catch (OwlException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private static AstFunction makeFn(String op, AstType returnType, AstType... argTypes) {
+        List<AstVariable> args = new ArrayList<>();
+        int i = 0;
+        for (AstType t : argTypes) {
+            args.add(new AstVariable(null, "_" + i++, t, null));
+        }
+        return new AstFunction("", op, args, returnType, null);
     }
 }

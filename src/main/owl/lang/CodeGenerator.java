@@ -14,7 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -24,19 +23,6 @@ final class CodeGenerator {
 
     static Jvm run(Ast ast, ErrorListener errorListener) throws OwlException {
         return new Jvm(new Visitor(errorListener).accept(ast.root));
-    }
-
-    private static JvmFunction javaMain() {
-        JvmBlock block = new JvmBlock();
-        block.add(new JvmApply(null, "owl_main", 0, Type.NONE));
-        return new JvmFunction(
-                AccessModifier.PUBLIC,
-                MemoryModifier.STATIC,
-                Type.NONE,
-                "main",
-                ImmutableList.of(new Entity(null, "argv", Type.arrayOf(Type.STRING))),
-                1,  // numArgs
-                block);
     }
 
     private static final class Visitor implements AstVisitor<JvmNode> {
@@ -55,8 +41,8 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstName node) throws OwlException {
             // TODO: Support module variables
-            if (node.entity.isBlockVar()) {
-                addInstruction(new JvmGetLocal(node.entity.getIndex()));
+            if (node.entity.isLocal()) {
+                addInstruction(new JvmGetLocal(((AstVariable) node.entity).index));
             } else {
                 throw new UnsupportedOperationException("non-local entity");
             }
@@ -78,8 +64,10 @@ final class CodeGenerator {
                 throw new OwlException("file name must be java identifier: " + className);
             }
             clazz = new JvmClass(AccessModifier.PUBLIC, className);
-            clazz.addFunction(javaMain());
-            for (AstNode m : node.children) {
+            for (AstNode m : node.variables) {
+                accept(m);
+            }
+            for (AstNode m : node.functions) {
                 accept(m);
             }
 
@@ -91,16 +79,13 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstFunction node) throws OwlException {
-            JvmFunction f = new JvmFunction(
-                    AccessModifier.PACKAGE,
+            node.indexLocals();
+            fnStack.push(new JvmFunction(
+                    node,
+                    node.getName().equals("main")? AccessModifier.PUBLIC: AccessModifier.PACKAGE,
                     MemoryModifier.STATIC,
-                    node.returnType,
-                    node.name,
-                    node.getVars(),
-                    node.args.size(),
-                    new JvmBlock());
-            fnStack.push(f);
-            accept(node.block);
+                    new JvmBlock()));
+            accept(node.getBlock());
             clazz.addFunction(fnStack.pop());
             return null;
         }
@@ -110,14 +95,13 @@ final class CodeGenerator {
             if (fnStack.isEmpty()) {
                 // TODO: Generate initializer block
                 clazz.addVariable(new JvmVariable(
+                        node,
                         AccessModifier.PACKAGE,
                         MemoryModifier.STATIC,
-                        node.getType(),
-                        node.name,
                         null));
             } else {
-                accept(node.expr);
-                addInstruction(new JvmPutLocal(node.entity.getIndex()));
+                accept(node.getExpr());
+                addInstruction(new JvmPutLocal(node.index));
             }
             return null;
         }
@@ -158,7 +142,7 @@ final class CodeGenerator {
                 accept(a);
             }
             addInstruction(new JvmApply(
-                    fnName.entity.isRT()? Runtime.CLASS_NAME: null,
+                    Util.isEmpty(fnName.entity.getModuleName()) ? Runtime.CLASS_NAME: null,
                     fnName.name,
                     node.args.size(),
                     node.getType()));
@@ -176,7 +160,7 @@ final class CodeGenerator {
             accept(node.r);
             if (node.l instanceof AstName) {
                 AstName name = (AstName) node.l;
-                addInstruction(new JvmPutLocal(name.entity.getIndex()));
+                addInstruction(new JvmPutLocal(((AstVariable) name.entity).index));
             } else {
                 throw new UnsupportedOperationException("assign to not a name");
             }
