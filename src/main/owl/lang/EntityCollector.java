@@ -23,8 +23,8 @@ final class EntityCollector {
     private EntityCollector() {}
 
     static void run(Ast ast,
-            EntityMap variables,
-            OverloadEntityMap overloads,
+            NameMap<Entity> variables,
+            OverloadNameMap overloads,
             ErrorListener errorListener) throws OwlException {
         CountErrorListener errorCounter = new CountErrorListener(errorListener);
         Visitor v = new Visitor(variables, overloads, errorCounter);
@@ -36,12 +36,12 @@ final class EntityCollector {
 
     private static final class Visitor implements AstVisitor {
         private final ErrorListener errorListener;
-        private EntityMap variables;
-        private OverloadEntityMap overloads;
+        private NameMap<Entity> variables;
+        private OverloadNameMap overloads;
 
         private Visitor(
-                EntityMap variables,
-                OverloadEntityMap overloads,
+                NameMap<Entity> variables,
+                OverloadNameMap overloads,
                 ErrorListener errorListener) {
             this.variables = variables;
             this.overloads = overloads;
@@ -103,7 +103,7 @@ final class EntityCollector {
                 throw new OwlException(node.getLine(), node.getCharPosition(),
                         "duplicated entity " + node.getName());
             }
-            variables.put(node);
+            variables.put(node.getName(), node);
             return null;
         }
 

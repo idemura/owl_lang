@@ -18,20 +18,21 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class EntityMapTest {
+public class NameMapTest {
     @Test
     public void testPutReplace() {
-        EntityMap m = new EntityMap();
+        NameMap<Entity> m = new NameMap<>();
         try {
-            m.put(new AstVariable(null, "x", AstType.I32, null));
-            m.put(new AstVariable(null, "y", AstType.I32, null));
+            m.put("x", new AstVariable(null, "x", AstType.I32, null));
+            m.put("y", new AstVariable(null, "y", AstType.I32, null));
         } catch (OwlException e) {
             fail();
         }
         try {
-            m.put(new AstVariable(null, "x", AstType.STRING, null));
+            m.put("x", new AstVariable(null, "x", AstType.STRING, null));
             fail();
         } catch (OwlException e) {
+            // Empty
         }
     }
 }

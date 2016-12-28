@@ -153,8 +153,8 @@ public final class CLI {
             DebugPrint.printAst(ast,debugOut);
         }
         if (flagAnalyze) {
-            EntityMap variables = new EntityMap();
-            OverloadEntityMap overloads = Runtime.ENTITY_MAP.clone();
+            NameMap<Entity> variables = new NameMap<>();
+            OverloadNameMap overloads = Runtime.ENTITY_MAP.clone();
             EntityCollector.run(ast, variables, overloads, errorListener);
             if (flagPrintEntityMap) {
                 debugOut.println(variables.toString());

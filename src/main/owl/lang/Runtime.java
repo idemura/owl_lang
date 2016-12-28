@@ -21,9 +21,9 @@ final class Runtime {
     private Runtime() {}
 
     static final String CLASS_NAME = "RT";
-    static final OverloadEntityMap ENTITY_MAP;
+    static final OverloadNameMap ENTITY_MAP;
     static {
-        ENTITY_MAP = new OverloadEntityMap();
+        ENTITY_MAP = new OverloadNameMap();
         try {
             ENTITY_MAP.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
             ENTITY_MAP.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));

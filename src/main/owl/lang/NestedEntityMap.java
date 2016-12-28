@@ -59,17 +59,17 @@ final class ResolveErrorType extends ResolveError {
 }
 
 final class NestedEntityMap {
-    private EntityMap variables;
-    private OverloadEntityMap overloads = new OverloadEntityMap();
-    private Stack<EntityMap> scope = new Stack<>();
+    private NameMap<Entity> variables;
+    private OverloadNameMap overloads = new OverloadNameMap();
+    private Stack<NameMap<Entity>> scope = new Stack<>();
 
-    NestedEntityMap(EntityMap variables, OverloadEntityMap overloads) {
+    NestedEntityMap(NameMap<Entity> variables, OverloadNameMap overloads) {
         this.variables = variables.clone();
         this.overloads = overloads.clone();
     }
 
     void push() {
-        scope.push(new EntityMap());
+        scope.push(new NameMap<>());
     }
 
     void pop() {
@@ -77,11 +77,11 @@ final class NestedEntityMap {
     }
 
     void put(Entity e) throws OwlException {
-        scope.top().put(e);
+        scope.top().put(e.getName(), e);
     }
 
     boolean isBlockVar(String name) {
-        for (EntityMap map : scope) {
+        for (NameMap<Entity> map : scope) {
             if (map.contains(name)) {
                 return true;
             }
@@ -90,7 +90,7 @@ final class NestedEntityMap {
     }
 
     boolean inTopBlock(String name) {
-        for (EntityMap map : scope) {
+        for (NameMap<Entity> map : scope) {
             if (map.contains(name)) {
                 return true;
             }
@@ -99,7 +99,7 @@ final class NestedEntityMap {
     }
 
     boolean contains(String name) {
-        for (EntityMap map : scope) {
+        for (NameMap<Entity> map : scope) {
             if (map.contains(name)) {
                 return true;
             }
@@ -108,20 +108,20 @@ final class NestedEntityMap {
     }
 
     boolean isFunction(String name) {
-        for (EntityMap map : scope) {
-            if (map.contains(name) && map.isFunction(name)) {
+        for (NameMap<Entity> map : scope) {
+            if (map.contains(name) && map.get(name).getType().isFunction()) {
                 return true;
             }
         }
         return overloads.contains(name);
     }
 
-    EntityMap top() {
+    NameMap<Entity> top() {
         return scope.top();
     }
 
     Entity get(String name) {
-        for (EntityMap map : scope) {
+        for (NameMap<Entity> map : scope) {
             if (map.contains(name)) {
                 return map.get(name);
             }
@@ -130,7 +130,7 @@ final class NestedEntityMap {
     }
 
     Entity resolve(String name, List<AstType> args) throws ResolveError {
-        for (EntityMap map : scope) {
+        for (NameMap<Entity> map : scope) {
             Entity e = map.get(name);
             if (e != null) {
                 if (e.getType().isFunction()) {

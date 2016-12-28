@@ -17,51 +17,10 @@ package owl.lang;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static owl.lang.TypeUtil.equalSignatures;
-
-// Entity map without overload support for local scopes
-final class EntityMap implements Cloneable {
-    private HashMap<String, Entity> map = new HashMap<>();
-
-    @Override
-    public EntityMap clone() {
-        EntityMap other = new EntityMap();
-        for (Map.Entry<String, Entity> entry : map.entrySet()) {
-            other.map.put(entry.getKey(), entry.getValue());
-        }
-        return other;
-    }
-
-    void put(Entity e) throws OwlException {
-        Entity inMap = map.get(e.getName());
-        if (inMap == null) {
-            map.put(e.getName(), e);
-        } else {
-            throw new OwlException("duplicated entity " + e.getName());
-        }
-    }
-
-    boolean contains(String name) {
-        return map.containsKey(name);
-    }
-
-    boolean isFunction(String name) {
-        return map.get(name).getType().isFunction();
-    }
-
-    Entity get(String name) {
-        return map.get(name);
-    }
-
-    @Override
-    public String toString() {
-        return Util.joinLines(map.values().stream().map(Object::toString).collect(Collectors.toList()));
-    }
-}
 
 final class Overload implements Cloneable {
     final String name;
@@ -111,15 +70,13 @@ final class Overload implements Cloneable {
 }
 
 // This is an entity map just for function overloads
-final class OverloadEntityMap implements Cloneable {
+final class OverloadNameMap implements Cloneable {
     private HashMap<String, Overload> map = new HashMap<>();
 
     @Override
-    public OverloadEntityMap clone() {
-        OverloadEntityMap other = new OverloadEntityMap();
-        for (Map.Entry<String, Overload> entry : map.entrySet()) {
-            other.map.put(entry.getKey(), entry.getValue().clone());
-        }
+    public OverloadNameMap clone() {
+        OverloadNameMap other = new OverloadNameMap();
+        map.forEach((k, v) -> other.map.put(k, v.clone()));
         return other;
     }
 

@@ -19,8 +19,8 @@ final class TypeCheckerAndEntityResolver {
     private TypeCheckerAndEntityResolver() {}
 
     static void run(Ast ast,
-            EntityMap variables,
-            OverloadEntityMap overloads,
+            NameMap<Entity> variables,
+            OverloadNameMap overloads,
             ErrorListener errorListener) throws OwlException {
         new Visitor(variables, overloads, errorListener).accept(ast.root);
     }
@@ -31,8 +31,8 @@ final class TypeCheckerAndEntityResolver {
         private final Stack<AstFunction> fnStack = new Stack<>();
 
         private Visitor(
-                EntityMap variables,
-                OverloadEntityMap overloads,
+                NameMap<Entity> variables,
+                OverloadNameMap overloads,
                 ErrorListener errorListener) {
             this.errorListener = errorListener;
             this.entityMap = new NestedEntityMap(variables, overloads);
