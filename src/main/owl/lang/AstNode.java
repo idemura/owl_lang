@@ -14,10 +14,17 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+abstract class AstNode {
+    private int line;
+    private int charPosition;
 
-    Ast(AstNode root) {
-        this.root = root;
+    void setPosition(int line, int charPosition) {
+        this.line = line;
+        this.charPosition = charPosition;
     }
+
+    int getLine() { return line; }
+    int getCharPosition() { return charPosition; }
+
+    abstract Object accept(AstVisitor visitor) throws OwlException;
 }

@@ -14,10 +14,18 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+final class AstAssign extends AstNode {
+    String op;
+    AstNode l, r;
 
-    Ast(AstNode root) {
-        this.root = root;
+    AstAssign(String op, AstNode l, AstNode r) {
+        this.op = op;
+        this.l = l;
+        this.r = r;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) throws OwlException {
+        return v.visit(this);
     }
 }

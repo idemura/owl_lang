@@ -14,10 +14,27 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+import java.util.ArrayList;
+import java.util.List;
 
-    Ast(AstNode root) {
-        this.root = root;
+final class AstIf extends AstNode {
+    final class Branch {
+        AstNode condition;
+        AstBlock block;
+
+        Branch(AstNode condition, AstBlock block) {
+            this.condition = condition;
+            this.block = block;
+        }
+    }
+    List<Branch> branches = new ArrayList<>();
+
+    @Override
+    public Object accept(AstVisitor v) throws OwlException {
+        return v.visit(this);
+    }
+
+    void add(AstNode condition, AstBlock block) {
+        branches.add(new Branch(condition, block));
     }
 }

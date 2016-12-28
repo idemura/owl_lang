@@ -14,10 +14,15 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+final class AstReturn extends AstNode {
+    AstNode expr;
 
-    Ast(AstNode root) {
-        this.root = root;
+    AstReturn(AstNode expr) {
+        this.expr = expr;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) throws OwlException {
+        return v.visit(this);
     }
 }

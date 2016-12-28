@@ -14,10 +14,17 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+import java.util.ArrayList;
+import java.util.List;
 
-    Ast(AstNode root) {
-        this.root = root;
+final class AstModule extends AstNode {
+    String name;
+    String fileName;
+    List<AstFunction> functions = new ArrayList<>();
+    List<AstVariable> variables = new ArrayList<>();
+
+    @Override
+    public Object accept(AstVisitor v) throws OwlException {
+        return v.visit(this);
     }
 }

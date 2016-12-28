@@ -14,10 +14,23 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+final class AstNew extends AstNode
+        implements Typed {
+    AstType type;
+    AstGroup init;
 
-    Ast(AstNode root) {
-        this.root = root;
+    AstNew(AstType type, AstGroup init) {
+        this.type = type;
+        this.init = init;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) throws OwlException {
+        return v.visit(this);
+    }
+
+    @Override
+    public AstType getType() {
+        return type;
     }
 }

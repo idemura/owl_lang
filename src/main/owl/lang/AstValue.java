@@ -14,10 +14,31 @@
  */
 package owl.lang;
 
-final class Ast {
-    AstNode root;
+final class AstValue extends AstNode
+        implements Typed {
+    enum Format {
+        DEC,
+        HEX,
+        OCT,
+        STRING,
+    }
 
-    Ast(AstNode root) {
-        this.root = root;
+    String text;
+    Format format;
+    AstType type;  // Deduced
+
+    AstValue(String text, Format format) {
+        this.text = text;
+        this.format = format;
+    }
+
+    @Override
+    public Object accept(AstVisitor v) throws OwlException {
+        return v.visit(this);
+    }
+
+    @Override
+    public AstType getType() {
+        return type;
     }
 }
