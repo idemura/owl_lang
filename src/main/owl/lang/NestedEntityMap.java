@@ -20,44 +20,6 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class ResolveError extends Exception {
-}
-
-final class ResolveErrorNoMatch extends ResolveError {
-    final String name;
-    final List<Entity> matches;
-
-    ResolveErrorNoMatch(String name, List<Entity> matches) {
-        this.name = name;
-        this.matches = matches == null? ImmutableList.of(): ImmutableList.copyOf(matches);
-    }
-
-    @Override
-    public String getMessage() {
-        if (matches.size() == 0) {
-            return "function " + name + ": no matches";
-        } else {
-            return "function " + name + ": match not found:\n" +
-                    Util.joinLines(matches.stream()
-                            .map(s -> "  " + s)
-                            .collect(Collectors.toList()));
-        }
-    }
-}
-
-final class ResolveErrorType extends ResolveError {
-    final String name;
-
-    ResolveErrorType(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getMessage() {
-        return name + " is not a function";
-    }
-}
-
 final class NestedEntityMap {
     private NameMap<Entity> variables;
     private OverloadNameMap overloads = new OverloadNameMap();
