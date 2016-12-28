@@ -105,7 +105,7 @@ final class NestedEntityMap {
                 throw new ResolveErrorType(name);
             }
         }
-        Overload ovl = overloads.get(name);
+        OverloadNameMap.Overload ovl = overloads.get(name);
         if (ovl == null) {
             throw new ResolveErrorNoMatch(name, ImmutableList.of());
         }

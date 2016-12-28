@@ -154,17 +154,19 @@ public final class CLI {
         }
         if (flagAnalyze) {
             NameMap<Entity> variables = new NameMap<>();
-            OverloadNameMap overloads = Runtime.ENTITY_MAP.clone();
+            OverloadNameMap overloads = Runtime.OVERLOAD_MAP.clone();
+            NameMap<AstAbstractType> abstractTypes = Runtime.ABSTRACT_TYPE_MAP.clone();
             EntityCollector.run(ast, variables, overloads, errorListener);
             if (flagPrintEntityMap) {
                 debugOut.println(variables.toString());
                 debugOut.println(overloads.toString());
+                debugOut.println(abstractTypes.toString());
             }
             Desugar.run(ast);
             if (flagPrintDesugarAst) {
                 DebugPrint.printAst(ast,debugOut);
             }
-            TypeCheckerAndEntityResolver.run(ast, variables, overloads, errorListener);
+            TypeCheckerAndEntityResolver.run(ast, abstractTypes, variables, overloads, errorListener);
             if (errorListener.getErrorCount() == 0 && flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
                 if (errorListener.getErrorCount() == 0) {

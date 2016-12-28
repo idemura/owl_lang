@@ -20,25 +20,41 @@ import java.util.List;
 final class Runtime {
     private Runtime() {}
 
-    static final String CLASS_NAME = "RT";
-    static final OverloadNameMap ENTITY_MAP;
+    static final OverloadNameMap OVERLOAD_MAP;
     static {
-        ENTITY_MAP = new OverloadNameMap();
+        OVERLOAD_MAP = new OverloadNameMap();
         try {
-            ENTITY_MAP.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
-            ENTITY_MAP.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));
-            ENTITY_MAP.put(makeFn("+", AstType.I64, AstType.I64, AstType.I64));
-            ENTITY_MAP.put(makeFn("*", AstType.I32, AstType.I32, AstType.I32));
-            ENTITY_MAP.put(makeFn("/", AstType.I32, AstType.I32, AstType.I32));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.BOOL));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.CHAR));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.I32));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.I64));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.F32));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.F64));
-            ENTITY_MAP.put(makeFn("println", AstType.NONE, AstType.STRING));
+            OVERLOAD_MAP.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
+            OVERLOAD_MAP.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));
+            OVERLOAD_MAP.put(makeFn("+", AstType.I64, AstType.I64, AstType.I64));
+            OVERLOAD_MAP.put(makeFn("*", AstType.I32, AstType.I32, AstType.I32));
+            OVERLOAD_MAP.put(makeFn("/", AstType.I32, AstType.I32, AstType.I32));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.BOOL));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.CHAR));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.I32));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.I64));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.F32));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.F64));
+            OVERLOAD_MAP.put(makeFn("println", AstType.NONE, AstType.STRING));
         } catch (OwlException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    static final NameMap<AstAbstractType> ABSTRACT_TYPE_MAP;
+    static {
+        ABSTRACT_TYPE_MAP = new NameMap<>();
+        try {
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.BOOL.getName(), AstPrimitiveType.BOOL);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.CHAR.getName(), AstPrimitiveType.CHAR);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.F32.getName(), AstPrimitiveType.F32);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.F64.getName(), AstPrimitiveType.F64);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.I32.getName(), AstPrimitiveType.I32);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.I64.getName(), AstPrimitiveType.I64);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.NONE.getName(), AstPrimitiveType.NONE);
+            ABSTRACT_TYPE_MAP.put(AstPrimitiveType.STRING.getName(), AstPrimitiveType.STRING);
+        } catch (OwlException e) {
+            throw new IllegalStateException(e);
         }
     }
 

@@ -142,7 +142,7 @@ final class CodeGenerator {
                 accept(a);
             }
             addInstruction(new JvmApply(
-                    Util.isEmpty(fnName.entity.getModuleName()) ? Runtime.CLASS_NAME: null,
+                    Util.isEmpty(fnName.entity.getModuleName()) ? "RT": null,
                     fnName.name,
                     node.args.size(),
                     node.getType()));

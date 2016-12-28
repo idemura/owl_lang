@@ -22,55 +22,56 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 import static owl.lang.TypeUtil.equalSignatures;
 
-final class Overload implements Cloneable {
-    final String name;
-    private List<Entity> overload = new ArrayList<>();
-
-    Overload(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public Overload clone() {
-        Overload other = new Overload(name);
-        overload.forEach(e -> other.overload.add(e));
-        return other;
-    }
-
-    void add(Entity ent) throws OwlException {
-        // TODO: Check other way, because this is effectively O(N^2)
-        for (Entity f : overload) {
-            if (equalSignatures(f.getType(), ent.getType())) {
-                throw new OwlException("overload with same signature");
-            }
-        }
-        overload.add(ent);
-    }
-
-    List<Entity> resolve(List<AstType> args) {
-        List<Entity> res = new ArrayList<>();
-        for (Entity f : overload) {
-            if (TypeUtil.accepts(f.getType(), args)) {
-                res.add(f);
-            }
-        }
-        return res;
-    }
-
-    @Override
-    public String toString() {
-        String text = "overload " + name + "\n";
-        for (Entity f : overload) {
-            text += "  ";
-            text += f.toString();
-            text += "\n";
-        }
-        return text;
-    }
-}
-
+// TODO: Merge with plain NameMap
 // This is an entity map just for function overloads
 final class OverloadNameMap implements Cloneable {
+    final static class Overload implements Cloneable {
+        final String name;
+        private List<Entity> overload = new ArrayList<>();
+
+        Overload(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public Overload clone() {
+            Overload other = new Overload(name);
+            overload.forEach(e -> other.overload.add(e));
+            return other;
+        }
+
+        void add(Entity ent) throws OwlException {
+            // TODO: Check other way, because this is effectively O(N^2)
+            for (Entity f : overload) {
+                if (equalSignatures(f.getType(), ent.getType())) {
+                    throw new OwlException("overload with same signature");
+                }
+            }
+            overload.add(ent);
+        }
+
+        List<Entity> resolve(List<AstType> args) {
+            List<Entity> res = new ArrayList<>();
+            for (Entity f : overload) {
+                if (TypeUtil.accepts(f.getType(), args)) {
+                    res.add(f);
+                }
+            }
+            return res;
+        }
+
+        @Override
+        public String toString() {
+            String text = "overload " + name + "\n";
+            for (Entity f : overload) {
+                text += "  ";
+                text += f.toString();
+                text += "\n";
+            }
+            return text;
+        }
+    }
+
     private HashMap<String, Overload> map = new HashMap<>();
 
     @Override
