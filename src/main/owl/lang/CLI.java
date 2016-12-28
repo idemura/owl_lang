@@ -57,20 +57,20 @@ public final class CLI {
     private boolean flagHelp = false;
 
     @Parameter(names = {"--analyze"}, description = "Analyze semantics", arity = 1)
-    boolean flagAnalyze = true;
+    private boolean flagAnalyze = true;
     @Parameter(names = {"--generate"}, description = "Generate code", arity = 1)
-    boolean flagGenerate = true;
+    private boolean flagGenerate = true;
     @Parameter(names = {"--out"}, description = "Output directory")
-    String flagOut = ".owl_out";
+    private String flagOut = ".owl_out";
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
-    boolean flagPrintAst = false;
+    private boolean flagPrintAst = false;
     @Parameter(names = {"--print_desugar_ast"}, description = "Print desugared AST")
-    boolean flagPrintDesugarAst = false;
+    private boolean flagPrintDesugarAst = false;
     @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
-    boolean flagPrintEntityMap = false;
+    private boolean flagPrintEntityMap = false;
     @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
-    boolean flagEcho = false;
+    private boolean flagEcho = false;
 
     public static void main(String[] args) {
         System.exit(new CLI(args).run()? 0: 1);
