@@ -18,14 +18,13 @@ import com.google.common.collect.ImmutableList;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
-final class NestedEntityMap {
+final class NestedNameMap {
     private NameMap<Entity> variables;
     private OverloadNameMap overloads = new OverloadNameMap();
     private Stack<NameMap<Entity>> scope = new Stack<>();
 
-    NestedEntityMap(NameMap<Entity> variables, OverloadNameMap overloads) {
+    NestedNameMap(NameMap<Entity> variables, OverloadNameMap overloads) {
         this.variables = variables.clone();
         this.overloads = overloads.clone();
     }
@@ -38,8 +37,8 @@ final class NestedEntityMap {
         scope.pop();
     }
 
-    void put(Entity e) throws OwlException {
-        scope.top().put(e.getName(), e);
+    boolean put(Entity e) {
+        return scope.top().put(e.getName(), e);
     }
 
     boolean isBlockVar(String name) {
@@ -91,29 +90,28 @@ final class NestedEntityMap {
         return variables.get(name);
     }
 
-    Entity resolve(String name, List<AstType> args) throws ResolveError {
+    ResolveResult resolve(String name, List<AstType> args) {
         for (NameMap<Entity> map : scope) {
             Entity e = map.get(name);
             if (e != null) {
                 if (e.getType().isFunction()) {
                     if (TypeUtil.accepts(e.getType(), args)) {
-                        return e;
+                        return ResolveResult.found(e);
                     }
-                    // TODO: Better message
-                    throw new ResolveErrorNoMatch(name, ImmutableList.of(e));
+                    return ResolveResult.error(ImmutableList.of(e));
                 }
-                throw new ResolveErrorType(name);
+                return ResolveResult.error(null);
             }
         }
         OverloadNameMap.Overload ovl = overloads.get(name);
         if (ovl == null) {
-            throw new ResolveErrorNoMatch(name, ImmutableList.of());
+            return ResolveResult.error(ImmutableList.of());
         }
         List<Entity> res = ovl.resolve(args);
         if (res.size() != 1) {
-            throw new ResolveErrorNoMatch(name, res);
+            return ResolveResult.error(res);
         }
-        return res.get(0);
+        return ResolveResult.found(res.get(0));
     }
 
     void print(PrintStream out) {

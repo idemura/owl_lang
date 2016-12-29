@@ -24,7 +24,7 @@ final class AstModule extends AstNode {
     List<AstVariable> variables = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) throws OwlException {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 }

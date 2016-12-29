@@ -117,8 +117,8 @@ final class Util {
         return true;
     }
 
-    static <T> String joinLines(Collection<T> c) {
-        return String.join("\n", c.stream().map(T::toString).collect(toList()));
+    static <T> String join(String delimiter, Collection<T> c) {
+        return String.join(delimiter, c.stream().map(T::toString).collect(toList()));
     }
 
     static String quote(String s) {

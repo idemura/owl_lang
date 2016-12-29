@@ -14,26 +14,32 @@
  */
 package owl.lang;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
 // Base class for all abstract types. Abstract type is a (parametric) type programmer defines in the source code or
 // primitive types + array type.
 abstract class AstAbstractType extends AstNode {
-    // Empty
+    abstract String getModuleName();
+    abstract String getName();
+    abstract List<TypeMatcher.ParamMatcher> getParamMatchers();
 }
 
-class AstPrimitiveType extends AstAbstractType
+final class AstScalarType extends AstAbstractType
         implements Named {
-    static final AstPrimitiveType BOOL = new AstPrimitiveType("Bool");
-    static final AstPrimitiveType CHAR = new AstPrimitiveType("Char");
-    static final AstPrimitiveType F32 = new AstPrimitiveType("F32");
-    static final AstPrimitiveType F64 = new AstPrimitiveType("F64");
-    static final AstPrimitiveType I32 = new AstPrimitiveType("I32");
-    static final AstPrimitiveType I64 = new AstPrimitiveType("I64");
-    static final AstPrimitiveType NONE = new AstPrimitiveType("None");
-    static final AstPrimitiveType STRING = new AstPrimitiveType("String");
+    static final AstScalarType BOOL = new AstScalarType("Bool");
+    static final AstScalarType CHAR = new AstScalarType("Char");
+    static final AstScalarType F32 = new AstScalarType("F32");
+    static final AstScalarType F64 = new AstScalarType("F64");
+    static final AstScalarType I32 = new AstScalarType("I32");
+    static final AstScalarType I64 = new AstScalarType("I64");
+    static final AstScalarType NONE = new AstScalarType("None");
+    static final AstScalarType STRING = new AstScalarType("String");
 
     final String name;
 
-    private AstPrimitiveType(String name) {
+    private AstScalarType(String name) {
         this.name = name;
     }
 
@@ -52,10 +58,17 @@ class AstPrimitiveType extends AstAbstractType
         // Should not visit, because never defined in Owl code
         throw new UnsupportedOperationException("accept");
     }
+
+    @Override
+    List<TypeMatcher.ParamMatcher> getParamMatchers() {
+        return ImmutableList.of();
+    }
 }
 
-class AstArrayType extends AstAbstractType
+final class AstArrayType extends AstAbstractType
         implements Named {
+    private final List<TypeMatcher.ParamMatcher> params = ImmutableList.of(new TypeMatcher.ParamMatcher());
+
     @Override
     public String getModuleName() {
         return "";
@@ -70,5 +83,10 @@ class AstArrayType extends AstAbstractType
     Object accept(AstVisitor v) {
         // Should not visit, because never defined in Owl code
         throw new UnsupportedOperationException("accept");
+    }
+
+    @Override
+    List<TypeMatcher.ParamMatcher> getParamMatchers() {
+        return params;
     }
 }

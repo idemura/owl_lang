@@ -21,7 +21,7 @@ import java.util.List;
 final class Desugar {
     private Desugar() {}
 
-    static void run(Ast ast) throws OwlException {
+    static void run(Ast ast) {
         ast.root = new Visitor().accept(ast.root);
     }
 
@@ -32,24 +32,24 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstName node) throws OwlException {
+        public AstNode visit(AstName node) {
             return node;
         }
 
         @Override
-        public AstNode visit(AstField node) throws OwlException {
+        public AstNode visit(AstField node) {
             return node;
         }
 
         @Override
-        public AstNode visit(AstModule node) throws OwlException {
+        public AstNode visit(AstModule node) {
             mapChildren(node.variables);
             mapChildren(node.functions);
             return node;
         }
 
         @Override
-        public AstNode visit(AstFunction node) throws OwlException {
+        public AstNode visit(AstFunction node) {
             gen.push();
             accept(node.getBlock());
             gen.pop();
@@ -57,7 +57,7 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstVariable node) throws OwlException {
+        public AstNode visit(AstVariable node) {
             return new AstVariable(
                     node.getModuleName(),
                     node.getName(),
@@ -66,13 +66,13 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstBlock node) throws OwlException {
+        public AstNode visit(AstBlock node) {
             mapChildren(node.children);
             return node;
         }
 
         @Override
-        public AstNode visit(AstApply node) throws OwlException {
+        public AstNode visit(AstApply node) {
             // TODO: Desugar a < b < c to a < b && b < c or even
             //      var _l_b = b;
             //      a < _l_b && _l_b < c;
@@ -80,12 +80,12 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstCast node) throws OwlException {
+        public AstNode visit(AstCast node) {
             return node;
         }
 
         @Override
-        public AstNode visit(AstAssign node) throws OwlException {
+        public AstNode visit(AstAssign node) {
             node.l = accept(node.l);
             node.r = accept(node.r);
             if (node.op.isEmpty()) {
@@ -101,34 +101,34 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstValue node) throws OwlException {
+        public AstNode visit(AstValue node) {
             return node;
         }
 
         @Override
-        public AstNode visit(AstIf node) throws OwlException {
+        public AstNode visit(AstIf node) {
             return node;
         }
 
         @Override
-        public AstNode visit(AstReturn node) throws OwlException {
+        public AstNode visit(AstReturn node) {
             node.expr = accept(node.expr);
             return node;
         }
 
         @Override
-        public AstNode visit(AstExpr node) throws OwlException {
+        public AstNode visit(AstExpr node) {
             node.expr = accept(node.expr);
             return node;
         }
 
         @Override
-        public AstNode visit(AstGroup node) throws OwlException {
+        public AstNode visit(AstGroup node) {
             mapChildren(node.children);
             return node;
         }
 
-        private <T extends AstNode> void mapChildren(List<T> children) throws OwlException {
+        private <T extends AstNode> void mapChildren(List<T> children) {
             for (int i = 0; i < children.size(); i++) {
                 children.set(i, (T) accept(children.get(i)));
             }

@@ -14,22 +14,24 @@
  */
 package owl.lang;
 
+import java.util.List;
+
 // Check types of function applications. Resolves entity names and function overloads.
 final class TypeCheckerAndEntityResolver {
     private TypeCheckerAndEntityResolver() {}
 
-    static void run(Ast ast,
+    static boolean run(Ast ast,
             NameMap<AstAbstractType> abstractTypes,
             NameMap<Entity> variables,
             OverloadNameMap overloads,
-            ErrorListener errorListener) throws OwlException {
-        new Visitor(abstractTypes, variables, overloads, errorListener).accept(ast.root);
+            ErrorListener errorListener) {
+        return new Visitor(abstractTypes, variables, overloads, errorListener).accept(ast.root);
     }
 
-    private static final class Visitor implements AstVisitor {
+    private static final class Visitor implements AstVisitor<Boolean> {
         private final ErrorListener errorListener;
         private final NameMap<AstAbstractType> abstractTypes;
-        private final NestedEntityMap entityMap;
+        private final NestedNameMap entityMap;
         private final Stack<AstFunction> fnStack = new Stack<>();
 
         private Visitor(
@@ -39,128 +41,161 @@ final class TypeCheckerAndEntityResolver {
                 ErrorListener errorListener) {
             this.errorListener = errorListener;
             this.abstractTypes = abstractTypes;
-            this.entityMap = new NestedEntityMap(variables, overloads);
-        }
-
-        private void error(OwlException e) {
-            errorListener.error(e.line, e.charPosition, e.getMessage());
+            this.entityMap = new NestedNameMap(variables, overloads);
         }
 
         @Override
-        public Void visit(AstName node) throws OwlException {
-            if (entityMap.isBlockVar(node.name)) {
-                node.entity = entityMap.get(node.name);
-            } else {
-                // TODO: Support module variables
-                throw new OwlException(node.getLine(), node.getCharPosition(),
+        public Boolean visit(AstName node) {
+            // TODO: Support module variables
+            if (!entityMap.isBlockVar(node.name)) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
                         "name " + node.name + " not found");
+                return false;
             }
-            return null;
+            node.entity = entityMap.get(node.name);
+            return true;
         }
 
         @Override
-        public Void visit(AstField node) throws OwlException {
+        public Boolean visit(AstType node) {
+            return TypeMatcher.run(node, abstractTypes, errorListener);
+        }
+
+        @Override
+        public Boolean visit(AstField node) {
             throw new UnsupportedOperationException("type checker");
         }
 
         @Override
-        public Void visit(AstModule node) throws OwlException {
-            for (AstNode f : node.variables) {
-                accept(f);
+        public Boolean visit(AstModule node) {
+            boolean res = true;
+            for (AstNode v : node.variables) {
+                if (!accept(v)) {
+                    res = false;
+                }
             }
             for (AstNode f : node.functions) {
-                accept(f);
+                if (!accept(f)) {
+                    res = false;
+                }
             }
-            return null;
+            return res;
         }
 
         @Override
-        public Void visit(AstFunction node) throws OwlException {
+        public Boolean visit(AstFunction node) {
             entityMap.push();
             fnStack.push(node);
+            boolean res = true;
             for (AstVariable a : node.getArgs()) {
-                try {
-                    entityMap.put(a);
-                } catch (OwlException e) {
+                if (!accept(a.getType())) {
+                    res = false;
+                }
+                if (!entityMap.put(a))  {
                     throw new IllegalStateException("error put local");
                 }
             }
-            accept(node.getBlock());
+            if (!res) {
+                return false;
+            }
+            res = accept(node.getBlock());
             fnStack.pop();
             entityMap.pop();
-            return null;
+            return res;
         }
 
         @Override
-        public Void visit(AstVariable node) throws OwlException {
-            accept(node.getExpr());
+        public Boolean visit(AstVariable node) {
+            if (!accept(node.getExpr())) {
+                return false;
+            }
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.getName())) {
-                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                    errorListener.error(node.getLine(), node.getCharPosition(),
                             "variable already exist in the current scope");
+                    return false;
                 }
-                try {
-                    entityMap.put(node);
-                } catch (OwlException e) {
+                if (!entityMap.put(node)) {
                     throw new IllegalStateException("error put local");
                 }
                 fnStack.top().addVar(node);
             }
-            return null;
+            return true;
         }
 
         @Override
-        public Void visit(AstBlock node) throws OwlException {
+        public Boolean visit(AstBlock node) {
+            boolean res = true;
             for (AstNode s : node.children) {
-                try {
-                    accept(s);
-                } catch (OwlException e) {
-                    error(e);
+                if (!accept(s)) {
+                    res = false;
                 }
             }
-            return null;
+            return res;
         }
 
         @Override
-        public Void visit(AstApply node) throws OwlException {
+        public Boolean visit(AstApply node) {
+            boolean res = true;
             for (AstNode e : node.args) {
-                accept(e);
+                if (!accept(e)) {
+                    res = false;
+                }
             }
+            if (!res) {
+                return false;
+            }
+
             // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
             if (node.fn instanceof AstName) {
                 AstName fn = (AstName) node.fn;
                 if (!entityMap.contains(fn.name)) {
                     // Error printed while visiting name
-                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                    errorListener.error(node.getLine(), node.getCharPosition(),
                             "function " + fn.name + " not found");
+                    return false;
                 }
                 if (!entityMap.isFunction(fn.name)) {
-                    throw new OwlException(node.getLine(), node.getCharPosition(),
+                    errorListener.error(node.getLine(), node.getCharPosition(),
                             fn.name + " is not a function");
+                    return false;
                 }
-                try {
-                    fn.entity = entityMap.resolve(fn.name, node.getArgTypes());
-                } catch (ResolveError e) {
-                    throw new OwlException(node.getLine(), node.getCharPosition(),
-                            e.getMessage());
+                ResolveResult rr = entityMap.resolve(fn.name, node.getArgTypes());
+                if (!rr.ok()) {
+                    List<Entity> candidates = rr.getCandidates();
+                    String s;
+                    if (candidates == null) {
+                        s = "function " + fn.name + " not found";
+                    } else if (candidates.size() == 0) {
+                        s = "function " + fn.name + " no candidates";
+                    } else {
+                        s = "ambiguous overload " + fn.name + "; candidates:\n" + Util.join("\n", candidates);
+                    }
+                    errorListener.error(node.getLine(), node.getCharPosition(), s);
+                    return false;
                 }
+                fn.entity = rr.get();
                 node.type = fn.entity.getType().getReturnType();
             } else {
                 throw new UnsupportedOperationException("apply function expr");
             }
-            return null;
+            return true;
         }
 
         @Override
-        public Void visit(AstAssign node) throws OwlException {
-            accept(node.l);
-            accept(node.r);
+        public Boolean visit(AstAssign node) {
+            boolean b1 = accept(node.l);
+            boolean b2 = accept(node.r);
+            if (!(b1 && b2)) {
+                return false;
+            }
 
             AstType lType = ((Typed) node.l).getType();
             AstType rType = ((Typed) node.r).getType();
             if (!TypeUtil.assignable(lType, rType)) {
-                throw new OwlException(node.getLine(), node.getCharPosition(),
+                errorListener.error(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
+                return false;
             }
 
             // TODO: This is basically LValue check
@@ -169,11 +204,11 @@ final class TypeCheckerAndEntityResolver {
             } else {
                 throw new UnsupportedOperationException("assign left op is not a name");
             }
-            return null;
+            return true;
         }
 
         @Override
-        public Void visit(AstValue node) throws OwlException {
+        public Boolean visit(AstValue node) {
             switch (node.format) {
                 case DEC:
                 case HEX:
@@ -186,52 +221,63 @@ final class TypeCheckerAndEntityResolver {
                 default:
                     throw new IllegalStateException("unknown literal format " + node.format);
             }
-            return null;
+            return accept(node.type);
         }
 
         @Override
-        public Void visit(AstIf node) throws OwlException {
+        public Boolean visit(AstIf node) {
+            boolean res = true;
             for (AstIf.Branch b : node.branches) {
-                accept(b.condition);
-                accept(b.block);
+                if (!accept(b.condition)) {
+                    res = false;
+                }
+                if (!accept(b.block)) {
+                    res = false;
+                }
             }
-            return null;
+            return res;
         }
 
         @Override
-        public Void visit(AstReturn node) throws OwlException {
-            accept(node.expr);
+        public Boolean visit(AstReturn node) {
+            if (!accept(node.expr)) {
+                return false;
+            }
             if (!TypeUtil.assignable(fnStack.top().getReturnType(), ((Typed) node.expr).getType())) {
-                throw new OwlException(node.getLine(), node.getCharPosition(),
+                errorListener.error(node.getLine(), node.getCharPosition(),
                         "return type not compatible");
+                return false;
             }
-            return null;
+            return true;
         }
 
         @Override
-        public Void visit(AstExpr node) throws OwlException {
-            accept(node.expr);
-            return null;
+        public Boolean visit(AstExpr node) {
+            return accept(node.expr);
         }
 
         @Override
-        public Void visit(AstCast node) throws OwlException {
-            accept(node.expr);
-            return null;
+        public Boolean visit(AstCast node) {
+            boolean b1 = accept(node.expr);
+            boolean b2 = accept(node.type);
+            return b1 && b2;
         }
 
         @Override
-        public Void visit(AstGroup node) throws OwlException {
+        public Boolean visit(AstGroup node) {
+            boolean res = true;
             for (AstNode c : node.children) {
-                accept(c);
+                if (!accept(c)) {
+                    res = false;
+                }
             }
-            return null;
+            return res;
         }
 
         @Override
-        public Void visit(AstNew node) throws OwlException {
+        public Boolean visit(AstNew node) {
             // TODO: Resolve constructor call here
-            return null;
+            throw new UnsupportedOperationException("new");
         }
     }
 }

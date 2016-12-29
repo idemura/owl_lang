@@ -28,10 +28,8 @@ final class NameMap<T> implements Cloneable {
         return other;
     }
 
-    void put(String name, T value) throws OwlException {
-        if (map.putIfAbsent(name, value) != null) {
-            throw new OwlException("duplicated entity " + name);
-        }
+    boolean put(String name, T value) {
+        return map.putIfAbsent(name, value) == null;
     }
 
     boolean contains(String name) {
@@ -44,6 +42,6 @@ final class NameMap<T> implements Cloneable {
 
     @Override
     public String toString() {
-        return Util.joinLines(map.values().stream().map(Object::toString).collect(Collectors.toList()));
+        return Util.join("\n", map.values().stream().map(Object::toString).collect(Collectors.toList()));
     }
 }

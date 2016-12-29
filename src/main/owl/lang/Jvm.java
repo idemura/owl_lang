@@ -36,6 +36,7 @@ final class Jvm {
 }
 
 interface JvmTranslator {
+    // Throws some IO(system) related exceptions
     void translate(Jvm jvm, File outDir, PrintStream echo) throws OwlException;
 }
 

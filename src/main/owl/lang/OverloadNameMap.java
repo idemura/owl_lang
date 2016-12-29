@@ -40,14 +40,15 @@ final class OverloadNameMap implements Cloneable {
             return other;
         }
 
-        void add(Entity ent) throws OwlException {
+        boolean add(Entity ent) {
             // TODO: Check other way, because this is effectively O(N^2)
             for (Entity f : overload) {
                 if (equalSignatures(f.getType(), ent.getType())) {
-                    throw new OwlException("overload with same signature");
+                    return false;
                 }
             }
             overload.add(ent);
+            return true;
         }
 
         List<Entity> resolve(List<AstType> args) {
@@ -81,9 +82,9 @@ final class OverloadNameMap implements Cloneable {
         return other;
     }
 
-    void put(Entity e) throws OwlException {
+    boolean put(Entity e) {
         checkArgument(e.getType().isFunction());
-        map.computeIfAbsent(e.getName(), k -> new Overload(e.getName())).add(e);
+        return map.computeIfAbsent(e.getName(), k -> new Overload(e.getName())).add(e);
     }
 
     boolean contains(String name) {
@@ -96,6 +97,6 @@ final class OverloadNameMap implements Cloneable {
 
     @Override
     public String toString() {
-        return Util.joinLines(map.values().stream().map(Object::toString).collect(Collectors.toList()));
+        return Util.join("\n", map.values().stream().map(Object::toString).collect(Collectors.toList()));
     }
 }

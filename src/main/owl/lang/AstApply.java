@@ -22,7 +22,7 @@ import java.util.List;
 final class AstApply extends AstNode
         implements Typed {
     AstNode fn;
-    List<AstNode> args = new ArrayList<>();
+    List<AstNode> args;
     // We can't take apply type as function return type because function return type is the result of deduction on
     // function type parameters given argument types. Consider: fn f(x, y: T): T { }. So type may vary in different
     // function application contexts.
@@ -34,7 +34,7 @@ final class AstApply extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) throws OwlException {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 

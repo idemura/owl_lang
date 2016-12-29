@@ -23,8 +23,8 @@ interface ErrorListener {
         error(0, 0, msg);
     }
 
-    default void error(int line, int charPosition, OwlException e) {
-        error(line, charPosition, e.getMessage());
+    default void error(OwlException e) {
+        error(e.line, e.charPosition, e.getMessage());
     }
 }
 

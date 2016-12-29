@@ -21,7 +21,7 @@ final class AstBlock extends AstNode {
     List<AstNode> children = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) throws OwlException {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 

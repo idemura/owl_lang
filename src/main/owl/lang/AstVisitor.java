@@ -19,7 +19,7 @@ interface AstVisitor<T> {
         throw new UnsupportedOperationException("visitor incomplete " + getClass().getName());
     }
 
-    default T accept(AstNode node) throws OwlException {
+    default T accept(AstNode node) {
         if (node != null) {
             return (T) node.accept(this);
         } else {
@@ -27,20 +27,20 @@ interface AstVisitor<T> {
         }
     }
 
-    default T visit(AstApply node) throws OwlException { return visitError(); }
-    default T visit(AstAssign node) throws OwlException { return visitError(); }
-    default T visit(AstBlock node) throws OwlException { return visitError(); }
-    default T visit(AstCast node) throws OwlException { return visitError(); }
-    default T visit(AstExpr node) throws OwlException { return visitError(); }
-    default T visit(AstField node) throws OwlException { return visitError(); }
-    default T visit(AstFunction node) throws OwlException { return visitError(); }
-    default T visit(AstGroup node) throws OwlException { return visitError(); }
-    default T visit(AstIf node) throws OwlException { return visitError(); }
-    default T visit(AstModule node) throws OwlException { return visitError(); }
-    default T visit(AstName node) throws OwlException { return visitError(); }
-    default T visit(AstNew node) throws OwlException { return visitError(); }
-    default T visit(AstReturn node) throws OwlException { return visitError(); }
-    default T visit(AstType node) throws OwlException { return visitError(); }
-    default T visit(AstValue node) throws OwlException { return visitError(); }
-    default T visit(AstVariable node) throws OwlException { return visitError(); }
+    default T visit(AstApply node) { return visitError(); }
+    default T visit(AstAssign node) { return visitError(); }
+    default T visit(AstBlock node) { return visitError(); }
+    default T visit(AstCast node) { return visitError(); }
+    default T visit(AstExpr node) { return visitError(); }
+    default T visit(AstField node) { return visitError(); }
+    default T visit(AstFunction node) { return visitError(); }
+    default T visit(AstGroup node) { return visitError(); }
+    default T visit(AstIf node) { return visitError(); }
+    default T visit(AstModule node) { return visitError(); }
+    default T visit(AstName node) { return visitError(); }
+    default T visit(AstNew node) { return visitError(); }
+    default T visit(AstReturn node) { return visitError(); }
+    default T visit(AstType node) { return visitError(); }
+    default T visit(AstValue node) { return visitError(); }
+    default T visit(AstVariable node) { return visitError(); }
 }

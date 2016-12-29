@@ -26,5 +26,5 @@ abstract class AstNode {
     int getLine() { return line; }
     int getCharPosition() { return charPosition; }
 
-    abstract Object accept(AstVisitor visitor) throws OwlException;
+    abstract Object accept(AstVisitor visitor);
 }

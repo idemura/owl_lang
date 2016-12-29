@@ -30,7 +30,7 @@ final class AstIf extends AstNode {
     List<Branch> branches = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) throws OwlException {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 

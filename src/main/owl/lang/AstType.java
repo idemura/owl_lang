@@ -39,6 +39,7 @@ final class AstType extends AstNode {
 
     final String name;
     final List<AstType> args = new ArrayList<>();
+    AstAbstractType abstractType;
 
     static AstType arrayOf(AstType type) {
         return new AstType(ARRAY, ImmutableList.of(type));
@@ -73,7 +74,7 @@ final class AstType extends AstNode {
     }
 
     @Override
-    public Object accept(AstVisitor v) throws OwlException {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 

@@ -42,7 +42,7 @@ final class AstFunction extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) throws OwlException {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
     }
 

@@ -63,7 +63,7 @@ final class JavaTranslator implements JvmTranslator {
         throw new IllegalStateException("MemoryModifier " + m);
     }
 
-    private static final class Visitor implements JvmVisitor {
+    private static final class Visitor implements JvmVisitor<Void> {
         private static final class TypedId {
             AstType type;
             String id;

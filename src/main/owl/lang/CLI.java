@@ -147,8 +147,7 @@ public final class CLI {
         }
     }
 
-    private void compileAst(Ast ast, CountErrorListener errorListener, File outDir, PrintStream debugOut)
-            throws OwlException {
+    private void compileAst(Ast ast, CountErrorListener errorListener, File outDir, PrintStream debugOut) {
         if (flagPrintAst) {
             DebugPrint.printAst(ast,debugOut);
         }
@@ -170,7 +169,11 @@ public final class CLI {
             if (errorListener.getErrorCount() == 0 && flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
                 if (errorListener.getErrorCount() == 0) {
-                    new JavaTranslator().translate(jvm, outDir, flagEcho? System.out: null);
+                    try {
+                        new JavaTranslator().translate(jvm, outDir, flagEcho ? System.out : null);
+                    } catch (OwlException e) {
+                        errorListener.error(e);
+                    }
                 }
             }
         }
