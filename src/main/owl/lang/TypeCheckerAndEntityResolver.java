@@ -98,6 +98,9 @@ final class TypeCheckerAndEntityResolver {
             if (!res) {
                 return false;
             }
+            if (!accept(node.getReturnType())) {
+                return false;
+            }
             res = accept(node.getBlock());
             fnStack.pop();
             entityMap.pop();
@@ -109,6 +112,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.getExpr())) {
                 return false;
             }
+            node.setType(((Typed) node.getExpr()).getType());
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),

@@ -67,7 +67,11 @@ final class AstScalarType extends AstAbstractType
 
 final class AstArrayType extends AstAbstractType
         implements Named {
+    static final AstArrayType INSTANCE = new AstArrayType();
+
     private final List<TypeMatcher.ParamMatcher> params = ImmutableList.of(new TypeMatcher.ParamMatcher());
+
+    private AstArrayType() {}
 
     @Override
     public String getModuleName() {

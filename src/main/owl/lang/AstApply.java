@@ -14,10 +14,10 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkState;
 
 final class AstApply extends AstNode
         implements Typed {
@@ -46,8 +46,10 @@ final class AstApply extends AstNode
     List<AstType> getArgTypes() {
         List<AstType> types = new ArrayList<>();
         for (AstNode a  : args) {
-            types.add(((Typed) a).getType());
+            AstType t = ((Typed) a).getType();
+            checkState(t != null);
+            types.add(t);
         }
-        return ImmutableList.copyOf(types);
+        return types;
     }
 }

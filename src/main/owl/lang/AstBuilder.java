@@ -58,7 +58,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     private String getEntityModuleName() {
-        if (functionNestLevel > 1) {
+        if (functionNestLevel > 0) {
             return null;
         }
         return moduleName;

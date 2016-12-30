@@ -47,11 +47,12 @@ final class TypeUtil {
 
     static boolean accepts(AstType fn, List<AstType> args) {
         // Do not count return type
-        if (fn.args.size() - 1 == args.size()) {
-            for (int i = 0; i < args.size(); i++) {
-                if (!fn.args.get(i).equals(args.get(i))) {
-                    return false;
-                }
+        if (fn.args.size() - 1 != args.size()) {
+            return false;
+        }
+        for (int i = 0; i < args.size(); i++) {
+            if (!fn.args.get(i).equals(args.get(i))) {
+                return false;
             }
         }
         return true;

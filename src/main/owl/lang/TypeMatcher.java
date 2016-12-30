@@ -26,7 +26,7 @@ final class TypeMatcher {
     }
 
     static boolean run(AstType type, NameMap<AstAbstractType> abstractTypes, ErrorListener errorListener) {
-        return new TypeMatcher(abstractTypes, errorListener).resolve(type);
+        return type.abstractType != null || new TypeMatcher(abstractTypes, errorListener).resolve(type);
     }
 
     private final NameMap<AstAbstractType> abstractTypes;

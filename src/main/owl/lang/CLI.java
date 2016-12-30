@@ -153,8 +153,8 @@ public final class CLI {
         }
         if (flagAnalyze) {
             NameMap<Entity> variables = new NameMap<>();
-            OverloadNameMap overloads = Runtime.OVERLOAD_MAP.clone();
-            NameMap<AstAbstractType> abstractTypes = Runtime.ABSTRACT_TYPE_MAP.clone();
+            OverloadNameMap overloads = Runtime.FUNCTIONS.clone();
+            NameMap<AstAbstractType> abstractTypes = Runtime.ABSTRACT_TYPES.clone();
             EntityCollector.run(ast, variables, overloads, errorListener);
             if (flagPrintEntityMap) {
                 debugOut.println(variables.toString());
