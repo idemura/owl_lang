@@ -212,19 +212,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Boolean visit(AstValue node) {
-            switch (node.format) {
-                case DEC:
-                case HEX:
-                case OCT:
-                    node.type = AstType.I32;
-                    break;
-                case STRING:
-                    node.type = AstType.STRING;
-                    break;
-                default:
-                    throw new IllegalStateException("unknown literal format " + node.format);
-            }
+        public Boolean visit(AstLiteral node) {
             return accept(node.type);
         }
 

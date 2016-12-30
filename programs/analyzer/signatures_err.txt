@@ -1,10 +1,10 @@
 --- STDOUT
 Module
   Variable x
-    Value DEC 10
+    Literal 10: I32
   
   Variable x
-    Value DEC 11
+    Literal 11: I32
   
   Function f10
     ReturnType: None
@@ -60,15 +60,15 @@ overload -
 overload /
   function ./ type=Fn(I32, I32, I32)
 
-owl.lang.AstArrayType@58ceff1
-owl.lang.AstScalarType@7c30a502
-owl.lang.AstScalarType@49e4cb85
-owl.lang.AstScalarType@2133c8f8
-owl.lang.AstScalarType@43a25848
-owl.lang.AstScalarType@3ac3fd8b
-owl.lang.AstScalarType@5594a1b5
-owl.lang.AstScalarType@6a5fc7f7
-owl.lang.AstScalarType@3b6eb2ec
+Array
+Scalar F32
+Scalar Bool
+Scalar F64
+Scalar Char
+Scalar I64
+Scalar I32
+Scalar String
+Scalar None
 --- STDERR
 programs/analyzer/signatures_err.owl: error: duplicated entity x
 programs/analyzer/signatures_err.owl: error: function argument y missing type

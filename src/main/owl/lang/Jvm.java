@@ -64,7 +64,7 @@ interface JvmVisitor<T> {
     default T visit(JvmPop node) { return visitError(); }
     default T visit(JvmPutLocal node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
-    default T visit(JvmValue node) { return visitError(); }
+    default T visit(JvmLiteral node) { return visitError(); }
     default T visit(JvmVariable node) { return visitError(); }
 }
 
@@ -197,11 +197,11 @@ final class JvmFunction extends JvmNode {
     }
 }
 
-final class JvmValue extends JvmNode {
+final class JvmLiteral extends JvmNode {
     final String text;
     final AstType type;
 
-    JvmValue(String text, AstType type) {
+    JvmLiteral(String text, AstType type) {
         this.text = text;
         this.type = type;
     }

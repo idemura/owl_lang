@@ -157,7 +157,7 @@ final class JavaTranslator implements JvmTranslator {
         }
 
         @Override
-        public Void visit(JvmValue node) {
+        public Void visit(JvmLiteral node) {
             stack.push(new TypedId(node.type, node.text));
             return null;
         }

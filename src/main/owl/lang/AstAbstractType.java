@@ -63,11 +63,29 @@ final class AstScalarType extends AstAbstractType
     List<TypeMatcher.ParamMatcher> getParamMatchers() {
         return ImmutableList.of();
     }
+
+    @Override
+    public String toString() {
+        return "Scalar " + name;
+    }
+
+    @Override
+    public int hashCode() {
+        // Makes hash maps output stable
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        // Only singletons of this class accessible from outside
+        return this == other;
+    }
 }
 
 final class AstArrayType extends AstAbstractType
         implements Named {
     static final AstArrayType INSTANCE = new AstArrayType();
+    static final String NAME = "Array";
 
     private final List<TypeMatcher.ParamMatcher> params = ImmutableList.of(new TypeMatcher.ParamMatcher());
 
@@ -92,5 +110,20 @@ final class AstArrayType extends AstAbstractType
     @Override
     List<TypeMatcher.ParamMatcher> getParamMatchers() {
         return params;
+    }
+
+    @Override
+    public String toString() {
+        return NAME;
+    }
+
+    @Override
+    public int hashCode() {
+        return NAME.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof AstArrayType;
     }
 }

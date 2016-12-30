@@ -36,11 +36,11 @@ interface AstVisitor<T> {
     default T visit(AstFunction node) { return visitError(); }
     default T visit(AstGroup node) { return visitError(); }
     default T visit(AstIf node) { return visitError(); }
+    default T visit(AstLiteral node) { return visitError(); }
     default T visit(AstModule node) { return visitError(); }
     default T visit(AstName node) { return visitError(); }
     default T visit(AstNew node) { return visitError(); }
     default T visit(AstReturn node) { return visitError(); }
     default T visit(AstType node) { return visitError(); }
-    default T visit(AstValue node) { return visitError(); }
     default T visit(AstVariable node) { return visitError(); }
 }

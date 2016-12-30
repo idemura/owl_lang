@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,17 +135,19 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     public AstNode visitExprPrime(ExprPrimeContext ctx) {
         if (ctx.NAME() != null) {
             return new AstName(ctx.NAME().getText());
-        } else if (ctx.DEC() != null) {
-            return new AstValue(ctx.DEC().getText(), AstValue.Format.DEC);
-        } else if (ctx.OCT() != null) {
-            return new AstValue(ctx.OCT().getText(), AstValue.Format.OCT);
-        } else if (ctx.HEX() != null) {
-            return new AstValue(ctx.HEX().getText(), AstValue.Format.HEX);
-        } else if (ctx.STRING() != null) {
-            return new AstValue(ctx.STRING().getText(), AstValue.Format.STRING);
-        } else {
-            return accept(ctx.expression());
         }
+        if (ctx.BOOL() != null) {
+            return new AstLiteral(ctx.BOOL().getText(), AstType.BOOL);
+        }
+        if (ctx.INT() != null) {
+            // TODO: Check range
+            // TODO: Deduce type
+            return new AstLiteral(ctx.INT().getText(), AstType.I32);
+        }
+        if (ctx.STRING() != null) {
+            return new AstLiteral(ctx.STRING().getText(), AstType.STRING);
+        }
+        return accept(ctx.expression());
     }
 
     @Override

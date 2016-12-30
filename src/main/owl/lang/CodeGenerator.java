@@ -168,23 +168,8 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstValue node) {
-            String value;
-            switch (node.format) {
-                case OCT:
-                case HEX:
-                    throw new UnsupportedOperationException("oct/hex literal");
-                case DEC:
-                    value = node.text;
-                    break;
-                case STRING:
-                    value = Util.quote(node.text);
-                    break;
-                default:
-                    throw new IllegalStateException("unknown literal format " + node.format);
-
-            }
-            addInstruction(new JvmValue(value, node.getType()));
+        public JvmNode visit(AstLiteral node) {
+            addInstruction(new JvmLiteral(node.text, node.getType()));
             return null;
         }
 

@@ -19,11 +19,13 @@ final class AstName extends AstNode
     String name;
     Entity entity;
 
-    AstName() {}
-
     AstName(String name) {
-        this();
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Name " + name;
     }
 
     @Override
@@ -34,8 +36,7 @@ final class AstName extends AstNode
     @Override
     public boolean equals(Object other) {
         if (other instanceof AstName) {
-            AstName otherName = (AstName) other;
-            return name.equals(otherName.name);
+            return name.equals(((AstName) other).name);
         }
         return false;
     }

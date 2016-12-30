@@ -51,9 +51,8 @@ block
 // Expression
 exprPrime
 :   NAME
-|   OCT
-|   DEC
-|   HEX
+|   BOOL
+|   INT
 |   STRING
 |   '(' expression ')'
 ;
@@ -175,11 +174,11 @@ type
 :   typeSimple ('=>' typeSimple)*
 ;
 
+
 NAME: [a-zA-Z] [a-zA-Z0-9_]*;
 
-OCT: '0o' [0-7]+;
-DEC: [0-9]+;
-HEX: '0x' [0-9a-fA-F]+;
+BOOL: 'true' | 'false';
+INT: '0o' [0-7]+ | [0-9]+ | '0x' [0-9a-fA-F]+;
 STRING: '"' ~[\t\r\n\f"]* '"';
 
 COMMENT: '#' ~[\n]* -> channel(HIDDEN);

@@ -105,8 +105,8 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstValue node) {
-            leaf(node, node.format + " " + node.text);
+        public Void visit(AstLiteral node) {
+            leaf(node, node.text + ": " + node.getType());
             return null;
         }
 

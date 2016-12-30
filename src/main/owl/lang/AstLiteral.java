@@ -14,22 +14,14 @@
  */
 package owl.lang;
 
-final class AstValue extends AstNode
+final class AstLiteral extends AstNode
         implements Typed {
-    enum Format {
-        DEC,
-        HEX,
-        OCT,
-        STRING,
-    }
-
     String text;
-    Format format;
-    AstType type;  // Deduced
+    AstType type;
 
-    AstValue(String text, Format format) {
+    AstLiteral(String text, AstType type) {
         this.text = text;
-        this.format = format;
+        this.type = type;
     }
 
     @Override

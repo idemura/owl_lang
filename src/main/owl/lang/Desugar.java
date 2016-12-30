@@ -101,7 +101,7 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstValue node) {
+        public AstNode visit(AstLiteral node) {
             return node;
         }
 
