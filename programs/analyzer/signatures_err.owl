@@ -1,16 +1,15 @@
 module test;
 
-fn(x, y: I32) {}
-
-# No y type
+# Missing argument type
 fn f10(x: I32, y) {}
 
 # Duplicate argument
 fn f11(x: I32, y: I32, x: I32) {}
 
-# Duplicate entry
+# Duplicate entry, but not overload
+fn f10(x: I32) {}
 fn f10(x: I32) {}
 
 # Duplicate vars
-x = 10;
-x = 11;
+var x = 10;
+var x = 11;
