@@ -37,7 +37,7 @@ variable
 ;
 
 function
-:   'fn' NAME? ('(' (argument (',' argument)*)? ')')? (':' type)? block
+:   ('fn' | 'function') NAME? ('(' (argument (',' argument)*)? ')')? (':' type)? block
 ;
 
 argument
