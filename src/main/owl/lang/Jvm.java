@@ -56,6 +56,7 @@ interface JvmVisitor<T> {
     default T visit(JvmApply node) { return visitError(); }
     default T visit(JvmBlock node) { return visitError(); }
     default T visit(JvmBinary node) { return visitError(); }
+    default T visit(JvmCast node) { return visitError(); }
     default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
     default T visit(JvmGetLocal node) { return visitError(); }
@@ -317,6 +318,21 @@ final class JvmComment extends JvmNode {
 
 final class JvmPop extends JvmNode {
     JvmPop() {}
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmCast extends JvmNode {
+    final AstType srcType;
+    final AstType dstType;
+
+    JvmCast(AstType srcType, AstType dstType) {
+        this.srcType = srcType;
+        this.dstType = dstType;
+    }
 
     @Override
     Object accept(JvmVisitor v) {

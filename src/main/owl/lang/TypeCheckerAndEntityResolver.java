@@ -112,7 +112,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.getExpr())) {
                 return false;
             }
-            node.setType(((Typed) node.getExpr()).getType());
+            node.setType(TypeUtil.getType(node.getExpr()));
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
@@ -194,8 +194,8 @@ final class TypeCheckerAndEntityResolver {
                 return false;
             }
 
-            AstType lType = ((Typed) node.l).getType();
-            AstType rType = ((Typed) node.r).getType();
+            AstType lType = TypeUtil.getType(node.l);
+            AstType rType = TypeUtil.getType(node.r);
             if (!TypeUtil.assignable(lType, rType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
@@ -213,7 +213,7 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstLiteral node) {
-            return accept(node.type);
+             return accept(node.type);
         }
 
         @Override
@@ -235,7 +235,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.expr)) {
                 return false;
             }
-            if (!TypeUtil.assignable(fnStack.top().getReturnType(), ((Typed) node.expr).getType())) {
+            if (!TypeUtil.assignable(fnStack.top().getReturnType(), TypeUtil.getType(node.expr))) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "return type not compatible");
                 return false;
@@ -252,7 +252,16 @@ final class TypeCheckerAndEntityResolver {
         public Boolean visit(AstCast node) {
             boolean b1 = accept(node.expr);
             boolean b2 = accept(node.type);
-            return b1 && b2;
+            if (!(b1 && b2)) {
+                return false;
+            }
+            AstType exprType = TypeUtil.getType(node.expr);
+            if (!TypeUtil.castable(exprType, node.type)) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "no cast from " + exprType + " to " + node.type);
+                return false;
+            }
+            return true;
         }
 
         @Override

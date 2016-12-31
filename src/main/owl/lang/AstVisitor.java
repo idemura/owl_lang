@@ -20,11 +20,7 @@ interface AstVisitor<T> {
     }
 
     default T accept(AstNode node) {
-        if (node != null) {
-            return (T) node.accept(this);
-        } else {
-            return null;
-        }
+        return (T) node.accept(this);
     }
 
     default T visit(AstApply node) { return visitError(); }

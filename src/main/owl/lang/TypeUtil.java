@@ -16,8 +16,6 @@ package owl.lang;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
-
 final class TypeUtil {
     private TypeUtil() {}
 
@@ -38,13 +36,6 @@ final class TypeUtil {
         return true;
     }
 
-    static AstType makeFnType(AstType... typeArgs) {
-        if (typeArgs.length < 1) {
-            throw new IllegalArgumentException("makeFnType args 0 length");
-        }
-        return AstType.functionOf(asList(typeArgs));
-    }
-
     static boolean accepts(AstType fn, List<AstType> args) {
         // Do not count return type
         if (fn.args.size() - 1 != args.size()) {
@@ -60,5 +51,23 @@ final class TypeUtil {
 
     static boolean assignable(AstType dst, AstType src) {
         return dst.equals(src);
+    }
+
+    static boolean castable(AstType src, AstType dst) {
+        if (src.equals(dst)) {
+            return true;
+        }
+        if (src.equals(AstType.I32) && dst.equals(AstType.I64)) {
+            return true;
+        }
+        if (src.equals(AstType.I64) && dst.equals(AstType.I32)) {
+            return true;
+        }
+        // TODO: Bool to integers
+        return false;
+    }
+
+    static AstType getType(AstNode node) {
+        return ((Typed) node).getType();
     }
 }

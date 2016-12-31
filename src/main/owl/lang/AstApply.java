@@ -46,7 +46,7 @@ final class AstApply extends AstNode
     List<AstType> getArgTypes() {
         List<AstType> types = new ArrayList<>();
         for (AstNode a  : args) {
-            AstType t = ((Typed) a).getType();
+            AstType t = TypeUtil.getType(a);
             checkState(t != null);
             types.add(t);
         }

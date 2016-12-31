@@ -11,15 +11,15 @@ public final class call_overload
     return 1 ;
   }
   static int foo (
-      int x
-      , int y
+      int x ,
+      int y
   )
   {
     return 2 ;
   }
   static int foo (
-      int x
-      , String y
+      int x ,
+      String y
   )
   {
     return 3 ;
@@ -31,8 +31,8 @@ public final class call_overload
     return 4 ;
   }
   static int foo (
-      String x
-      , int y
+      String x ,
+      int y
   )
   {
     return 5 ;

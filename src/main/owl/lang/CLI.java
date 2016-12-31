@@ -147,7 +147,7 @@ public final class CLI {
         }
     }
 
-    private void compileAst(Ast ast, CountErrorListener errorListener, File outDir, PrintStream debugOut) {
+    private boolean compileAst(Ast ast, CountErrorListener errorListener, File outDir, PrintStream debugOut) {
         if (flagPrintAst) {
             DebugPrint.printAst(ast,debugOut);
         }
@@ -155,7 +155,9 @@ public final class CLI {
             NameMap<Entity> variables = new NameMap<>();
             OverloadNameMap overloads = Runtime.FUNCTIONS.clone();
             NameMap<AstAbstractType> abstractTypes = Runtime.ABSTRACT_TYPES.clone();
-            EntityCollector.run(ast, variables, overloads, errorListener);
+            if (!EntityCollector.run(ast, variables, overloads, errorListener)) {
+                return false;
+            }
             if (flagPrintEntityMap) {
                 debugOut.println(variables.toString());
                 debugOut.println(overloads.toString());
@@ -166,16 +168,22 @@ public final class CLI {
                 DebugPrint.printAst(ast,debugOut);
             }
             TypeCheckerAndEntityResolver.run(ast, abstractTypes, variables, overloads, errorListener);
-            if (errorListener.getErrorCount() == 0 && flagGenerate) {
+            if (errorListener.getErrorCount() != 0) {
+                return false;
+            }
+            if (flagGenerate) {
                 Jvm jvm = CodeGenerator.run(ast, errorListener);
-                if (errorListener.getErrorCount() == 0) {
-                    try {
-                        new JavaTranslator().translate(jvm, outDir, flagEcho ? System.out : null);
-                    } catch (OwlException e) {
-                        errorListener.error(e);
-                    }
+                if (errorListener.getErrorCount() != 0) {
+                    return false;
+                }
+                try {
+                    new JavaTranslator().translate(jvm, outDir, flagEcho ? System.out : null);
+                } catch (OwlException e) {
+                    errorListener.error(e);
+                    return false;
                 }
             }
         }
+        return true;
     }
 }

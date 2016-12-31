@@ -33,57 +33,8 @@ Module
     Block
     ;;
   
-variable test.x <expr>
-overload println
-  function .println type=Fn(Bool, None)
-  function .println type=Fn(Char, None)
-  function .println type=Fn(I32, None)
-  function .println type=Fn(I64, None)
-  function .println type=Fn(F32, None)
-  function .println type=Fn(F64, None)
-  function .println type=Fn(String, None)
-
-overload f10
-  function f10 type=Fn(I32, None)
-
-overload *
-  function .* type=Fn(I32, I32, I32)
-
-overload +
-  function .+ type=Fn(String, String, String)
-  function .+ type=Fn(I32, I32, I32)
-  function .+ type=Fn(I64, I64, I64)
-
-overload -
-  function .- type=Fn(I32, I32, I32)
-
-overload /
-  function ./ type=Fn(I32, I32, I32)
-
-Array
-Scalar F32
-Scalar Bool
-Scalar F64
-Scalar Char
-Scalar I64
-Scalar I32
-Scalar String
-Scalar None
 --- STDERR
 programs/analyzer/signatures_err.owl: error: duplicated entity x
 programs/analyzer/signatures_err.owl: error: function argument y missing type
 programs/analyzer/signatures_err.owl: error: function argument x duplicated
 programs/analyzer/signatures_err.owl: error: overload with same signature f10
-Exception in thread "main" java.lang.NullPointerException
-	at owl.lang.TypeCheckerAndEntityResolver$Visitor.visit(TypeCheckerAndEntityResolver.java:91)
-	at owl.lang.TypeCheckerAndEntityResolver$Visitor.visit(TypeCheckerAndEntityResolver.java:31)
-	at owl.lang.AstFunction.accept(AstFunction.java:46)
-	at owl.lang.AstVisitor.accept(AstVisitor.java:24)
-	at owl.lang.TypeCheckerAndEntityResolver$Visitor.visit(TypeCheckerAndEntityResolver.java:78)
-	at owl.lang.TypeCheckerAndEntityResolver$Visitor.visit(TypeCheckerAndEntityResolver.java:31)
-	at owl.lang.AstModule.accept(AstModule.java:28)
-	at owl.lang.AstVisitor.accept(AstVisitor.java:24)
-	at owl.lang.TypeCheckerAndEntityResolver.run(TypeCheckerAndEntityResolver.java:28)
-	at owl.lang.CLI.compileAst(CLI.java:168)
-	at owl.lang.CLI.run(CLI.java:101)
-	at owl.lang.CLI.main(CLI.java:76)

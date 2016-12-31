@@ -5,8 +5,8 @@ import owl.runtime.RT ;
 public final class locals1
 {
   static int foo (
-      int x
-      , int y
+      int x ,
+      int y
   )
   {
     int _t_a = x + y ;

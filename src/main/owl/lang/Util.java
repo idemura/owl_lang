@@ -15,7 +15,6 @@
 package owl.lang;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,91 +25,28 @@ import java.util.jar.Manifest;
 
 import static java.util.stream.Collectors.toList;
 
-final class IndentPrinter {
-    private static final String TAB = "  ";
-    private final List<PrintStream> out = new ArrayList<>();
-    private int tab = 0;
-    private boolean newLine = true;
-
-    IndentPrinter(PrintStream... out) {
-        for (PrintStream s : out) {
-            if (s != null) {
-                this.out.add(s);
-            }
-        }
-    }
-
-    void indent() {
-        tab++;
-    }
-
-    void unindent() {
-        tab--;
-    }
-
-    IndentPrinter print(Object... objs) {
-        return doPrint(objs, false);
-    }
-
-    IndentPrinter println(Object... objs) {
-        return doPrint(objs, true);
-    }
-
-    private void printLineIndent() {
-        if (newLine) {
-            for (int i = 0; i < tab; i++) {
-                printToStream(TAB);
-            }
-        }
-    }
-
-    private IndentPrinter doPrint(Object[] objs, boolean ln) {
-        printLineIndent();
-        boolean first = true;
-        for (Object o : objs) {
-            String ostr = o.toString();
-            if (ostr.isEmpty()) {
-                continue;
-            }
-            if (!first) {
-                printToStream(" ");
-            }
-            printToStream(o.toString());
-            first = false;
-        }
-        if (ln) {
-            printToStream("\n");
-        }
-        newLine = ln;
-        return this;
-    }
-
-    private void printToStream(String s) {
-        for (PrintStream ps : out) {
-            ps.print(s);
-        }
-    }
-}
-
 final class Util {
     private Util() {}
 
     private static String LANGUAGE_VERSION;
     private static String COMPILER_NAME;
 
-    static boolean startsWithLetter(String s) {
-        char c = Character.toLowerCase(s.charAt(0));
+    static boolean isIdFirstChar(char c) {
+        c = Character.toLowerCase(c);
         return 'a' <= c && c <= 'z';
     }
 
+    static boolean isIdChar(char c) {
+        c = Character.toLowerCase(c);
+        return 'a' <= c && c <= 'z' || '0' <= c && c <= '9' || c == '_';
+    }
+
     static boolean isName(String s) {
-        char c = Character.toLowerCase(s.charAt(0));
-        if (!('a' <= c && c <= 'z')) {
+        if (!isIdFirstChar(s.charAt(0)) || s.charAt(0) == '_') {
             return false;
         }
         for (int i = 1; i < s.length(); i++) {
-            c = Character.toLowerCase(s.charAt(0));
-            if ("abcdefghijklmnopqrstuvwxyz0123456789_".indexOf(c) < 0) {
+            if (!isIdChar(s.charAt(i))) {
                 return false;
             }
         }
@@ -159,6 +95,10 @@ final class Util {
 
     static boolean isEmpty(String s) {
         return s != null && s.isEmpty();
+    }
+
+    static <T> T last(List<T> list) {
+        return list.get(list.size() - 1);
     }
 
     private static String getManifestAttribute(String name) {

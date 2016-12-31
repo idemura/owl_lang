@@ -27,4 +27,5 @@ abstract class AstNode {
     int getCharPosition() { return charPosition; }
 
     abstract Object accept(AstVisitor visitor);
+
 }

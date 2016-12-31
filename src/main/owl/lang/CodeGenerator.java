@@ -117,7 +117,7 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstApply node) {
             AstName fnName = (AstName) node.fn;
-            if (!Util.startsWithLetter(fnName.name)) {
+            if (!Util.isIdFirstChar(fnName.name.charAt(0))) {
                 switch (fnName.name) {
                     case "+":
                     case "-":
@@ -151,7 +151,11 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstCast node) {
-            throw new UnsupportedOperationException("code generator");
+            accept(node.expr);
+            if (!TypeUtil.getType(node.expr).equals(node.type)) {
+                addInstruction(new JvmCast(TypeUtil.getType(node), node.getType()));
+            }
+            return null;
         }
 
         @Override

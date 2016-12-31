@@ -129,15 +129,16 @@ final class JavaTranslator implements JvmTranslator {
                     javaMemoryModifier(node.memory),
                     node.function.getReturnType().javaType(),
                     node.function.getName() , "(");
-            printer.indent();
-            printer.indent();
-            boolean first = true;
-            for (AstVariable a : node.function.getArgs()) {
-                printer.println(first? "": ",", a.getType().javaType(), a.getName());
-                first = false;
+            if (!node.function.getArgs().isEmpty()) {
+                printer.indent();
+                printer.indent();
+                for (AstVariable a : node.function.getArgs()) {
+                    printer.println(a.getType().javaType(), a.getName(),
+                            a == Util.last(node.function.getArgs())? "": ",");
+                }
+                printer.unindent();
+                printer.unindent();
             }
-            printer.unindent();
-            printer.unindent();
             printer.println(")");
             accept(node.block);
             fnStack.pop();
@@ -181,7 +182,7 @@ final class JavaTranslator implements JvmTranslator {
                 printer.print(
                         node.returnType.javaType(),
                         this.stack.top().id,
-                        "= ");  // Extra space before expression
+                        "=");
             }
             printer.println(
                     (node.object == null? "": node.object + ".") + node.method,
@@ -214,8 +215,10 @@ final class JavaTranslator implements JvmTranslator {
             printer.indent();
             if (fnStack.top().block == node) {
                 for (Entity ent : fnStack.top().function.getVars()) {
-                    printer.println(ent.getType().javaType(), ent.getUniqueName(), ";",
-                            ent.getName().equals(ent.getUniqueName())? "":  "// " + ent.getName());
+                    printer.println(ent.getType().javaType(), ent.getUniqueName(), ";");
+                    if (!ent.getName().equals(ent.getUniqueName())) {
+                        printer.println("// " + ent.getUniqueName() + " is " + ent.getName());
+                    }
                 }
             }
             for (JvmNode s : node.getInstructions()) {
@@ -240,6 +243,15 @@ final class JavaTranslator implements JvmTranslator {
 
         @Override
         public Void visit(JvmPop node) {
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmCast node) {
+            String l = stack.pop().id;
+            stack.push(new TypedId(node.dstType, gen.newName()));
+            String dstJavaType = node.dstType.javaType();
+            printer.println(dstJavaType, stack.top().id, "=", "(" + dstJavaType + ")", l, ";");
             return null;
         }
     }

@@ -1,0 +1,10 @@
+module main;
+
+fn main(argv: String[]) {
+    println("cat");
+    var s = "cat and dog";
+    println(s);
+    var t = ", fox";
+    println(s + t);
+    println("fox, " + s);
+}
