@@ -20,7 +20,15 @@ import java.util.List;
 final class Runtime {
     private Runtime() {}
 
-    static final NameMap<AstAbstractType> ABSTRACT_TYPES = new NameMap<>();
+    static NameMap<AstAbstractType> getAbstractTypes() {
+        return ABSTRACT_TYPES.clone();
+    }
+
+    static OverloadNameMap getFunctions() {
+        return FUNCTIONS.clone();
+    }
+
+    private static final NameMap<AstAbstractType> ABSTRACT_TYPES = new NameMap<>();
     static {
         ABSTRACT_TYPES.put(AstScalarType.BOOL.getName(), AstScalarType.BOOL);
         ABSTRACT_TYPES.put(AstScalarType.CHAR.getName(), AstScalarType.CHAR);
@@ -33,7 +41,7 @@ final class Runtime {
         ABSTRACT_TYPES.put(AstArrayType.INSTANCE.getName(), AstArrayType.INSTANCE);
     }
 
-    static final OverloadNameMap FUNCTIONS = new OverloadNameMap();
+    private static final OverloadNameMap FUNCTIONS = new OverloadNameMap();
     static {
         FUNCTIONS.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
         FUNCTIONS.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));

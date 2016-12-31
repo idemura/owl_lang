@@ -1,1 +1,1 @@
---echo --print_ast --print_entity_map --generate false --generate_version false
+--echo --print_ast --print_entity_map --stop_phase 2 --gen_version false

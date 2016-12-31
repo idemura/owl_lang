@@ -56,10 +56,8 @@ public final class CLI {
     @Parameter(names = "--help", help = true)
     private boolean flagHelp = false;
 
-    @Parameter(names = {"--analyze"}, arity = 1, description = "Analyze semantics")
-    private boolean flagAnalyze = true;
-    @Parameter(names = {"--generate"}, arity = 1, description = "Generate code")
-    private boolean flagGenerate = true;
+    @Parameter(names = {"--stop_phase"}, description = "Stop after phase #")
+    private int flagStopPhase = 0;
     @Parameter(names = {"--out"}, description = "Output directory")
     private String flagOut = ".owl_out";
 
@@ -68,11 +66,19 @@ public final class CLI {
     @Parameter(names = {"--print_desugar_ast"}, description = "Print desugared AST")
     private boolean flagPrintDesugarAst = false;
     @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
-    private boolean flagPrintEntityMap = false;
+    private boolean flagPrintNameMap = false;
     @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
     private boolean flagEcho = false;
-    @Parameter(names = {"--generate_version"}, arity = 1, description = "Output compiler version")
-    private boolean flagGenerateVersion = true;
+    @Parameter(names = {"--gen_version"}, arity = 1, description = "Output compiler version")
+    private boolean flagGenVersion = false;
+    @Parameter(names = {"--time"}, description = "Compilation time")
+    private boolean flagTime = false;
+
+    private long timeParse = 0;
+    private long timeConvertAst = 0;
+    private long timeAnalysis = 0;
+    private long timeCodeGen = 0;
+    private long timeJavaCodeGen = 0;
 
     public static void main(String[] args) {
         System.exit(new CLI(args).run()? 0: 1);
@@ -112,6 +118,16 @@ public final class CLI {
                 succeeded++;
             }
             total++;
+            if (flagTime) {
+                System.out.println("Times compiling " + fileName + ":");
+                System.out.println("  parse: " + formatPerfTime(timeParse));
+                System.out.println("  convert ast: " + formatPerfTime(timeConvertAst));
+                System.out.println("  analysis: " + formatPerfTime(timeAnalysis));
+                System.out.println("  code gen: " + formatPerfTime(timeCodeGen));
+                System.out.println("  java code gen: " + formatPerfTime(timeJavaCodeGen));
+                System.out.println("  total: " +
+                        formatPerfTime(timeParse + timeConvertAst + timeAnalysis + timeCodeGen + timeJavaCodeGen));
+            }
         }
         if (total == 0) {
             System.err.println("no input files");
@@ -120,8 +136,9 @@ public final class CLI {
         return total == succeeded;
     }
 
-    private static Ast parse(InputStream in, String fileName, ErrorListener errorListener)
+    private Ast parse(InputStream in, String fileName, ErrorListener errorListener)
             throws OwlException {
+        long start = System.nanoTime();
         CountErrorListener errorCounter = new CountErrorListener(errorListener);
         ANTLRErrorListener antlrErrorListener = new OwlANTLRErrorListener(errorCounter);
         Lexer lexer;
@@ -143,7 +160,11 @@ public final class CLI {
             if (errorCounter.getErrorCount() > 0) {
                 throw new OwlException("parse error");
             }
-            return AstBuilder.run(context, fileName);
+            timeParse = System.nanoTime() - start;
+            start = System.nanoTime();
+            Ast ast = AstBuilder.run(context, fileName);
+            timeConvertAst = System.nanoTime() - start;
+            return ast;
         } catch (RecognitionException e) {
             throw new OwlException(e);
         }
@@ -153,39 +174,54 @@ public final class CLI {
         if (flagPrintAst) {
             DebugPrint.printAst(ast,debugOut);
         }
-        if (flagAnalyze) {
-            NameMap<Entity> variables = new NameMap<>();
-            OverloadNameMap overloads = Runtime.FUNCTIONS.clone();
-            NameMap<AstAbstractType> abstractTypes = Runtime.ABSTRACT_TYPES.clone();
-            if (!EntityCollector.run(ast, variables, overloads, errorListener)) {
-                return false;
-            }
-            if (flagPrintEntityMap) {
-                debugOut.println(variables.toString());
-                debugOut.println(overloads.toString());
-                debugOut.println(abstractTypes.toString());
-            }
-            Desugar.run(ast);
-            if (flagPrintDesugarAst) {
-                DebugPrint.printAst(ast,debugOut);
-            }
-            TypeCheckerAndEntityResolver.run(ast, abstractTypes, variables, overloads, errorListener);
-            if (errorListener.getErrorCount() != 0) {
-                return false;
-            }
-            if (flagGenerate) {
-                Jvm jvm = CodeGenerator.run(ast, errorListener);
-                if (errorListener.getErrorCount() != 0) {
-                    return false;
-                }
-                try {
-                    new JavaTranslator(flagGenerateVersion).translate(jvm, outDir, flagEcho ? System.out : null);
-                } catch (OwlException e) {
-                    errorListener.error(e);
-                    return false;
-                }
-            }
+        if (flagStopPhase == 1) {
+            return true;
         }
+        long start = System.nanoTime();
+        NameMap<AstAbstractType> abstractTypes = Runtime.getAbstractTypes();
+        OverloadNameMap overloads = Runtime.getFunctions();
+        NameMap<Entity> variables = new NameMap<>();
+        if (!EntityCollector.run(ast, variables, overloads, errorListener)) {
+            return false;
+        }
+        if (flagPrintNameMap) {
+            debugOut.println(variables.toString());
+            debugOut.println(overloads.toString());
+            debugOut.println(abstractTypes.toString());
+        }
+        Desugar.run(ast);
+        if (flagPrintDesugarAst) {
+            DebugPrint.printAst(ast,debugOut);
+        }
+        TypeCheckerAndEntityResolver.run(ast, abstractTypes, variables, overloads, errorListener);
+        if (errorListener.getErrorCount() != 0) {
+            return false;
+        }
+        timeAnalysis = System.nanoTime() - start;
+        if (flagStopPhase == 2) {
+            return true;
+        }
+        start = System.nanoTime();
+        Jvm jvm = CodeGenerator.run(ast, errorListener);
+        if (errorListener.getErrorCount() != 0) {
+            return false;
+        }
+        timeCodeGen = System.nanoTime() - start;
+        if (flagStopPhase == 3) {
+            return true;
+        }
+        start = System.nanoTime();
+        try {
+            new JavaTranslator(flagGenVersion).translate(jvm, outDir, flagEcho ? System.out : null);
+        } catch (OwlException e) {
+            errorListener.error(e);
+            return false;
+        }
+        timeJavaCodeGen = System.nanoTime() - start;
         return true;
+    }
+
+    private static String formatPerfTime(long nano) {
+        return String.format("%.3f", nano / 1e9);
     }
 }
