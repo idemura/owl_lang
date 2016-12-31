@@ -46,6 +46,12 @@ final class Runtime {
         FUNCTIONS.put(makeFn("/", AstType.I64, AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("%", AstType.I32, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("%", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("<<", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("<<", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn(">>", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn(">>", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn(">>>", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn(">>>", AstType.I64, AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.BOOL));
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.CHAR));
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.I32));

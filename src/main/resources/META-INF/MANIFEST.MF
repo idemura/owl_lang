@@ -3,6 +3,6 @@ Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Program-Title: Igor's Owl Language Compiler
 Owl-Compiler-Vendor: Igor Demura
 Owl-Language-Version: 1
-Owl-Compiler-Version: 0.103 (alpha)
+Owl-Compiler-Version: 0.104 (alpha)
 Owl-Compiler-Name: Igor's Owl Compiler
 Main-Class: owl.lang.CLI

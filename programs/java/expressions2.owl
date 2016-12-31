@@ -1,0 +1,13 @@
+module main;
+
+fn main(argv: String[]) {
+    println(16 >>> 1);
+    println(16 >> 1);
+    println(16 << 1);
+    println(15 + 1 >>> 2 - 1);
+    println(14 + 2 >> 2 - 1);
+    println(13 + 3 << 2 - 1);
+    println((15 + 1 >>> 2) - 1);
+    println((14 + 2 >> 2) - 1);
+    println((13 + 3 << 2) - 1);
+}
