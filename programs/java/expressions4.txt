@@ -1,0 +1,34 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class expressions4
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    int _t_a = 3 ^ 5 ;
+    RT.println ( _t_a );
+    int _t_b = 3 ^ 5 ;
+    int _t_c = _t_b ^ 1 ;
+    RT.println ( _t_c );
+    int _t_d = 3 | 5 ;
+    RT.println ( _t_d );
+    int _t_e = 3 | 5 ;
+    int _t_f = _t_e | 1 ;
+    RT.println ( _t_f );
+    int _t_g = 3 ^ 4 ;
+    int _t_h = _t_g | 1 ;
+    RT.println ( _t_h );
+    int _t_i = 4 | 1 ;
+    int _t_j = 3 ^ _t_i ;
+    RT.println ( _t_j );
+    int _t_k = 4 ^ 1 ;
+    int _t_l = 3 | _t_k ;
+    RT.println ( _t_l );
+    int _t_m = 3 | 4 ;
+    int _t_n = _t_m ^ 1 ;
+    RT.println ( _t_n );
+  }
+}
+--- STDERR

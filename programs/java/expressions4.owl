@@ -1,0 +1,12 @@
+module main;
+
+fn main(argv: String[]) {
+    println(3 ^ 5);
+    println(3 ^ 5 ^ 1);
+    println(3 | 5);
+    println(3 | 5 | 1);
+    println(3 ^ 4 | 1);
+    println(3 ^ (4 | 1));
+    println(3 | 4 ^ 1);
+    println((3 | 4) ^ 1);
+}
