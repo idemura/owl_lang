@@ -1,7 +1,4 @@
 #! /bin/bash
 
-OWL_OUT=.owl_out
-CLASS_PATH=`find buck-out/gen -name owl_runtime.jar`:$OWL_OUT
-FILE=`python -c "print '$1'.replace('.', '/')"`
-
-javac -d $OWL_OUT -cp $CLASS_PATH "$OWL_OUT/$FILE.java" && java -cp $CLASS_PATH $1
+CLASS_PATH=`find buck-out/gen -name owl_runtime.jar`:.owl_out
+javac -d .owl_out -cp $CLASS_PATH ".owl_out/${1/.//}.java" && java -cp $CLASS_PATH $1
