@@ -11,8 +11,12 @@ Go to `lib` and run `python download_libs.py lib_list`, then from the project ro
 ./antlr && ./build
 ```
 
-## Compile
+## Compile and Run
 After build, compile with (can use sample in `test.owl`):
 ```
 ./owl test.owl
+```
+To run compiled Owl program:
+```
+./java_owl <module>.test
 ```
