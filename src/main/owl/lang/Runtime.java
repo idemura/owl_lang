@@ -43,12 +43,15 @@ final class Runtime {
 
     private static final OverloadNameMap FUNCTIONS = new OverloadNameMap();
     static {
+        // Unary
         FUNCTIONS.put(makeFn("+", AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("+", AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("-", AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("-", AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("~", AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("~", AstType.I64, AstType.I64));
+
+        // Binary arithmetic
         FUNCTIONS.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
         FUNCTIONS.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("+", AstType.I64, AstType.I64, AstType.I64));
@@ -72,6 +75,29 @@ final class Runtime {
         FUNCTIONS.put(makeFn("^", AstType.I64, AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("|", AstType.I32, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("|", AstType.I64, AstType.I64, AstType.I64));
+
+        // Comparisons
+        FUNCTIONS.put(makeFn("<", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("<", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("<", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn("<=", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("<=", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("<=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn(">", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn(">", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn(">", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn(">=", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn(">=", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn(">=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn("==", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("==", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("==", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn("!=", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("!=", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("!=", AstType.BOOL, AstType.STRING, AstType.STRING));
+
+        FUNCTIONS.put(makeFn("compare", AstType.I32, AstType.STRING, AstType.STRING));
+
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.BOOL));
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.CHAR));
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.I32));

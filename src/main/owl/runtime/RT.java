@@ -23,19 +23,22 @@ public class RT {
     public static void println(char x) {
         System.out.println(x);
     }
+    public static void println(double x) {
+        System.out.println(x);
+    }
+    public static void println(float x) {
+        System.out.println(x);
+    }
     public static void println(int x) {
         System.out.println(x);
     }
     public static void println(long x) {
         System.out.println(x);
     }
-    public static void println(float x) {
-        System.out.println(x);
-    }
-    public static void println(double x) {
-        System.out.println(x);
-    }
     public static void println(String x) {
         System.out.println(x);
+    }
+    public static int compare(String a, String b) {
+        return a.compareTo(b);
     }
 }

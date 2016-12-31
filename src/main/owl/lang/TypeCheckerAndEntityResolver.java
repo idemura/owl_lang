@@ -170,10 +170,13 @@ final class TypeCheckerAndEntityResolver {
                     String s;
                     if (candidates == null) {
                         s = "function " + fn.name + " not found";
-                    } else if (candidates.size() == 0) {
-                        s = "function " + fn.name + " no candidates";
                     } else {
-                        s = "ambiguous overload " + fn.name + "; candidates:\n" + Util.join("\n", candidates);
+                        s = "call " + fn.name + " with " + Util.join(", ", node.getArgTypes());
+                        if (candidates.size() == 0) {
+                            s += ": overloads not found";
+                        } else {
+                            s += ": ambiguous:\n" + Util.join("\n", candidates);
+                        }
                     }
                     errorListener.error(node.getLine(), node.getCharPosition(), s);
                     return false;

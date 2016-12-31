@@ -1,0 +1,41 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class expressions6
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    String _l_a ;
+    // _l_a is a
+    String _l_b ;
+    // _l_b is b1
+    String _l_c ;
+    // _l_c is b2
+    _l_a = "ac" ;
+    _l_b = "ab" ;
+    _l_c = "ab" ;
+    int _t_a = RT.compare ( _l_a, _l_b );
+    boolean _t_b = _t_a < 0 ;
+    RT.println ( _t_b );
+    int _t_c = RT.compare ( _l_a, _l_c );
+    boolean _t_d = _t_c > 0 ;
+    RT.println ( _t_d );
+    int _t_e = RT.compare ( _l_b, _l_c );
+    boolean _t_f = _t_e == 0 ;
+    RT.println ( _t_f );
+    int _t_g = 2 + 3 ;
+    boolean _t_h = _t_g > 4 ;
+    RT.println ( _t_h );
+    int _t_i = 2 * 3 ;
+    boolean _t_j = _t_i < 7 ;
+    RT.println ( _t_j );
+    int _t_k = - 1 ;
+    boolean _t_l = 0 == _t_k ;
+    RT.println ( _t_l );
+    boolean _t_m = 0 != 10 ;
+    RT.println ( _t_m );
+  }
+}
+--- STDERR

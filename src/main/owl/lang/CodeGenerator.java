@@ -151,6 +151,24 @@ final class CodeGenerator {
                                 addInstruction(new JvmOperator(2, fnName.name, node.getType()));
                                 break;
 
+                            case "<":
+                            case "<=":
+                            case ">":
+                            case ">=":
+                            case "==":
+                            case "!=": {
+                                accept(node.args.get(0));
+                                accept(node.args.get(1));
+                                AstType tl = TypeUtil.getType(node.args.get(0));
+                                AstType tr = TypeUtil.getType(node.args.get(1));
+                                if (tl.equals(AstType.STRING) && tr.equals(AstType.STRING)) {
+                                    addInstruction(new JvmApply("RT", "compare", 2, AstType.I32));
+                                    addInstruction(new JvmLiteral("0", AstType.I32));
+                                }
+                                addInstruction(new JvmOperator(2, fnName.name, node.getType()));
+                                break;
+                            }
+
                             default:
                                 throw new IllegalStateException("unknown operator " + fnName.name);
                         }
