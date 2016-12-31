@@ -203,9 +203,12 @@ final class JavaTranslator implements JvmTranslator {
         }
 
         @Override
-        public Void visit(JvmBinary node) {
+        public Void visit(JvmOperator node) {
             String r = stack.pop().id;
-            String l = stack.pop().id;
+            String l = null;
+            if (node.arity == 2) {
+                l = stack.pop().id;
+            }
             stack.push(new TypedId(node.returnType, gen.newName()));
             printer.println(node.returnType.javaType(), stack.top().id, "=", l, node.op, r, ";");
             return null;

@@ -56,18 +56,21 @@ final class IndentPrinter {
         }
     }
 
-    private IndentPrinter doPrint(Object[] objs, boolean ln) {
+    private IndentPrinter doPrint(Object[] objects, boolean ln) {
         printLineIndent();
         boolean first = true;
-        for (Object o : objs) {
-            String ostr = o.toString();
-            if (ostr.isEmpty()) {
+        for (Object o : objects) {
+            if (o == null) {
+                continue;
+            }
+            String s = o.toString();
+            if (s.isEmpty()) {
                 continue;
             }
             if (!first) {
                 printToStream(" ");
             }
-            printToStream(o.toString());
+            printToStream(s);
             first = false;
         }
         newLine = ln;

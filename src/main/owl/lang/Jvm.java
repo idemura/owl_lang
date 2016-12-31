@@ -55,17 +55,17 @@ interface JvmVisitor<T> {
 
     default T visit(JvmApply node) { return visitError(); }
     default T visit(JvmBlock node) { return visitError(); }
-    default T visit(JvmBinary node) { return visitError(); }
     default T visit(JvmCast node) { return visitError(); }
     default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
     default T visit(JvmGetLocal node) { return visitError(); }
     default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmLiteral node) { return visitError(); }
+    default T visit(JvmOperator node) { return visitError(); }
     default T visit(JvmPackage node) { return visitError(); }
     default T visit(JvmPop node) { return visitError(); }
     default T visit(JvmPutLocal node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
-    default T visit(JvmLiteral node) { return visitError(); }
     default T visit(JvmVariable node) { return visitError(); }
 }
 
@@ -236,11 +236,14 @@ final class JvmApply extends JvmNode {
     }
 }
 
-final class JvmBinary extends JvmNode {
+final class JvmOperator extends JvmNode {
+    final int arity;
     final String op;
     final AstType returnType;
 
-    JvmBinary(String op, AstType returnType) {
+    JvmOperator(int arity, String op, AstType returnType) {
+        checkArgument(1 <= arity && arity <= 2, "arity");
+        this.arity = arity;
         this.op = op;
         this.returnType = returnType;
     }

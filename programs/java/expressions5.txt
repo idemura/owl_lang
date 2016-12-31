@@ -1,0 +1,27 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class expressions5
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    int _t_a = - 1 ;
+    RT.println ( _t_a );
+    int _t_b = ~ 1 ;
+    RT.println ( _t_b );
+    int _t_c = + 1 ;
+    RT.println ( _t_c );
+    int _t_d = - 1 ;
+    int _t_e = _t_d + 1 ;
+    RT.println ( _t_e );
+    int _t_f = ~ 1 ;
+    int _t_g = _t_f + 2 ;
+    RT.println ( _t_g );
+    int _t_h = + 1 ;
+    int _t_i = _t_h - 1 ;
+    RT.println ( _t_i );
+  }
+}
+--- STDERR

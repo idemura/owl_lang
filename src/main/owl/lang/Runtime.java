@@ -43,6 +43,12 @@ final class Runtime {
 
     private static final OverloadNameMap FUNCTIONS = new OverloadNameMap();
     static {
+        FUNCTIONS.put(makeFn("+", AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("+", AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("-", AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("-", AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("~", AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("~", AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("+", AstType.STRING, AstType.STRING, AstType.STRING));
         FUNCTIONS.put(makeFn("+", AstType.I32, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("+", AstType.I64, AstType.I64, AstType.I64));

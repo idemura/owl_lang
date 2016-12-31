@@ -118,29 +118,46 @@ final class CodeGenerator {
         public JvmNode visit(AstApply node) {
             AstName fnName = (AstName) node.fn;
             if (!Util.isIdFirstChar(fnName.name.charAt(0))) {
-                switch (fnName.name) {
-                    case "+":
-                    case "-":
-                    case "*":
-                    case "/":
-                    case "%":
-                    case "<<":
-                    case ">>":
-                    case ">>>":
-                    case "&":
-                    case "^":
-                    case "|":
-                        accept(node.args.get(0));
-                        accept(node.args.get(1));
-                        addInstruction(new JvmBinary(fnName.name, node.getType()));
+                switch (node.args.size()) {
+                    case 1:
+                        switch (fnName.name) {
+                            case "+":
+                            case "-":
+                            case "~":
+                                accept(node.args.get(0));
+                                addInstruction(new JvmOperator(1, fnName.name, node.getType()));
+                                break;
+
+                            default:
+                                throw new IllegalStateException("unknown operator " + fnName.name);
+                        }
                         break;
 
-                        // In JavaTranslator, takes left and right from the stack and puts "l[r]" back on the stack
-//                    case "[]":
-//                        break;
+                    case 2:
+                        switch (fnName.name) {
+                            case "+":
+                            case "-":
+                            case "*":
+                            case "/":
+                            case "%":
+                            case "<<":
+                            case ">>":
+                            case ">>>":
+                            case "&":
+                            case "^":
+                            case "|":
+                                accept(node.args.get(0));
+                                accept(node.args.get(1));
+                                addInstruction(new JvmOperator(2, fnName.name, node.getType()));
+                                break;
+
+                            default:
+                                throw new IllegalStateException("unknown operator " + fnName.name);
+                        }
+                        break;
 
                     default:
-                        throw new IllegalStateException("unknown operator " + fnName.name);
+                        throw new IllegalStateException("invalid operator arity");
                 }
                 return null;
             }
