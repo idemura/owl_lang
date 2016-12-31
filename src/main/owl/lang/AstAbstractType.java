@@ -14,8 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 // Base class for all abstract types. Abstract type is a (parametric) type programmer defines in the source code or
@@ -61,7 +59,7 @@ final class AstScalarType extends AstAbstractType
 
     @Override
     List<TypeMatcher.ParamMatcher> getParamMatchers() {
-        return ImmutableList.of();
+        return Util.listOf();
     }
 
     @Override
@@ -87,7 +85,7 @@ final class AstArrayType extends AstAbstractType
     static final AstArrayType INSTANCE = new AstArrayType();
     static final String NAME = "Array";
 
-    private final List<TypeMatcher.ParamMatcher> params = ImmutableList.of(new TypeMatcher.ParamMatcher());
+    private final List<TypeMatcher.ParamMatcher> params = Util.listOf(new TypeMatcher.ParamMatcher());
 
     private AstArrayType() {}
 

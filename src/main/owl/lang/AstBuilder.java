@@ -14,7 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -184,7 +183,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return l;
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(l));
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(l));
     }
 
     @Override
@@ -192,7 +191,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -202,7 +201,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -212,7 +211,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -222,7 +221,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -232,7 +231,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -242,7 +241,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -252,7 +251,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }
@@ -262,7 +261,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), ImmutableList.of(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }

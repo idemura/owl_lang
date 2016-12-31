@@ -14,7 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,11 +24,11 @@ public class AstTest {
         AstType t;
 
         t = new AstType("Foo",
-                ImmutableList.of(AstType.I32, AstType.F32));
+                Util.listOf(AstType.I32, AstType.F32));
         assertEquals("Foo(I32, F32)", t.toString());
 
         t = new AstType("Foo",
-                ImmutableList.of(AstType.BOOL));
+                Util.listOf(AstType.BOOL));
         assertEquals("Foo(Bool)", t.toString());
 
         t = new AstType("Foo");

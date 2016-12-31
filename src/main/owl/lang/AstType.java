@@ -14,8 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,7 +40,7 @@ final class AstType extends AstNode {
     AstAbstractType abstractType;
 
     static AstType arrayOf(AstType type) {
-        return new AstType(ARRAY, ImmutableList.of(type));
+        return new AstType(ARRAY, Util.listOf(type));
     }
 
     static AstType functionOf(List<AstType> args) {

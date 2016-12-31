@@ -14,8 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 final class Desugar {
@@ -93,7 +91,7 @@ final class Desugar {
                 return node;
             }
             if (node.l instanceof AstName) {
-                AstApply app = new AstApply(new AstName(node.op), ImmutableList.of(node.l, node.r));
+                AstApply app = new AstApply(new AstName(node.op), Util.listOf(node.l, node.r));
                 return new AstAssign(null, node.l, app);
             }
             // TODO: Support field and index

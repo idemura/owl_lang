@@ -16,8 +16,9 @@ package owl.lang;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -83,12 +84,6 @@ final class Util {
         return LANGUAGE_VERSION;
     }
 
-    static <T> List<T> listOf(T x1) {
-        List<T> l = new ArrayList<>();
-        l.add(x1);
-        return l;
-    }
-
     static String removeSuffix(String s, int len) {
         return s.substring(0, s.length() - len);
     }
@@ -99,6 +94,15 @@ final class Util {
 
     static <T> T last(List<T> list) {
         return list.get(list.size() - 1);
+    }
+
+    static <T> List<T> listOf() {
+        return Collections.emptyList();
+    }
+
+    @SafeVarargs
+    static <T> List<T> listOf(T... a) {
+        return Arrays.asList(a);
     }
 
     private static String getManifestAttribute(String name) {

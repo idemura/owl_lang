@@ -14,8 +14,6 @@
  */
 package owl.lang;
 
-import com.google.common.collect.ImmutableList;
-
 import java.io.PrintStream;
 import java.util.List;
 
@@ -98,14 +96,14 @@ final class NestedNameMap {
                     if (TypeUtil.accepts(e.getType(), args)) {
                         return ResolveResult.found(e);
                     }
-                    return ResolveResult.error(ImmutableList.of(e));
+                    return ResolveResult.error(Util.listOf(e));
                 }
                 return ResolveResult.error(null);
             }
         }
         OverloadNameMap.Overload ovl = overloads.get(name);
         if (ovl == null) {
-            return ResolveResult.error(ImmutableList.of());
+            return ResolveResult.error(Util.listOf());
         }
         List<Entity> res = ovl.resolve(args);
         if (res.size() != 1) {
