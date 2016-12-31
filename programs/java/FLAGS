@@ -1,1 +1,1 @@
---echo
+--echo --generate_version false

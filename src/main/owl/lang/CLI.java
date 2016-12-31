@@ -56,9 +56,9 @@ public final class CLI {
     @Parameter(names = "--help", help = true)
     private boolean flagHelp = false;
 
-    @Parameter(names = {"--analyze"}, description = "Analyze semantics", arity = 1)
+    @Parameter(names = {"--analyze"}, arity = 1, description = "Analyze semantics")
     private boolean flagAnalyze = true;
-    @Parameter(names = {"--generate"}, description = "Generate code", arity = 1)
+    @Parameter(names = {"--generate"}, arity = 1, description = "Generate code")
     private boolean flagGenerate = true;
     @Parameter(names = {"--out"}, description = "Output directory")
     private String flagOut = ".owl_out";
@@ -71,6 +71,8 @@ public final class CLI {
     private boolean flagPrintEntityMap = false;
     @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
     private boolean flagEcho = false;
+    @Parameter(names = {"--generate_version"}, arity = 1, description = "Output compiler version")
+    private boolean flagGenerateVersion = true;
 
     public static void main(String[] args) {
         System.exit(new CLI(args).run()? 0: 1);
@@ -177,7 +179,7 @@ public final class CLI {
                     return false;
                 }
                 try {
-                    new JavaTranslator().translate(jvm, outDir, flagEcho ? System.out : null);
+                    new JavaTranslator(flagGenerateVersion).translate(jvm, outDir, flagEcho ? System.out : null);
                 } catch (OwlException e) {
                     errorListener.error(e);
                     return false;

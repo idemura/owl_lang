@@ -1,0 +1,24 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class expressions3
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    int _t_a = 7 >> 1 ;
+    int _t_b = _t_a & 5 ;
+    RT.println ( _t_b );
+    int _t_c = 3 << 1 ;
+    int _t_d = _t_c & 5 ;
+    RT.println ( _t_d );
+    int _t_e = 1 & 5 ;
+    int _t_f = 7 >> _t_e ;
+    RT.println ( _t_f );
+    int _t_g = 1 & 5 ;
+    int _t_h = 3 << _t_g ;
+    RT.println ( _t_h );
+  }
+}
+--- STDERR

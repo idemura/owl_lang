@@ -127,6 +127,7 @@ final class CodeGenerator {
                     case "<<":
                     case ">>":
                     case ">>>":
+                    case "&":
                         accept(node.args.get(0));
                         accept(node.args.get(1));
                         addInstruction(new JvmBinary(fnName.name, node.getType()));

@@ -1,1 +1,1 @@
---echo --print_ast --print_entity_map --generate false
+--echo --print_ast --print_entity_map --generate false --generate_version false
