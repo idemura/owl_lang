@@ -238,9 +238,11 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.expr)) {
                 return false;
             }
-            if (!AstType.ofNode(node.expr).canAssignTo(fnStack.top().getReturnType())) {
+            AstType exprType = AstType.ofNode(node.expr);
+            AstType returnType = fnStack.top().getReturnType();
+            if (!exprType.canAssignTo(returnType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
-                        "return type not compatible");
+                        "return type " + returnType + " is not compatible with " + exprType);
                 return false;
             }
             return true;
