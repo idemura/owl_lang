@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static owl.lang.TypeUtil.equalSignatures;
 
 // TODO: Merge with plain NameMap
 // This is an entity map just for function overloads
@@ -43,7 +42,7 @@ final class OverloadNameMap implements Cloneable {
         boolean add(Entity ent) {
             // TODO: Check other way, because this is effectively O(N^2)
             for (Entity f : overload) {
-                if (equalSignatures(f.getType(), ent.getType())) {
+                if (AstType.equalSignatures(f.getType(), ent.getType())) {
                     return false;
                 }
             }
@@ -54,7 +53,7 @@ final class OverloadNameMap implements Cloneable {
         List<Entity> resolve(List<AstType> args) {
             List<Entity> res = new ArrayList<>();
             for (Entity f : overload) {
-                if (TypeUtil.accepts(f.getType(), args)) {
+                if (f.getType().acceptsArgs(args)) {
                     res.add(f);
                 }
             }

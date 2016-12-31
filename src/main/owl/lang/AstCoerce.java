@@ -14,12 +14,12 @@
  */
 package owl.lang;
 
-final class AstCast extends AstNode
+final class AstCoerce extends AstNode
         implements Typed {
     AstNode expr;
     AstType type;
 
-    AstCast(AstNode expr, AstType type) {
+    AstCoerce(AstNode expr, AstType type) {
         this.expr = expr;
         this.type = type;
     }

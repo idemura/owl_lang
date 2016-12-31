@@ -33,6 +33,6 @@ final class AstExpr extends AstNode
 
     @Override
     public AstType getType() {
-        return TypeUtil.getType(expr);
+        return AstType.ofNode(expr);
     }
 }

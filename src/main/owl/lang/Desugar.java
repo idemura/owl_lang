@@ -78,7 +78,7 @@ final class Desugar {
         }
 
         @Override
-        public AstNode visit(AstCast node) {
+        public AstNode visit(AstCoerce node) {
             return node;
         }
 

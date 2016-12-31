@@ -93,7 +93,7 @@ final class NestedNameMap {
             Entity e = map.get(name);
             if (e != null) {
                 if (e.getType().isFunction()) {
-                    if (TypeUtil.accepts(e.getType(), args)) {
+                    if (e.getType().acceptsArgs(args)) {
                         return ResolveResult.found(e);
                     }
                     return ResolveResult.error(Util.listOf(e));

@@ -138,7 +138,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstCast node) {
+        public Void visit(AstCoerce node) {
             beginNode(node, node.getType().toString());
             accept(node.expr);
             endNode();

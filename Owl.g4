@@ -64,12 +64,12 @@ exprApply
 |   exprApply op = '[' expression ']'
 ;
 
-exprCast
+exprCoerce
 :   exprApply (':' type)?
 ;
 
 exprUnary
-:   (op = ('~' | '+' | '-'))? t = exprCast
+:   (op = ('~' | '+' | '-'))? t = exprCoerce
 ;
 
 exprMulDiv

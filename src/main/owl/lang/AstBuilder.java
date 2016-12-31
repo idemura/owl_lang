@@ -169,12 +169,12 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     @Override
-    public AstNode visitExprCast(ExprCastContext ctx) {
+    public AstNode visitExprCoerce(ExprCoerceContext ctx) {
         AstNode l = accept(ctx.exprApply());
         if (ctx.type() == null) {
             return l;
         }
-        return new AstCast(l, (AstType) accept(ctx.type()));
+        return new AstCoerce(l, (AstType) accept(ctx.type()));
     }
 
     @Override

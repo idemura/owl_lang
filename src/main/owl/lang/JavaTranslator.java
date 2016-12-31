@@ -260,7 +260,7 @@ final class JavaTranslator implements JvmTranslator {
         }
 
         @Override
-        public Void visit(JvmCast node) {
+        public Void visit(JvmCoerce node) {
             String l = stack.pop().id;
             stack.push(new TypedId(node.dstType, gen.newName()));
             String dstJavaType = node.dstType.javaType();

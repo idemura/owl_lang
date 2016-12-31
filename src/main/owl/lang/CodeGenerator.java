@@ -159,8 +159,8 @@ final class CodeGenerator {
                             case "!=": {
                                 accept(node.args.get(0));
                                 accept(node.args.get(1));
-                                AstType tl = TypeUtil.getType(node.args.get(0));
-                                AstType tr = TypeUtil.getType(node.args.get(1));
+                                AstType tl = AstType.ofNode(node.args.get(0));
+                                AstType tr = AstType.ofNode(node.args.get(1));
                                 if (tl.equals(AstType.STRING) && tr.equals(AstType.STRING)) {
                                     addInstruction(new JvmApply("RT", "compare", 2, AstType.I32));
                                     addInstruction(new JvmLiteral("0", AstType.I32));
@@ -191,10 +191,10 @@ final class CodeGenerator {
         }
 
         @Override
-        public JvmNode visit(AstCast node) {
+        public JvmNode visit(AstCoerce node) {
             accept(node.expr);
-            if (!TypeUtil.getType(node.expr).equals(node.type)) {
-                addInstruction(new JvmCast(TypeUtil.getType(node), node.getType()));
+            if (!AstType.ofNode(node.expr).equals(node.type)) {
+                addInstruction(new JvmCoerce(AstType.ofNode(node), node.getType()));
             }
             return null;
         }

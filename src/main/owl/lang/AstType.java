@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 // Generic type with parameters
@@ -108,6 +109,65 @@ final class AstType extends AstNode {
             return true;
         }
         return false;
+    }
+
+    // Not sure if needed
+    static boolean equalSignatures(AstType a, AstType b) {
+        checkArgument(a.isFunction() && b.isFunction(), "function type expected");
+        if (a.args.size() != b.args.size()) {
+            return false;
+        }
+        // Compare all except last (return type)
+        for (int i = 0; i < a.args.size() - 1; i++) {
+            if (!a.args.get(i).equals(b.args.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    boolean acceptsArgs(List<AstType> argsIn) {
+        checkArgument(isFunction(), "function type expected");
+        // Do not count return type
+        if (args.size() - 1 != argsIn.size()) {
+            return false;
+        }
+        for (int i = 0; i < argsIn.size(); i++) {
+            if (!argsIn.get(i).equals(args.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // This is exactly the same relationship as implicitly convertible.
+    boolean canAssignTo(AstType dst) {
+        if (this.equals(dst)) {
+            return true;
+        }
+        if (this.equals(AstType.I32) && dst.equals(AstType.I64)) {
+            return true;
+        }
+        // TODO: Bool to integers
+        return false;
+    }
+
+    boolean canCoerceTo(AstType dst) {
+        if (this.equals(dst)) {
+            return true;
+        }
+        if (this.equals(AstType.I32) && dst.equals(AstType.I64)) {
+            return true;
+        }
+        if (this.equals(AstType.I64) && dst.equals(AstType.I32)) {
+            return true;
+        }
+        // TODO: Bool to integers
+        return false;
+    }
+
+    static AstType ofNode(AstNode node) {
+        return ((Typed) node).getType();
     }
 
     String javaType() {

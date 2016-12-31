@@ -112,7 +112,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.getExpr())) {
                 return false;
             }
-            node.setType(TypeUtil.getType(node.getExpr()));
+            node.setType(AstType.ofNode(node.getExpr()));
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
@@ -197,9 +197,9 @@ final class TypeCheckerAndEntityResolver {
                 return false;
             }
 
-            AstType lType = TypeUtil.getType(node.l);
-            AstType rType = TypeUtil.getType(node.r);
-            if (!TypeUtil.assignable(lType, rType)) {
+            AstType lType = AstType.ofNode(node.l);
+            AstType rType = AstType.ofNode(node.r);
+            if (!rType.canAssignTo(lType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
                 return false;
@@ -238,7 +238,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.expr)) {
                 return false;
             }
-            if (!TypeUtil.assignable(fnStack.top().getReturnType(), TypeUtil.getType(node.expr))) {
+            if (!AstType.ofNode(node.expr).canAssignTo(fnStack.top().getReturnType())) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "return type not compatible");
                 return false;
@@ -252,16 +252,16 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Boolean visit(AstCast node) {
+        public Boolean visit(AstCoerce node) {
             boolean b1 = accept(node.expr);
             boolean b2 = accept(node.type);
             if (!(b1 && b2)) {
                 return false;
             }
-            AstType exprType = TypeUtil.getType(node.expr);
-            if (!TypeUtil.castable(exprType, node.type)) {
+            AstType exprType = AstType.ofNode(node.expr);
+            if (!exprType.canCoerceTo(node.type)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
-                        "no cast from " + exprType + " to " + node.type);
+                        "no coerce from " + exprType + " to " + node.type);
                 return false;
             }
             return true;
