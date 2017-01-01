@@ -77,6 +77,7 @@ exprMulDiv
 |   l = exprMulDiv op = '*' r = exprUnary
 |   l = exprMulDiv op = '/' r = exprUnary
 |   l = exprMulDiv op = '%' r = exprUnary
+|   l = exprMulDiv op = '//' r = exprUnary
 ;
 
 exprAddSub

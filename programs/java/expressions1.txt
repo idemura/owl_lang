@@ -31,6 +31,10 @@ public final class expressions1
     int _t_o = 1 + 2 ;
     int _t_p = 9 % _t_o ;
     RT.println ( _t_p );
+    double _t_q = RT.fdiv ( 10, 3 );
+    RT.println ( _t_q );
+    double _t_r = RT.fdiv ( 10, 5 );
+    RT.println ( _t_r );
   }
 }
 --- STDERR

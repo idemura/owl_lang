@@ -61,6 +61,8 @@ final class Runtime {
         FUNCTIONS.put(makeFn("*", AstType.I64, AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("/", AstType.I32, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("/", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(makeFn("//", AstType.F64, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("//", AstType.F64, AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("%", AstType.I32, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("%", AstType.I64, AstType.I64, AstType.I64));
         FUNCTIONS.put(makeFn("<<", AstType.I32, AstType.I32, AstType.I32));
@@ -97,6 +99,8 @@ final class Runtime {
         FUNCTIONS.put(makeFn("!=", AstType.BOOL, AstType.STRING, AstType.STRING));
 
         FUNCTIONS.put(makeFn("compare", AstType.I32, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn("fdiv", AstType.F64, AstType.I32, AstType.I32));
+        FUNCTIONS.put(makeFn("fdiv", AstType.F64, AstType.I64, AstType.I64));
 
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.BOOL));
         FUNCTIONS.put(makeFn("println", AstType.NONE, AstType.CHAR));

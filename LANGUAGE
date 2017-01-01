@@ -3,6 +3,8 @@
 f(a)[g(b)] += x
 f(a) and g(b) are evaluated once
 
+// operator. Takes I32/I64/F32/F64 and divides to get F64.
+
 enum Maybe(T) {
     None;
     Just: T;

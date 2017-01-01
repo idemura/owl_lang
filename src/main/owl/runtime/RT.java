@@ -41,4 +41,10 @@ public class RT {
     public static int compare(String a, String b) {
         return a.compareTo(b);
     }
+    public static double fdiv(int a, int b) {
+        return ((double) a) / b;
+    }
+    public static double fdiv(long a, long b) {
+        return ((double) a) / b;
+    }
 }

@@ -9,4 +9,6 @@ fn main(argv: String[]) {
     println((2 + 7) / 3);
     println(9 / (1 + 2));
     println(9 % (1 + 2));
+    println(10 // 3);
+    println(10 // 5);
 }

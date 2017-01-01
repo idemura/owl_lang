@@ -159,6 +159,12 @@ final class CodeGenerator {
                                     accept(node.args.get(1)),
                                     new JvmOperator(2, fnName.name, node.getType())));
 
+                        case "//":
+                            return new JvmGroup(Util.listOf(
+                                    accept(node.args.get(0)),
+                                    accept(node.args.get(1)),
+                                    new JvmApply("RT", "fdiv", 2, node.getType())));
+
                         case "<":
                         case "<=":
                         case ">":
