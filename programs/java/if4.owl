@@ -1,0 +1,12 @@
+module main;
+
+function main(argv: String[]) {
+    var b = true;
+    if b {
+        println(b);
+    }
+    b = false;
+    if b {
+        println(b);
+    }
+}

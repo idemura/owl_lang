@@ -1,0 +1,44 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class locals4
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    String _l_a ;
+    // _l_a is s
+    String _l_b ;
+    // _l_b is s
+    String _l_c ;
+    // _l_c is s
+    _l_a = "hello" ;
+    if ( true )
+    {
+      _l_b = "world" ;
+      RT.println ( _l_b );
+    }
+    RT.println ( _l_a );
+    if ( false )
+    {
+      _l_a = "holy shit" ;
+    }
+    else
+    {
+      _l_c = "world" ;
+    }
+    RT.println ( _l_a );
+    if ( false )
+    {
+      _l_a = "holy shit" ;
+    }
+    else
+    {
+      String _t_a = _l_a + " cat" ;
+      _l_a = _t_a ;
+    }
+    RT.println ( _l_a );
+  }
+}
+--- STDERR

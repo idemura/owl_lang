@@ -1,0 +1,11 @@
+module main;
+
+function main(argv: String[]) {
+    var a = 1;
+    var b = 3;
+    var c = 3;
+    var d = b * b - 4 * a * c;
+    if d < 0 {
+        println("no solution");
+    }
+}

@@ -114,7 +114,9 @@ final class DebugPrint {
         public Void visit(AstIf node) {
             beginNode(node);
             for (AstIf.Branch b : node.branches) {
-                accept(b.condition);
+                if (b.condition != null) {
+                    accept(b.condition);
+                }
                 accept(b.block);
             }
             endNode();

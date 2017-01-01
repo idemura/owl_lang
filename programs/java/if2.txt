@@ -1,0 +1,37 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class if2
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    int _l_a ;
+    // _l_a is a
+    int _l_b ;
+    // _l_b is b
+    int _l_c ;
+    // _l_c is c
+    int _l_d ;
+    // _l_d is d
+    _l_a = 1 ;
+    _l_b = 3 ;
+    _l_c = 2 ;
+    int _t_a = _l_b * _l_b ;
+    int _t_b = 4 * _l_a ;
+    int _t_c = _t_b * _l_c ;
+    int _t_d = _t_a - _t_c ;
+    _l_d = _t_d ;
+    boolean _t_e = _l_d < 0 ;
+    if ( _t_e )
+    {
+      RT.println ( "no solution" );
+    }
+    else
+    {
+      RT.println ( "life is good" );
+    }
+  }
+}
+--- STDERR

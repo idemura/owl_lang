@@ -48,6 +48,6 @@ final class AstName extends AstNode
 
     @Override
     public AstType getType() {
-        return entity.getType();
+        return entity == null? null: entity.getType();
     }
 }

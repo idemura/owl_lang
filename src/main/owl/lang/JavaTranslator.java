@@ -267,5 +267,25 @@ final class JavaTranslator implements JvmTranslator {
             printer.println(dstJavaType, stack.top().id, "=", "(" + dstJavaType + ")", l, ";");
             return null;
         }
+
+        @Override
+        public Void visit(JvmIf node) {
+            accept(node.condition);
+            printer.println("if (", stack.pop().id, ")");
+            accept(node.thenBlock);
+            if (node.elseBlock != null) {
+                printer.println("else");
+                accept(node.elseBlock);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmGroup node) {
+            for (JvmNode c : node.children) {
+                accept(c);
+            }
+            return null;
+        }
     }
 }

@@ -1,0 +1,24 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class if4
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    boolean _l_a ;
+    // _l_a is b
+    _l_a = true ;
+    if ( _l_a )
+    {
+      RT.println ( _l_a );
+    }
+    _l_a = false ;
+    if ( _l_a )
+    {
+      RT.println ( _l_a );
+    }
+  }
+}
+--- STDERR

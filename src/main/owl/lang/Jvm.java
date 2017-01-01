@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 final class Jvm {
     JvmNode root;
@@ -46,11 +47,7 @@ interface JvmVisitor<T> {
     }
 
     default T accept(JvmNode node) {
-        if (node != null) {
-            return (T) node.accept(this);
-        } else {
-            return visitError();
-        }
+        return (T) node.accept(this);
     }
 
     default T visit(JvmApply node) { return visitError(); }
@@ -58,8 +55,10 @@ interface JvmVisitor<T> {
     default T visit(JvmCoerce node) { return visitError(); }
     default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
-    default T visit(JvmGetLocal node) { return visitError(); }
     default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmGetLocal node) { return visitError(); }
+    default T visit(JvmGroup node) { return visitError(); }
+    default T visit(JvmIf node) { return visitError(); }
     default T visit(JvmLiteral node) { return visitError(); }
     default T visit(JvmOperator node) { return visitError(); }
     default T visit(JvmPackage node) { return visitError(); }
@@ -335,6 +334,48 @@ final class JvmCoerce extends JvmNode {
     JvmCoerce(AstType srcType, AstType dstType) {
         this.srcType = srcType;
         this.dstType = dstType;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmIf extends JvmNode {
+    final JvmNode condition;
+    final JvmBlock thenBlock;
+    final JvmBlock elseBlock;
+
+    JvmIf(JvmNode condition, JvmBlock thenBlock, JvmBlock elseBlock) {
+        this.condition = condition;
+        this.thenBlock = thenBlock;
+        this.elseBlock = elseBlock;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmGroup extends JvmNode {
+    final List<JvmNode> children;
+
+    JvmGroup() {
+        this.children = new ArrayList<>();
+    }
+
+    JvmGroup(List<JvmNode> children) {
+        this.children = new ArrayList<>();
+        for (JvmNode n : children) {
+            add(n);
+        }
+    }
+
+    void add(JvmNode node) {
+        checkNotNull(node);
+        children.add(node);
     }
 
     @Override

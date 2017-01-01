@@ -1,0 +1,22 @@
+module main;
+
+function main(argv: String[]) {
+    var s = "hello";
+    if true {
+        var s = "world";
+        println(s);
+    }
+    println(s);
+    if false {
+        s = "holy shit";
+    } else {
+        var s = "world";
+    }
+    println(s);
+    if false {
+        s = "holy shit";
+    } else {
+        s += " cat";
+    }
+    println(s);
+}

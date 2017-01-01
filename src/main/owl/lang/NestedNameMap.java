@@ -49,12 +49,7 @@ final class NestedNameMap {
     }
 
     boolean inTopBlock(String name) {
-        for (NameMap<Entity> map : scope) {
-            if (map.contains(name)) {
-                return true;
-            }
-        }
-        return false;
+        return !scope.isEmpty() && scope.top().contains(name);
     }
 
     boolean contains(String name) {

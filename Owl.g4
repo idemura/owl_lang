@@ -175,9 +175,8 @@ type
 ;
 
 
-NAME: [a-zA-Z] [a-zA-Z0-9_]*;
-
 BOOL: 'true' | 'false';
+NAME: [a-zA-Z] [a-zA-Z0-9_]*;
 INT: '0o' [0-7]+ | [0-9]+ | '0x' [0-9a-fA-F]+;
 STRING: '"' ~[\t\r\n\f"]* '"';
 

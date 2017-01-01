@@ -28,25 +28,20 @@ final class CodeGenerator {
     private static final class Visitor implements AstVisitor<JvmNode> {
         private final ErrorListener errorListener;
         private JvmClass clazz;
-        private final Stack<JvmFunction> fnStack = new Stack<>();
+        private int functionNestLevel = 0;
 
         private Visitor(ErrorListener errorListener) {
             this.errorListener = errorListener;
-        }
-
-        private void addInstruction(JvmNode instr) {
-            fnStack.top().block.add(instr);
         }
 
         @Override
         public JvmNode visit(AstName node) {
             // TODO: Support module variables
             if (node.entity.isLocal()) {
-                addInstruction(new JvmGetLocal(((AstVariable) node.entity).index));
+                return new JvmGetLocal(((AstVariable) node.entity).index);
             } else {
                 throw new UnsupportedOperationException("non-local entity");
             }
-            return null;
         }
 
         @Override
@@ -64,11 +59,11 @@ final class CodeGenerator {
                 errorListener.error("file name must be java identifier: " + className);
             }
             clazz = new JvmClass(AccessModifier.PUBLIC, className);
-            for (AstNode m : node.variables) {
-                accept(m);
+            for (AstNode v : node.variables) {
+                clazz.addVariable((JvmVariable) accept(v));
             }
-            for (AstNode m : node.functions) {
-                accept(m);
+            for (AstNode f : node.functions) {
+                clazz.addFunction((JvmFunction) accept(f));
             }
 
             JvmPackage p = new JvmPackage(node.name);
@@ -80,171 +75,192 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstFunction node) {
             node.indexLocals();
-            fnStack.push(new JvmFunction(
+            functionNestLevel++;
+            JvmFunction f = new JvmFunction(
                     node,
                     node.getName().equals("main")? AccessModifier.PUBLIC: AccessModifier.PACKAGE,
                     MemoryModifier.STATIC,
-                    new JvmBlock()));
-            accept(node.getBlock());
-            clazz.addFunction(fnStack.pop());
-            return null;
+                    (JvmBlock) accept(node.getBlock()));
+            functionNestLevel--;
+            return f;
         }
 
         @Override
         public JvmNode visit(AstVariable node) {
-            if (fnStack.isEmpty()) {
+            if (functionNestLevel == 0) {
                 // TODO: Generate initializer block
-                clazz.addVariable(new JvmVariable(
+                return new JvmVariable(
                         node,
                         AccessModifier.PACKAGE,
                         MemoryModifier.STATIC,
-                        null));
+                        null);
             } else {
-                accept(node.getExpr());
-                addInstruction(new JvmPutLocal(node.index));
+                return new JvmGroup(Util.listOf(
+                        accept(node.getExpr()),
+                        new JvmPutLocal(node.index)));
             }
-            return null;
         }
 
         @Override
         public JvmNode visit(AstBlock node) {
+            JvmBlock b = new JvmBlock();
             for (AstNode c : node.children) {
-                accept(c);
+                b.add(accept(c));
             }
-            return null;
+            return b;
         }
 
         @Override
         public JvmNode visit(AstApply node) {
             AstName fnName = (AstName) node.fn;
-            if (!Util.isIdFirstChar(fnName.name.charAt(0))) {
-                switch (node.args.size()) {
-                    case 1:
-                        switch (fnName.name) {
-                            case "+":
-                            case "-":
-                            case "~":
-                                accept(node.args.get(0));
-                                addInstruction(new JvmOperator(1, fnName.name, node.getType()));
-                                break;
-
-                            default:
-                                throw new IllegalStateException("unknown operator " + fnName.name);
-                        }
-                        break;
-
-                    case 2:
-                        switch (fnName.name) {
-                            case "+":
-                            case "-":
-                            case "*":
-                            case "/":
-                            case "%":
-                            case "<<":
-                            case ">>":
-                            case ">>>":
-                            case "&":
-                            case "^":
-                            case "|":
-                                accept(node.args.get(0));
-                                accept(node.args.get(1));
-                                addInstruction(new JvmOperator(2, fnName.name, node.getType()));
-                                break;
-
-                            case "<":
-                            case "<=":
-                            case ">":
-                            case ">=":
-                            case "==":
-                            case "!=": {
-                                accept(node.args.get(0));
-                                accept(node.args.get(1));
-                                AstType tl = AstType.ofNode(node.args.get(0));
-                                AstType tr = AstType.ofNode(node.args.get(1));
-                                if (tl.equals(AstType.STRING) && tr.equals(AstType.STRING)) {
-                                    addInstruction(new JvmApply("RT", "compare", 2, AstType.I32));
-                                    addInstruction(new JvmLiteral("0", AstType.I32));
-                                }
-                                addInstruction(new JvmOperator(2, fnName.name, node.getType()));
-                                break;
-                            }
-
-                            default:
-                                throw new IllegalStateException("unknown operator " + fnName.name);
-                        }
-                        break;
-
-                    default:
-                        throw new IllegalStateException("invalid operator arity");
+            if (Util.isIdFirstChar(fnName.name.charAt(0))) {
+                JvmGroup g = new JvmGroup();
+                for (AstNode a : node.args) {
+                    g.add(accept(a));
                 }
-                return null;
+                g.add(new JvmApply(
+                        Util.isEmpty(fnName.entity.getModuleName()) ? "RT" : null,
+                        fnName.name,
+                        node.args.size(),
+                        node.getType()));
+                return g;
             }
-            for (AstNode a : node.args) {
-                accept(a);
+
+            // Operators
+            switch (node.args.size()) {
+                case 1:
+                    switch (fnName.name) {
+                        case "+":
+                        case "-":
+                        case "~":
+                            return new JvmGroup(Util.listOf(
+                                    accept(node.args.get(0)),
+                                    new JvmOperator(1, fnName.name, node.getType())));
+
+                        default:
+                            throw new IllegalStateException("unknown operator " + fnName.name);
+                    }
+
+                case 2:
+                    switch (fnName.name) {
+                        case "+":
+                        case "-":
+                        case "*":
+                        case "/":
+                        case "%":
+                        case "<<":
+                        case ">>":
+                        case ">>>":
+                        case "&":
+                        case "^":
+                        case "|":
+                            return new JvmGroup(Util.listOf(
+                                    accept(node.args.get(0)),
+                                    accept(node.args.get(1)),
+                                    new JvmOperator(2, fnName.name, node.getType())));
+
+                        case "<":
+                        case "<=":
+                        case ">":
+                        case ">=":
+                        case "==":
+                        case "!=": {
+                            JvmGroup g = new JvmGroup();
+                            g.add(accept(node.args.get(0)));
+                            g.add(accept(node.args.get(1)));
+                            AstType tl = AstType.ofNode(node.args.get(0));
+                            AstType tr = AstType.ofNode(node.args.get(1));
+                            if (tl.equals(AstType.STRING) && tr.equals(AstType.STRING)) {
+                                g.add(new JvmApply("RT", "compare", 2, AstType.I32));
+                                g.add(new JvmLiteral("0", AstType.I32));
+                            }
+                            g.add(new JvmOperator(2, fnName.name, node.getType()));
+                            return g;
+                        }
+
+                        default:
+                            throw new IllegalStateException("unknown operator " + fnName.name);
+                    }
+
+                default:
+                    throw new IllegalStateException("invalid operator arity");
             }
-            addInstruction(new JvmApply(
-                    Util.isEmpty(fnName.entity.getModuleName()) ? "RT": null,
-                    fnName.name,
-                    node.args.size(),
-                    node.getType()));
-            return null;
         }
 
         @Override
         public JvmNode visit(AstCoerce node) {
-            accept(node.expr);
+            JvmGroup g = new JvmGroup();
+            g.add(accept(node.expr));
             if (!AstType.ofNode(node.expr).equals(node.type)) {
-                addInstruction(new JvmCoerce(AstType.ofNode(node), node.getType()));
+                g.add(new JvmCoerce(AstType.ofNode(node), node.getType()));
             }
-            return null;
+            return g;
         }
 
         @Override
         public JvmNode visit(AstAssign node) {
-            checkState(node.op == null);
-            accept(node.r);
+            JvmGroup g = new JvmGroup();
+            g.add(accept(node.r));
             if (node.l instanceof AstName) {
                 AstName name = (AstName) node.l;
-                addInstruction(new JvmPutLocal(((AstVariable) name.entity).index));
+                g.add(new JvmPutLocal(((AstVariable) name.entity).index));
+                return g;
             } else {
                 throw new UnsupportedOperationException("assign to not a name");
             }
-            return null;
         }
 
         @Override
         public JvmNode visit(AstLiteral node) {
-            addInstruction(new JvmLiteral(node.text, node.getType()));
-            return null;
+            return new JvmLiteral(node.text, node.getType());
         }
 
         @Override
         public JvmNode visit(AstIf node) {
-            throw new UnsupportedOperationException("code generator");
+            JvmNode r = null;
+            int i = node.branches.size() - 1;
+            if (node.branches.get(i).condition == null) {
+                r = accept(node.branches.get(i).block);
+                i--;
+            }
+            while (i >= 0) {
+                AstIf.Branch b = node.branches.get(i);
+                if (r != null && !(r instanceof JvmBlock)) {
+                    JvmBlock wrapIf = new JvmBlock();
+                    wrapIf.add(r);
+                    r = wrapIf;
+                }
+                r = new JvmIf(accept(b.condition), (JvmBlock) accept(b.block), (JvmBlock) r);
+                i--;
+            }
+            return r;
         }
 
         @Override
         public JvmNode visit(AstReturn node) {
-            accept(node.expr);
-            addInstruction(new JvmReturn());
-            return null;
+            JvmGroup g = new JvmGroup();
+            g.add(accept(node.expr));
+            g.add(new JvmReturn());
+            return g;
         }
 
         @Override
         public JvmNode visit(AstExpr node) {
-            accept(node.expr);
+            JvmGroup g = new JvmGroup();
+            g.add(accept(node.expr));
             if (node.discards()) {
-                addInstruction(new JvmPop());
+                g.add(new JvmPop());
             }
-            return null;
+            return g;
         }
 
         @Override
         public JvmNode visit(AstGroup node) {
+            JvmGroup g = new JvmGroup();
             for (AstNode c : node.children) {
-                accept(c);
+                g.add(accept(c));
             }
-            return null;
+            return g;
         }
     }
 }

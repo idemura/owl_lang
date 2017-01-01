@@ -105,6 +105,12 @@ final class Desugar {
 
         @Override
         public AstNode visit(AstIf node) {
+            for (AstIf.Branch b : node.branches) {
+                if (b.condition != null) {
+                    b.condition = accept(b.condition);
+                }
+                b.block = (AstBlock) accept(b.block);
+            }
             return node;
         }
 

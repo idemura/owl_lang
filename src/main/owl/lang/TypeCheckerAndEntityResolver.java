@@ -116,7 +116,7 @@ final class TypeCheckerAndEntityResolver {
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
-                            "variable already exist in the current scope");
+                            "variable " + node.getName() + " exists in this scope");
                     return false;
                 }
                 if (!entityMap.put(node)) {
@@ -129,11 +129,18 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstBlock node) {
+            if (fnStack.top().getBlock() != node) {
+                // Function block shares scope with arguments.
+                entityMap.push();
+            }
             boolean res = true;
             for (AstNode s : node.children) {
                 if (!accept(s)) {
                     res = false;
                 }
+            }
+            if (fnStack.top().getBlock() != node) {
+                entityMap.pop();
             }
             return res;
         }
@@ -223,8 +230,17 @@ final class TypeCheckerAndEntityResolver {
         public Boolean visit(AstIf node) {
             boolean res = true;
             for (AstIf.Branch b : node.branches) {
-                if (!accept(b.condition)) {
-                    res = false;
+                if (b.condition != null) {
+                    if (!accept(b.condition)) {
+                        res = false;
+                    }
+                    if (AstType.ofNode(b.condition) == null) {
+                        res = false;
+                    } else if(!AstType.ofNode(b.condition).equals(AstType.BOOL)) {
+                        errorListener.error(node.getLine(), node.getCharPosition(),
+                                "condition must be of type Bool");
+                        res = false;
+                    }
                 }
                 if (!accept(b.block)) {
                     res = false;
