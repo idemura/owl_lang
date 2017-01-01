@@ -14,7 +14,7 @@ Go to `lib` and run `python download_libs.py lib_list`, then from the project ro
 ## Compile and Run
 Let's create a sample Owl program and save it in `test.owl`:
 ```
-# Module name used in call to java_owl.
+# Module name used in call to java_owl
 module main;
 
 fn main(String[]) {
