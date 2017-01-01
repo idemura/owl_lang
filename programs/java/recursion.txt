@@ -1,0 +1,28 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class recursion
+{
+  static int fact (
+      int n
+  )
+  {
+    boolean _t_a = n <= 1 ;
+    if ( _t_a )
+    {
+      return 1 ;
+    }
+    int _t_b = n - 1 ;
+    int _t_c = fact ( _t_b );
+    int _t_d = _t_c * n ;
+    return _t_d ;
+  }
+  public static void main (
+      String[] argv
+  )
+  {
+    int _t_a = fact ( 5 );
+    RT.println ( _t_a );
+  }
+}
+--- STDERR

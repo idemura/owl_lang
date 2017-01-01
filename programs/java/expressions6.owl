@@ -1,6 +1,6 @@
 module main;
 
-function main(argv: String[]) {
+fn main(argv: String[]) {
     var a = "ac";
     var b1 = "ab";
     var b2 = "ab";
