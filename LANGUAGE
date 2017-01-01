@@ -1,3 +1,8 @@
+= Owl Programming Language specification
+
+f(a)[g(b)] += x
+f(a) and g(b) are evaluated once
+
 enum Maybe(T) {
     None;
     Just: T;
