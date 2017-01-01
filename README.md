@@ -12,11 +12,22 @@ Go to `lib` and run `python download_libs.py lib_list`, then from the project ro
 ```
 
 ## Compile and Run
-After build, compile with (can use sample in `test.owl`):
+Let's create a sample Owl program and save it in `test.owl`:
+```
+# Module name used in call to java_owl.
+module main;
+
+fn main(String[]) {
+  var greeting = "hello world";
+  println(greeting);
+}
+```
+Compile it to Java (JVM bytecode is planned in the near future):
 ```
 ./owl test.owl
 ```
-To run compiled Owl program:
+Run compiled Owl program:
 ```
-./java_owl <module>.test
+# module name comes before the dot, file name - after:
+./java_owl main.test
 ```
