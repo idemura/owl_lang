@@ -118,10 +118,10 @@ final class JavaTranslator implements JvmTranslator {
             printer.println(javaAccessModifier(node.access), "final class", node.name);
             printer.println("{");
             printer.indent();
-            for (JvmVariable v : node.getVariables()) {
+            for (JvmNode v : node.getVariables()) {
                 accept(v);
             }
-            for (JvmFunction f : node.getFunctions()) {
+            for (JvmNode f : node.getFunctions()) {
                 accept(f);
             }
             printer.unindent();
@@ -181,6 +181,12 @@ final class JavaTranslator implements JvmTranslator {
         }
 
         @Override
+        public Void visit(JvmGetField node) {
+            stack.push(new TypedId(node.type, node.getQualifiedName()));
+            return null;
+        }
+
+        @Override
         public Void visit(JvmApply node) {
             // Reverse order to the actual argument order
             List<String> args = new ArrayList<>();
@@ -217,16 +223,25 @@ final class JavaTranslator implements JvmTranslator {
         @Override
         public Void visit(JvmPutLocal node) {
             Entity ent = fnStack.top().function.getLocal(node.index);
-            String e = stack.pop().id;
-            printer.println(ent.getUniqueName(), "=", e, ";");
+            printer.println(ent.getUniqueName(), "=", stack.pop().id, ";");
+            return null;
+        }
+
+        @Override
+        public Void visit(JvmPutField node) {
+            printer.println(node.getQualifiedName(), "=", stack.pop().id, ";");
             return null;
         }
 
         @Override
         public Void visit(JvmBlock node) {
-            printer.println("{");
+            if (fnStack.isEmpty()) {
+                printer.println("static {");
+            } else {
+                printer.println("{");
+            }
             printer.indent();
-            if (fnStack.top().block == node) {
+            if (!fnStack.isEmpty() && fnStack.top().block == node) {
                 for (Entity ent : fnStack.top().function.getVars()) {
                     printer.println(ent.getType().javaType(), ent.getUniqueName(), ";");
                     if (!ent.getName().equals(ent.getUniqueName())) {

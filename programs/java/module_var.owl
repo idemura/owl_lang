@@ -1,0 +1,10 @@
+module main;
+
+var g = "hello ";
+
+fn main(argv: String[]) {
+    println(g);
+    g += "world";
+    println(g);
+    println(size(g));
+}

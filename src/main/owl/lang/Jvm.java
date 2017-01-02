@@ -56,6 +56,7 @@ interface JvmVisitor<T> {
     default T visit(JvmClass node) { return visitError(); }
     default T visit(JvmComment node) { return visitError(); }
     default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmGetField node) { return visitError(); }
     default T visit(JvmGetLocal node) { return visitError(); }
     default T visit(JvmGroup node) { return visitError(); }
     default T visit(JvmIf node) { return visitError(); }
@@ -63,6 +64,7 @@ interface JvmVisitor<T> {
     default T visit(JvmOperator node) { return visitError(); }
     default T visit(JvmPackage node) { return visitError(); }
     default T visit(JvmPop node) { return visitError(); }
+    default T visit(JvmPutField node) { return visitError(); }
     default T visit(JvmPutLocal node) { return visitError(); }
     default T visit(JvmReturn node) { return visitError(); }
     default T visit(JvmVariable node) { return visitError(); }
@@ -117,27 +119,27 @@ final class JvmPackage extends JvmNode {
 final class JvmClass extends JvmNode {
     final AccessModifier access;
     final String name;
-    private List<JvmVariable> variables = new ArrayList<>();
-    private List<JvmFunction> functions = new ArrayList<>();
+    private List<JvmNode> variables = new ArrayList<>();
+    private List<JvmNode> functions = new ArrayList<>();
 
     JvmClass(AccessModifier access, String name) {
         this.access = access;
         this.name = name;
     }
 
-    void addFunction(JvmFunction f) {
+    void addFunction(JvmNode f) {
         functions.add(f);
     }
 
-    void addVariable(JvmVariable v) {
+    void addVariable(JvmNode v) {
         variables.add(v);
     }
 
-    List<JvmFunction> getFunctions() {
+    List<JvmNode> getFunctions() {
         return ImmutableList.copyOf(functions);
     }
 
-    List<JvmVariable> getVariables() {
+    List<JvmNode> getVariables() {
         return ImmutableList.copyOf(variables);
     }
 
@@ -273,6 +275,48 @@ final class JvmPutLocal extends JvmNode {
     JvmPutLocal(int index) {
         checkArgument(index >= 0);
         this.index = index;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmGetField extends JvmNode {
+    final String className;
+    final String name;
+    final AstType type;
+
+    JvmGetField(String className, String name, AstType type) {
+        this.className = className;
+        this.name = name;
+        this.type = type;
+    }
+
+    String getQualifiedName() {
+        return className + "." + name;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
+}
+
+final class JvmPutField extends JvmNode {
+    final String className;
+    final String name;
+    final AstType type;
+
+    JvmPutField(String className, String name, AstType type) {
+        this.className = className;
+        this.name = name;
+        this.type = type;
+    }
+
+    String getQualifiedName() {
+        return className + "." + name;
     }
 
     @Override

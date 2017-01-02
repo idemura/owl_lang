@@ -16,6 +16,8 @@ package owl.lang;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
+
 final class Desugar {
     private Desugar() {}
 
@@ -49,18 +51,17 @@ final class Desugar {
         @Override
         public AstNode visit(AstFunction node) {
             gen.push();
-            accept(node.getBlock());
+            AstNode b = accept(node.getBlock());
+            // Block doesn't change, only statements inside it
+            checkState(b == node.getBlock());
             gen.pop();
             return node;
         }
 
         @Override
         public AstNode visit(AstVariable node) {
-            return new AstVariable(
-                    node.getModuleName(),
-                    node.getName(),
-                    node.getType(),
-                    accept(node.getExpr()));
+            node.setExpr(accept(node.getExpr()));
+            return node;
         }
 
         @Override

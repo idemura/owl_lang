@@ -47,4 +47,7 @@ public class RT {
     public static double fdiv(long a, long b) {
         return ((double) a) / b;
     }
+    public static int size(String s) {
+        return s.length();
+    }
 }

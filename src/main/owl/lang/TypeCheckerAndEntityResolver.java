@@ -46,13 +46,12 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstName node) {
-            // TODO: Support module variables
-            if (!entityMap.isBlockVar(node.name)) {
+            node.entity = entityMap.get(node.name);
+            if (node.entity == null) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "name " + node.name + " not found");
                 return false;
             }
-            node.entity = entityMap.get(node.name);
             return true;
         }
 

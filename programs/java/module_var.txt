@@ -1,0 +1,22 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class module_var
+{
+  static String g ;
+  static {
+    module_var.g = "hello " ;
+  }
+  public static void main (
+      String[] argv
+  )
+  {
+    RT.println ( module_var.g );
+    String _t_a = module_var.g + "world" ;
+    module_var.g = _t_a ;
+    RT.println ( module_var.g );
+    int _t_b = RT.size ( module_var.g );
+    RT.println ( _t_b );
+  }
+}
+--- STDERR

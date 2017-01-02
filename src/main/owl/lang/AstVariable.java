@@ -108,4 +108,8 @@ final class AstVariable extends AstNode
     AstNode getExpr() {
         return expr;
     }
+
+    void setExpr(AstNode expr) {
+        this.expr = expr;
+    }
 }

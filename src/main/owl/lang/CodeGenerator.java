@@ -16,8 +16,6 @@ package owl.lang;
 
 import com.google.common.io.Files;
 
-import static com.google.common.base.Preconditions.checkState;
-
 final class CodeGenerator {
     private CodeGenerator() {}
 
@@ -36,11 +34,11 @@ final class CodeGenerator {
 
         @Override
         public JvmNode visit(AstName node) {
-            // TODO: Support module variables
-            if (node.entity.isLocal()) {
-                return new JvmGetLocal(((AstVariable) node.entity).index);
+            AstVariable v = (AstVariable) node.entity;
+            if (node.entity.getModuleName() == null) {
+                return new JvmGetLocal(v.index);
             } else {
-                throw new UnsupportedOperationException("non-local entity");
+                return new JvmGetField(clazz.name, v.getName(), v.getType());
             }
         }
 
@@ -60,10 +58,10 @@ final class CodeGenerator {
             }
             clazz = new JvmClass(AccessModifier.PUBLIC, className);
             for (AstNode v : node.variables) {
-                clazz.addVariable((JvmVariable) accept(v));
+                clazz.addVariable(accept(v));
             }
             for (AstNode f : node.functions) {
-                clazz.addFunction((JvmFunction) accept(f));
+                clazz.addFunction(accept(f));
             }
 
             JvmPackage p = new JvmPackage(node.name);
@@ -88,12 +86,19 @@ final class CodeGenerator {
         @Override
         public JvmNode visit(AstVariable node) {
             if (functionNestLevel == 0) {
-                // TODO: Generate initializer block
-                return new JvmVariable(
+                JvmGroup g = new JvmGroup();
+                g.add(new JvmVariable(
                         node,
                         AccessModifier.PACKAGE,
                         MemoryModifier.STATIC,
-                        null);
+                        null));
+                if (node.getExpr() != null) {
+                    JvmBlock b = new JvmBlock();
+                    b.add(accept(node.getExpr()));
+                    b.add(new JvmPutField(clazz.name, node.getName(), node.getType()));
+                    g.add(b);
+                }
+                return g;
             } else {
                 return new JvmGroup(Util.listOf(
                         accept(node.getExpr()),
@@ -209,7 +214,12 @@ final class CodeGenerator {
             g.add(accept(node.r));
             if (node.l instanceof AstName) {
                 AstName name = (AstName) node.l;
-                g.add(new JvmPutLocal(((AstVariable) name.entity).index));
+                AstVariable v = (AstVariable) name.entity;
+                if (v.getModuleName() == null) {
+                    g.add(new JvmPutLocal(v.index));
+                } else {
+                    g.add(new JvmPutField(clazz.name, v.getName(), v.getType()));
+                }
                 return g;
             } else {
                 throw new UnsupportedOperationException("assign to not a name");

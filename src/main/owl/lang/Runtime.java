@@ -99,6 +99,7 @@ final class Runtime {
         FUNCTIONS.put(makeFn("!=", AstType.BOOL, AstType.STRING, AstType.STRING));
 
         FUNCTIONS.put(makeFn("compare", AstType.I32, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(makeFn("size", AstType.I32, AstType.STRING));
         FUNCTIONS.put(makeFn("fdiv", AstType.F64, AstType.I32, AstType.I32));
         FUNCTIONS.put(makeFn("fdiv", AstType.F64, AstType.I64, AstType.I64));
 
