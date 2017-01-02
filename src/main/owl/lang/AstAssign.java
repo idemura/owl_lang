@@ -15,11 +15,9 @@
 package owl.lang;
 
 final class AstAssign extends AstNode {
-    String op;
     AstNode l, r;
 
-    AstAssign(String op, AstNode l, AstNode r) {
-        this.op = op;
+    AstAssign(AstNode l, AstNode r) {
         this.l = l;
         this.r = r;
     }

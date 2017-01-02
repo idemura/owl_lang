@@ -159,7 +159,7 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstAssign node) {
-            beginNode(node, node.op);
+            beginNode(node);
             accept(node.l);
             accept(node.r);
             endNode();

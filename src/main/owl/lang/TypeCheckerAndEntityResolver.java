@@ -215,7 +215,7 @@ final class TypeCheckerAndEntityResolver {
             if (node.l instanceof AstName) {
                 // Pass
             } else {
-                throw new UnsupportedOperationException("assign left op is not a name");
+                throw new UnsupportedOperationException("assign left op must be a name");
             }
             return true;
         }

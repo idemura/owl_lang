@@ -138,6 +138,7 @@ final class CodeGenerator {
                         case "+":
                         case "-":
                         case "~":
+                        case "!":
                             return new JvmGroup(Util.listOf(
                                     accept(node.args.get(0)),
                                     new JvmOperator(1, fnName.name, node.getType())));

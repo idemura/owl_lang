@@ -18,14 +18,12 @@ import java.util.List;
 
 // Base class for all abstract types. Abstract type is a (parametric) type programmer defines in the source code or
 // primitive types + array type.
-abstract class AstAbstractType extends AstNode {
-    abstract String getModuleName();
-    abstract String getName();
+abstract class AstAbstractType extends AstNode
+        implements Named {
     abstract List<TypeMatcher.ParamMatcher> getParamMatchers();
 }
 
-final class AstScalarType extends AstAbstractType
-        implements Named {
+final class AstScalarType extends AstAbstractType {
     static final AstScalarType BOOL = new AstScalarType("Bool");
     static final AstScalarType CHAR = new AstScalarType("Char");
     static final AstScalarType F32 = new AstScalarType("F32");
@@ -80,8 +78,7 @@ final class AstScalarType extends AstAbstractType
     }
 }
 
-final class AstArrayType extends AstAbstractType
-        implements Named {
+final class AstArrayType extends AstAbstractType {
     static final AstArrayType INSTANCE = new AstArrayType();
     static final String NAME = "Array";
 

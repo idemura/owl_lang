@@ -1,0 +1,10 @@
+module main;
+
+fn main(argv: String[]) {
+    var s = "hello";
+    var b = size(s) == 5;
+    println(!b);
+    if !size(s) == 5 {
+        println("failed");
+    }
+}

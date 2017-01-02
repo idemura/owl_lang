@@ -63,8 +63,6 @@ public final class CLI {
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
     private boolean flagPrintAst = false;
-    @Parameter(names = {"--print_desugar_ast"}, description = "Print desugared AST")
-    private boolean flagPrintDesugarAst = false;
     @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
     private boolean flagPrintNameMap = false;
     @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
@@ -188,10 +186,6 @@ public final class CLI {
             debugOut.println(variables.toString());
             debugOut.println(overloads.toString());
             debugOut.println(abstractTypes.toString());
-        }
-        Desugar.run(ast);
-        if (flagPrintDesugarAst) {
-            DebugPrint.printAst(ast,debugOut);
         }
         TypeCheckerAndEntityResolver.run(ast, abstractTypes, variables, overloads, errorListener);
         if (errorListener.getErrorCount() != 0) {

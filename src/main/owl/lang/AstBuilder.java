@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 
 import static owl.lang.OwlParser.*;
 
-// Builds AST from parse tree (PT), or maps PT to AST. This is no-failure operation given a valid parse tree.
+// Builds AST from parse tree (PT), or maps PT to AST. This is failure-less operation given a valid PT.
+// Performs desugaring.
 // Checks and possible actions that may result an error are performed on separate stages.
 final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         implements OwlVisitor<AstNode> {
@@ -267,6 +268,15 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     @Override
+    public AstNode visitExprNot(OwlParser.ExprNotContext ctx) {
+        AstNode l = accept(ctx.t);
+        if (ctx.op == null) {
+            return l;
+        }
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(l));
+    }
+
+    @Override
     public AstNode visitExpression(ExpressionContext ctx) {
         return accept(ctx.t);
     }
@@ -274,10 +284,15 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     @Override
     public AstNode visitAssignment(AssignmentContext ctx) {
         AstNode l = accept(ctx.l);
+        AstNode r = accept(ctx.r);
         if (ctx.op == null) {
             return new AstExpr(l);
         }
-        return new AstExpr(new AstAssign(Util.removeSuffix(ctx.op.getText(), 1), l, accept(ctx.r)));
+        String operator = Util.removeSuffix(ctx.op.getText(), 1);
+        if (!operator.isEmpty()) {
+            r = new AstApply(new AstName(operator), Util.listOf(l, r));
+        }
+        return new AstExpr(new AstAssign(l, r));
     }
 
     @Override

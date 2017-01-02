@@ -38,4 +38,3 @@ java_binary(
         ':owl_lang',
     ],
 )
-

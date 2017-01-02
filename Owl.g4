@@ -122,8 +122,12 @@ exprEq
 |   l = exprEq op = '!=' r = exprCmp
 ;
 
+exprNot
+:   (op = '!')? t = exprEq
+;
+
 expression
-:   t = exprEq
+:   t = exprNot
 ;
 
 // TODO:

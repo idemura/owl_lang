@@ -1,0 +1,29 @@
+--- STDOUT
+package main ;
+import owl.runtime.RT ;
+public final class bool_not
+{
+  public static void main (
+      String[] argv
+  )
+  {
+    String _l_a ;
+    // _l_a is s
+    boolean _l_b ;
+    // _l_b is b
+    _l_a = "hello" ;
+    int _t_a = RT.size ( _l_a );
+    boolean _t_b = _t_a == 5 ;
+    _l_b = _t_b ;
+    boolean _t_c = ! _l_b ;
+    RT.println ( _t_c );
+    int _t_d = RT.size ( _l_a );
+    boolean _t_e = _t_d == 5 ;
+    boolean _t_f = ! _t_e ;
+    if ( _t_f )
+    {
+      RT.println ( "failed" );
+    }
+  }
+}
+--- STDERR
