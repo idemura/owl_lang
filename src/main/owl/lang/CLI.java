@@ -63,7 +63,7 @@ public final class CLI {
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
     private boolean flagPrintAst = false;
-    @Parameter(names = {"--print_entity_map"}, description = "Print module entity map")
+    @Parameter(names = {"--print_name_map"}, description = "Print module name map")
     private boolean flagPrintNameMap = false;
     @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
     private boolean flagEcho = false;
