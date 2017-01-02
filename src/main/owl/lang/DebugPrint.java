@@ -106,7 +106,7 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstLiteral node) {
-            leaf(node, node.text + ": " + node.getType());
+            leaf(node, node.text + " " + node.getType());
             return null;
         }
 
@@ -183,7 +183,7 @@ final class DebugPrint {
         }
 
         private void leaf(Object node, String s) {
-            printer.println(getClassName(node) + " " + s);
+            printer.println(getClassName(node), s);
         }
 
         private void beginNode(Object node) {
@@ -192,7 +192,7 @@ final class DebugPrint {
         }
 
         private void beginNode(Object node, String s) {
-            printer.println(getClassName(node) + " " + s);
+            printer.println(getClassName(node), s);
             printer.indent();
         }
 

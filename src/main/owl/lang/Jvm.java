@@ -200,6 +200,9 @@ final class JvmFunction extends JvmNode {
 }
 
 final class JvmLiteral extends JvmNode {
+    static final JvmLiteral TRUE = new JvmLiteral("true", AstType.BOOL);
+    static final JvmLiteral FALSE = new JvmLiteral("false", AstType.BOOL);
+
     final String text;
     final AstType type;
 
@@ -327,6 +330,12 @@ final class JvmPutField extends JvmNode {
 
 final class JvmBlock extends JvmNode {
     private List<JvmNode> instr = new ArrayList<>();
+
+    static JvmBlock of(JvmNode node) {
+        JvmBlock b = new JvmBlock();
+        b.add(node);
+        return b;
+    }
 
     void add(JvmNode node) {
         instr.add(node);

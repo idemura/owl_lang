@@ -190,6 +190,15 @@ final class CodeGenerator {
                             return g;
                         }
 
+                        case "&&": {
+                            return new JvmIf(
+                                    accept(node.args.get(0)),
+                                    JvmBlock.of(new JvmIf(accept(node.args.get(1)),
+                                            JvmBlock.of(JvmLiteral.TRUE),
+                                            JvmBlock.of(JvmLiteral.FALSE))),
+                                    JvmBlock.of(JvmLiteral.FALSE));
+                        }
+
                         default:
                             throw new IllegalStateException("unknown operator " + fnName.name);
                     }

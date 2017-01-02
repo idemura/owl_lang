@@ -126,8 +126,13 @@ exprNot
 :   (op = '!')? t = exprEq
 ;
 
-expression
+exprAnd
 :   t = exprNot
+|   l = exprAnd op = '&&' r = exprNot
+;
+
+expression
+:   t = exprAnd
 ;
 
 // TODO:

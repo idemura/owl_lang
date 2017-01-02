@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class AstIf extends AstNode {
-    final class Branch {
+    final static class Branch {
         AstNode condition;
         AstBlock block;
 
@@ -27,7 +27,8 @@ final class AstIf extends AstNode {
             this.block = block;
         }
     }
-    List<Branch> branches = new ArrayList<>();
+
+    final List<Branch> branches = new ArrayList<>();
 
     @Override
     public Object accept(AstVisitor v) {
