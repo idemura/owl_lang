@@ -1,6 +1,6 @@
 module main;
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     var b = true;
     if b {
         println(b);

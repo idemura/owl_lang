@@ -1,6 +1,6 @@
 module main;
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     println("cat");
     var s = "cat and dog";
     println(s);

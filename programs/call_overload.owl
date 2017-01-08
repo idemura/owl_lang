@@ -1,29 +1,29 @@
 module main;
 
-fn foo(x: I32): I32 {
+foo(x: I32): I32 {
     return 1;
 }
 
-fn foo(x, y: I32): I32 {
+foo(x, y: I32): I32 {
     return 2;
 }
 
-fn foo(x: I32, y: String): I32 {
+foo(x: I32, y: String): I32 {
     return 3;
 }
 
-fn foo(x: String): I32 {
+foo(x: String): I32 {
     return 4;
 }
 
-fn foo(x: String, y: I32): I32 {
+foo(x: String, y: I32): I32 {
     return 5;
 }
 
-fn foo(): I32 {
+foo(): I32 {
     return 6;
 }
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     println(foo(2));
 }

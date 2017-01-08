@@ -1,6 +1,6 @@
 module main;
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     println(2 + 7 * 3);
     println(2 + 7 - 3);
     println(2 + 7 / 3);

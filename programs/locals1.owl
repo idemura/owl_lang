@@ -1,9 +1,9 @@
 module main;
 
-fn foo(x, y: I32): I32 {
+foo(x, y: I32): I32 {
     return x + y;
 }
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     println(foo(1, 2));
 }

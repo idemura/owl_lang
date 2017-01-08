@@ -1,12 +1,12 @@
 module main;
 
-fn fact(n: I32): I32 {
+fact(n: I32): I32 {
     if n <= 1 {
         return 1;
     }
     return fact(n - 1) * n;
 }
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     println(fact(5));
 }

@@ -1,21 +1,21 @@
 module main;
 
-fn intOverload(x: I32) {
+intOverload(x: I32) {
     println("32");
 }
 
-fn intOverload(x: I64) {
+intOverload(x: I64) {
     println("64");
 }
 
-fn foo(x: I32) {
+foo(x: I32) {
     var z = x : I64;
     intOverload(z);
     var y = z : I32;
     intOverload(y);
 }
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     foo(1);
     println("hello" : String);
 }

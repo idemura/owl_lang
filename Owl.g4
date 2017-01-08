@@ -16,7 +16,7 @@ grammar Owl;
 
 @header {
 // This file is a prt of the Owl Programming Language.
-package owl.lang;
+package owl.compiler;
 }
 
 // Parser Rules
@@ -37,7 +37,7 @@ variable
 ;
 
 function
-:   ('fn' | 'function') NAME? ('(' (argument (',' argument)*)? ')')? (':' type)? block
+:   NAME? '(' (argument (',' argument)*)? ')' (':' type)? block
 ;
 
 argument

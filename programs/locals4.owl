@@ -1,6 +1,6 @@
 module main;
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     var s = "hello";
     if true {
         var s = "world";

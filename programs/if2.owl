@@ -1,6 +1,6 @@
 module main;
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     var a = 1;
     var b = 3;
     var c = 2;

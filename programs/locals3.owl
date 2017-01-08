@@ -1,6 +1,6 @@
 module main;
 
-fn foo(x, y: I32): I32 {
+foo(x, y: I32): I32 {
     x += 1;
     y += 1;
     var t = x + y;
@@ -8,6 +8,6 @@ fn foo(x, y: I32): I32 {
     return 10 * t;
 }
 
-fn main(argv: String[]) {
+main(argv: String[]) {
     println(foo(1, 2));
 }
