@@ -12,13 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 final class Runtime {
     private Runtime() {}
+
+    static final String NAME = "owl/runtime/RT";
 
     static NameMap<AstAbstractType> getAbstractTypes() {
         return ABSTRACT_TYPES.clone();

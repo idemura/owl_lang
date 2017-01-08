@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 final class AstExpr extends AstNode
         implements Typed {
@@ -33,6 +33,6 @@ final class AstExpr extends AstNode
 
     @Override
     public AstType getType() {
-        return AstType.ofNode(expr);
+        return AstType.of(expr);
     }
 }

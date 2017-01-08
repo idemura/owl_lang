@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Igor Demura
+ * Copyright 2017 Igor Demura
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmGetField {
+final class JvmGetField extends JvmNode {
+    final String className;
+    final String name;
+    final String type;
+
+    JvmGetField(String className, String name, String type) {
+        this.className = className;
+        this.name = name;
+        this.type = type;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
-public final class OwlException extends Exception {
+final class OwlException extends Exception {
     final int line;
     final int charPosition;
 
@@ -22,12 +22,6 @@ public final class OwlException extends Exception {
         super(message);
         this.line = 0;
         this.charPosition = 0;
-    }
-
-    public OwlException(int line, int charPosition, String message) {
-        super(message);
-        this.line = line;
-        this.charPosition = charPosition;
     }
 
     public OwlException(Throwable cause) {

@@ -2,5 +2,5 @@ junit junit
 org.antlr antlr4-runtime 4.5.3
 org.antlr antlr4 4.5.3
 com.beust jcommander
-com.google.guava guava
-
+com.google.guava guava 20.0
+javassist javassist

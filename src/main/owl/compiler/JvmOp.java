@@ -12,7 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmOp {
+import static com.google.common.base.Preconditions.checkArgument;
+
+final class JvmOp extends JvmNode {
+    final int arity;
+    final String op;
+    final String type;
+
+    JvmOp(int arity, String op, String type) {
+        checkArgument(1 <= arity && arity <= 2, "arity");
+        this.arity = arity;
+        this.op = op;
+        this.type = type;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

@@ -1,1 +1,1 @@
---echo --print_ast --print_name_map --stop_phase 2 --gen_version false
+--print_ast --print_name_map --stop_phase 2

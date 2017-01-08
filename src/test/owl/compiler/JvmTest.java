@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class JvmTest {
     @Test
     public void testEmpty() {
-        assertEquals(0, 0);
+        // Empty
     }
 }

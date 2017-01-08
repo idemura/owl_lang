@@ -12,7 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmPutLocal {
+import static com.google.common.base.Preconditions.checkArgument;
+
+final class JvmPutLocal extends JvmNode {
+    final int index;
+
+    JvmPutLocal(int index) {
+        checkArgument(index >= 0);
+        this.index = index;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

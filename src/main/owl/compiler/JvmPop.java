@@ -12,7 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmPop {
+final class JvmPop extends JvmNode {
+    JvmPop() {}
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

@@ -12,25 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import static java.util.stream.Collectors.toList;
 
 final class Util {
     private Util() {}
 
-    private static String LANGUAGE_VERSION;
-    private static String COMPILER_NAME;
+    static int combineHashes(int a, int b) {
+        // Follows Objects.hash
+        return 31 * (31 + a) + b;
+    }
 
     static boolean isIdFirstChar(char c) {
         c = Character.toLowerCase(c);
@@ -58,32 +55,6 @@ final class Util {
         return String.join(delimiter, c.stream().map(T::toString).collect(toList()));
     }
 
-    static String quote(String s) {
-        // TODO: Handle escapes
-        return "\"" + s + "\"";
-    }
-
-    static String unquote(String s) {
-        // TODO: Handle escapes
-        return s.substring(1, s.length() - 1);
-    }
-
-    static String getCompilerName() {
-        if (COMPILER_NAME == null) {
-            COMPILER_NAME =
-                    getManifestAttribute("Owl-Compiler-Name") + " " +
-                    getManifestAttribute("Owl-Compiler-Version");
-        }
-        return COMPILER_NAME;
-    }
-
-    static String getLanguageVersion() {
-        if (LANGUAGE_VERSION == null) {
-            LANGUAGE_VERSION = getManifestAttribute("Owl-Language-Version");
-        }
-        return LANGUAGE_VERSION;
-    }
-
     static String removeSuffix(String s, int len) {
         return s.substring(0, s.length() - len);
     }
@@ -103,22 +74,5 @@ final class Util {
     @SafeVarargs
     static <T> List<T> listOf(T... a) {
         return Arrays.asList(a);
-    }
-
-    private static String getManifestAttribute(String name) {
-        try {
-            Attributes.Name attrName = new Attributes.Name(name);
-            Enumeration<URL> resources = Util.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-            while (resources.hasMoreElements()) {
-                Manifest m = new Manifest(resources.nextElement().openStream());
-                Object value = m.getMainAttributes().get(attrName);
-                if (value != null) {
-                    return (String) value;
-                }
-            }
-        } catch (IOException e) {
-            // Fall through
-        }
-        throw new IllegalStateException("manifest missing attribute");
     }
 }

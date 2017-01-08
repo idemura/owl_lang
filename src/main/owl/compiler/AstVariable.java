@@ -12,18 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkState;
 
 final class AstVariable extends AstNode
         implements Entity {
     private String moduleName;
     private String name;
-    private String uniqueName;
     private AstType type;
     private AstNode expr;
     int index = -1;
@@ -54,9 +51,6 @@ final class AstVariable extends AstNode
         } else {
             list.add(moduleName + "." + name);
         }
-        if (uniqueName != null) {
-            list.add("(" + uniqueName + ")");
-        }
         if (type != null) {
             list.add("type=" + type);
         }
@@ -64,6 +58,11 @@ final class AstVariable extends AstNode
             list.add("<expr>");
         }
         return String.join(" ", list);
+    }
+
+    @Override
+    public String getJvmDescriptor() {
+        return getType().jvmType();
     }
 
     @Override
@@ -94,22 +93,7 @@ final class AstVariable extends AstNode
         return name;
     }
 
-    @Override
-    public String getUniqueName() {
-        // TODO: Use hash for this?
-        return uniqueName != null? uniqueName: name;
-    }
-
-    void setUniqueName(String uniqueName) {
-        checkState(this.uniqueName == null);
-        this.uniqueName = uniqueName;
-    }
-
     AstNode getExpr() {
         return expr;
-    }
-
-    void setExpr(AstNode expr) {
-        this.expr = expr;
     }
 }

@@ -14,5 +14,7 @@
  */
 package owl.compiler;
 
-public class Named {
+interface Named {
+    String getModuleName();
+    String getName();
 }

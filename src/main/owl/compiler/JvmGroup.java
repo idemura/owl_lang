@@ -12,7 +12,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmGroup {
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+final class JvmGroup extends JvmNode {
+    final List<JvmNode> children;
+
+    JvmGroup() {
+        this.children = new ArrayList<>();
+    }
+
+    JvmGroup(List<JvmNode> children) {
+        this.children = new ArrayList<>();
+        for (JvmNode n : children) {
+            add(n);
+        }
+    }
+
+    void add(JvmNode node) {
+        checkNotNull(node);
+        children.add(node);
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

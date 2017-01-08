@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.io.PrintStream;
 
@@ -106,7 +106,7 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstLiteral node) {
-            leaf(node, node.text + " " + node.getType());
+            leaf(node, node.object + " " + node.getType());
             return null;
         }
 

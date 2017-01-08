@@ -12,7 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmVariable {
+import javassist.bytecode.AccessFlag;
+
+final class JvmVariable extends JvmNode {
+    final int flags;
+    final String name;
+    final String desc;
+    final JvmBlock block;
+
+    JvmVariable(
+            boolean fpublic,
+            boolean fstatic,
+            String name,
+            String desc,
+            JvmBlock block) {
+        this.flags = (fpublic? AccessFlag.PUBLIC: 0) | (fstatic? AccessFlag.STATIC: 0);
+        this.name = name;
+        this.desc = desc;
+        this.block = block;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

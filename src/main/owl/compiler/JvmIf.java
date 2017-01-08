@@ -12,7 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmIf {
+final class JvmIf extends JvmNode {
+    final JvmNode condition;
+    final JvmBlock thenBlock;
+    final JvmBlock elseBlock;
+
+    JvmIf(JvmNode condition, JvmBlock thenBlock, JvmBlock elseBlock) {
+        this.condition = condition;
+        this.thenBlock = thenBlock;
+        this.elseBlock = elseBlock;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

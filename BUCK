@@ -1,10 +1,15 @@
+prebuilt_jar(
+    name = 'javassist',
+    binary_jar = 'javassist.jar',
+)
+
 java_library(
-    name = 'owl_lang',
+    name = 'compiler',
     srcs = glob([
-        'src/main/owl/lang/parser/*.java',
-        'src/main/owl/lang/*.java',
+        'src/main/owl/compiler/*.java',
     ]),
     deps = [
+        ':javassist',
         '//lib:antlr4-runtime',
         '//lib:guava',
         '//lib:jcommander',
@@ -12,7 +17,7 @@ java_library(
 )
 
 java_library(
-    name = 'owl_runtime',
+    name = 'runtime',
     srcs = glob([
         'src/main/owl/runtime/*.java',
     ]),
@@ -20,21 +25,20 @@ java_library(
 )
 
 java_test(
-    name = 'owl_lang_test',
+    name = 'compiler_test',
     srcs = glob([
-        'src/test/owl/lang/*.java',
+        'src/test/owl/compiler/*.java',
     ]),
     deps = [
-        ':owl_lang',
-        '//lib:guava',
+        ':compiler',
         '//lib:junit',
     ],
 )
 
 java_binary(
-    name = 'owl_lang_cli',
+    name = 'owl_compiler_cli',
     manifest_file = 'src/main/resources/META-INF/MANIFEST.MF',
     deps = [
-        ':owl_lang',
+        ':compiler',
     ],
 )

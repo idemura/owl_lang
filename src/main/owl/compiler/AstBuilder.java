@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static owl.lang.OwlParser.*;
+import static owl.compiler.OwlParser.*;
 
 // Builds AST from parse tree (PT), or maps PT to AST. This is failure-less operation given a valid PT.
 // Performs desugaring.
@@ -136,12 +136,12 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
             return new AstName(ctx.NAME().getText());
         }
         if (ctx.BOOL() != null) {
-            return new AstLiteral(ctx.BOOL().getText(), AstType.BOOL);
+            return new AstLiteral(ctx.BOOL().getText().equals("true")? Boolean.TRUE: Boolean.FALSE, AstType.BOOL);
         }
         if (ctx.INT() != null) {
             // TODO: Check range
             // TODO: Deduce type
-            return new AstLiteral(ctx.INT().getText(), AstType.I32);
+            return new AstLiteral(Integer.valueOf(ctx.INT().getText()), AstType.I32);
         }
         if (ctx.STRING() != null) {
             return new AstLiteral(ctx.STRING().getText(), AstType.STRING);

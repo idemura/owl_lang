@@ -12,7 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmNode {
+abstract class JvmNode {
+    abstract Object accept(JvmVisitor v);
 }

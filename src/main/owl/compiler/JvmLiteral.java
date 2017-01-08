@@ -12,7 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmLiteral {
+final class JvmLiteral extends JvmNode {
+    static final JvmLiteral TRUE = new JvmLiteral(1, Jvm.BOOL);
+    static final JvmLiteral FALSE = new JvmLiteral(0, Jvm.BOOL);
+
+    final Object object;
+    final String type;
+
+    JvmLiteral(Object object, String type) {
+        this.object = object;
+        this.type = type;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

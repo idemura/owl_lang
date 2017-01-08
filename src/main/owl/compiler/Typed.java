@@ -14,5 +14,6 @@
  */
 package owl.compiler;
 
-public class Typed {
+interface Typed {
+    AstType getType();
 }

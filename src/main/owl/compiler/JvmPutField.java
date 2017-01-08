@@ -12,7 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmPutField {
+final class JvmPutField extends JvmNode {
+    final String className;
+    final String name;
+    final String type;
+
+    JvmPutField(String className, String name, String type) {
+        this.className = className;
+        this.name = name;
+        this.type = type;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

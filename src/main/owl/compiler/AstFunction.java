@@ -12,12 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 final class AstFunction extends AstNode
         implements Entity {
@@ -56,6 +57,12 @@ final class AstFunction extends AstNode
 
     List<AstVariable> getVars() {
         return ImmutableList.copyOf(vars);
+    }
+
+    @Override
+    public String getJvmDescriptor() {
+        List<String> atypes = args.stream().map(x -> x.getType().jvmType()).collect(Collectors.toList());
+        return "(" + String.join(",", atypes) + ")" + returnType.jvmType();
     }
 
     @Override
@@ -110,11 +117,6 @@ final class AstFunction extends AstNode
         return name;
     }
 
-    @Override
-    public String getUniqueName() {
-        return name;
-    }
-
     AstType getReturnType() {
         return returnType;
     }
@@ -128,18 +130,8 @@ final class AstFunction extends AstNode
         for (AstVariable a : args) {
             a.index = i++;
         }
-        NameGen gen = new NameGen("_l_");
         for (AstVariable v : vars) {
-            v.setUniqueName(gen.newName());
             v.index = i++;
-        }
-    }
-
-    Entity getLocal(int index) {
-        if (index < args.size()) {
-            return args.get(index);
-        } else {
-            return vars.get(index - args.size());
         }
     }
 }

@@ -12,7 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmVisitor {
+public interface JvmVisitor<T> {
+    default T visitError() {
+        throw new UnsupportedOperationException("visitor incomplete " + getClass().getName());
+    }
+
+    default T accept(JvmNode node) {
+        return (T) node.accept(this);
+    }
+
+    default T visit(JvmApply node) { return visitError(); }
+    default T visit(JvmBlock node) { return visitError(); }
+    default T visit(JvmCoerce node) { return visitError(); }
+    default T visit(JvmClass node) { return visitError(); }
+    default T visit(JvmFunction node) { return visitError(); }
+    default T visit(JvmGetField node) { return visitError(); }
+    default T visit(JvmGetLocal node) { return visitError(); }
+    default T visit(JvmGroup node) { return visitError(); }
+    default T visit(JvmIf node) { return visitError(); }
+    default T visit(JvmLiteral node) { return visitError(); }
+    default T visit(JvmOp node) { return visitError(); }
+    default T visit(JvmPop node) { return visitError(); }
+    default T visit(JvmPutField node) { return visitError(); }
+    default T visit(JvmPutLocal node) { return visitError(); }
+    default T visit(JvmReturn node) { return visitError(); }
+    default T visit(JvmVariable node) { return visitError(); }
 }

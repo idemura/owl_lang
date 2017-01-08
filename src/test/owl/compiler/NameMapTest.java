@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import org.junit.Test;
 
@@ -26,5 +26,6 @@ public class NameMapTest {
         assertTrue(m.put("x", new AstVariable(null, "x", AstType.I32, null)));
         assertTrue(m.put("y", new AstVariable(null, "y", AstType.I32, null)));
         assertFalse(m.put("x", new AstVariable(null, "x", AstType.STRING, null)));
+        assertFalse(m.put("y", new AstVariable(null, "y", AstType.STRING, null)));
     }
 }

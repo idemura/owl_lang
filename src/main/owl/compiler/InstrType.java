@@ -14,12 +14,17 @@
  */
 package owl.compiler;
 
-final class OpType {
-    private OpType() {}
+final class InstrType {
+    private InstrType() {}
 
-    static final int kI32 = 0;
-    static final int kI64 = 1;
-    static final int kF32 = 2;
-    static final int kF64 = 3;
-    static final int kRef = 4;
+    static final int kV = 0;
+    static final int kZ = 1;
+    static final int kC = 2;
+    static final int kB = 3;
+    static final int kS = 4;
+    static final int kI = 5;
+    static final int kL = 6;
+    static final int kF = 7;
+    static final int kD = 8;
+    static final int kR = 9;
 }

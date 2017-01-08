@@ -12,18 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class UtilTest {
     @Test
-    public void testTrimQuotes() {
-        assertEquals("abc", Util.unquote("\"abc\""));
-        assertEquals("", Util.unquote("\"\""));
-        assertEquals("\"abc\"", Util.quote("abc"));
-        assertEquals("\"\"", Util.quote(""));
+    public void testIsName() {
+        assertTrue(Util.isName("hello"));
+        assertTrue(Util.isName("Hello"));
+        assertFalse(Util.isName("_Hello"));
+        assertFalse(Util.isName("0Hello"));
     }
 }

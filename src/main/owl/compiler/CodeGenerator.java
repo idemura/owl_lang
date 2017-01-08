@@ -12,20 +12,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import com.google.common.io.Files;
+
+import java.util.ArrayList;
+import java.util.List;
 
 final class CodeGenerator {
     private CodeGenerator() {}
 
-    static owl.lang.Jvm run(Ast ast, ErrorListener errorListener) {
-        return new owl.lang.Jvm(new Visitor(errorListener).accept(ast.root));
+    static Jvm run(Ast ast, ErrorListener errorListener) {
+        return new Jvm(new Visitor(errorListener).accept(ast.root));
     }
 
-    private static final class Visitor implements AstVisitor<owl.lang.JvmNode> {
+    private static int getInstrType(AstType type) {
+        if (type == AstType.BOOL) {
+            return InstrType.kB;
+        }
+        if (type == AstType.CHAR) {
+            return InstrType.kC;
+        }
+        if (type == AstType.I32) {
+            return InstrType.kI;
+        }
+        if (type == AstType.I64) {
+            return InstrType.kL;
+        }
+        if (type == AstType.F32) {
+            return InstrType.kF;
+        }
+        if (type == AstType.F64) {
+            return InstrType.kD;
+        }
+        return InstrType.kR;
+    }
+
+    private static final class Visitor implements AstVisitor<JvmNode> {
         private final ErrorListener errorListener;
-        private owl.lang.JvmClass clazz;
+        private JvmClass clazz;
         private int functionNestLevel = 0;
 
         private Visitor(ErrorListener errorListener) {
@@ -33,22 +58,22 @@ final class CodeGenerator {
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstName node) {
+        public JvmNode visit(AstName node) {
             AstVariable v = (AstVariable) node.entity;
             if (node.entity.getModuleName() == null) {
-                return new owl.lang.JvmGetLocal(v.index);
+                return new JvmGetLocal(v.index);
             } else {
-                return new owl.lang.JvmGetField(clazz.name, v.getName(), v.getType());
+                return new JvmGetField(clazz.name, v.getName(), v.getType().jvmType());
             }
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstField node) {
+        public JvmNode visit(AstField node) {
             throw new UnsupportedOperationException("code generator");
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstModule node) {
+        public JvmNode visit(AstModule node) {
             if (node.fileName == null) {
                 errorListener.error("module file name is empty");
             }
@@ -56,59 +81,63 @@ final class CodeGenerator {
             if (!Util.isName(className)) {
                 errorListener.error("file name must be java identifier: " + className);
             }
-            clazz = new owl.lang.JvmClass(owl.lang.AccessModifier.PUBLIC, className);
+            clazz = new JvmClass(true, node.name, className);
             for (AstNode v : node.variables) {
                 clazz.addVariable(accept(v));
             }
             for (AstNode f : node.functions) {
                 clazz.addFunction(accept(f));
             }
-
-            owl.lang.JvmPackage p = new owl.lang.JvmPackage(node.name);
-            p.addImport("owl.runtime._RT");
-            p.addClass(clazz);
-            return p;
+            return clazz;
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstFunction node) {
+        public JvmNode visit(AstFunction node) {
             node.indexLocals();
             functionNestLevel++;
-            owl.lang.JvmFunction f = new owl.lang.JvmFunction(
-                    node,
-                    node.getName().equals("main")? owl.lang.AccessModifier.PUBLIC: owl.lang.AccessModifier.PACKAGE,
-                    owl.lang.MemoryModifier.STATIC,
-                    (owl.lang.JvmBlock) accept(node.getBlock()));
+            boolean fpublic = node.getName().equals("main");
+            List<JvmFunction.Var> locals = new ArrayList<>();
+            for (AstVariable a : node.getArgs()) {
+                locals.add(new JvmFunction.Var(a.index, getInstrType(a.getType())));
+            }
+            for (AstVariable v : node.getVars()) {
+                locals.add(new JvmFunction.Var(v.index, getInstrType(v.getType())));
+            }
+            JvmBlock block = (JvmBlock) accept(node.getBlock());
+            if (node.getReturnType() == AstType.NONE && !(Util.last(node.getBlock().children) instanceof AstReturn)) {
+                block.add(new JvmReturn(InstrType.kV));
+            }
+            JvmFunction f = new JvmFunction(fpublic, true,
+                    node.getName(),
+                    node.getJvmDescriptor(),
+                    locals,
+                    block);
             functionNestLevel--;
             return f;
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstVariable node) {
+        public JvmNode visit(AstVariable node) {
             if (functionNestLevel == 0) {
-                owl.lang.JvmGroup g = new owl.lang.JvmGroup();
-                g.add(new owl.lang.JvmVariable(
-                        node,
-                        owl.lang.AccessModifier.PACKAGE,
-                        owl.lang.MemoryModifier.STATIC,
-                        null));
+                JvmGroup g = new JvmGroup();
+                g.add(new JvmVariable(false, true, node.getName(), node.getJvmDescriptor(), null));
                 if (node.getExpr() != null) {
-                    owl.lang.JvmBlock b = new owl.lang.JvmBlock();
+                    JvmBlock b = new JvmBlock();
                     b.add(accept(node.getExpr()));
-                    b.add(new owl.lang.JvmPutField(clazz.name, node.getName(), node.getType()));
+                    b.add(new JvmPutField(clazz.name, node.getName(), node.getType().jvmType()));
                     g.add(b);
                 }
                 return g;
             } else {
-                return new owl.lang.JvmGroup(Util.listOf(
+                return new JvmGroup(Util.listOf(
                         accept(node.getExpr()),
-                        new owl.lang.JvmPutLocal(node.index)));
+                        new JvmPutLocal(node.index)));
             }
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstBlock node) {
-            owl.lang.JvmBlock b = new owl.lang.JvmBlock();
+        public JvmNode visit(AstBlock node) {
+            JvmBlock b = new JvmBlock();
             for (AstNode c : node.children) {
                 b.add(accept(c));
             }
@@ -116,18 +145,17 @@ final class CodeGenerator {
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstApply node) {
+        public JvmNode visit(AstApply node) {
             AstName fnName = (AstName) node.fn;
             if (Util.isIdFirstChar(fnName.name.charAt(0))) {
-                owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+                JvmGroup g = new JvmGroup();
                 for (AstNode a : node.args) {
                     g.add(accept(a));
                 }
-                g.add(new owl.lang.JvmApply(
-                        Util.isEmpty(fnName.entity.getModuleName()) ? "_RT" : null,
+                g.add(new JvmApply(
+                        Util.isEmpty(fnName.entity.getModuleName()) ? Runtime.NAME : clazz.name,
                         fnName.name,
-                        node.args.size(),
-                        node.getType()));
+                        fnName.entity.getJvmDescriptor()));
                 return g;
             }
 
@@ -139,9 +167,9 @@ final class CodeGenerator {
                         case "-":
                         case "~":
                         case "!":
-                            return new owl.lang.JvmGroup(Util.listOf(
+                            return new JvmGroup(Util.listOf(
                                     accept(node.args.get(0)),
-                                    new owl.lang.JvmOperator(1, fnName.name, node.getType())));
+                                    new JvmOp(1, fnName.name, node.getType().jvmType())));
 
                         default:
                             throw new IllegalStateException("unknown operator " + fnName.name);
@@ -160,16 +188,16 @@ final class CodeGenerator {
                         case "&":
                         case "^":
                         case "|":
-                            return new owl.lang.JvmGroup(Util.listOf(
+                            return new JvmGroup(Util.listOf(
                                     accept(node.args.get(0)),
                                     accept(node.args.get(1)),
-                                    new owl.lang.JvmOperator(2, fnName.name, node.getType())));
+                                    new JvmOp(2, fnName.name, node.getType().jvmType())));
 
                         case "//":
-                            return new owl.lang.JvmGroup(Util.listOf(
+                            return new JvmGroup(Util.listOf(
                                     accept(node.args.get(0)),
                                     accept(node.args.get(1)),
-                                    new owl.lang.JvmApply("_RT", "fdiv", 2, node.getType())));
+                                    new JvmApply(Runtime.NAME, "fdiv", node.getType().jvmType())));
 
                         case "<":
                         case "<=":
@@ -177,26 +205,26 @@ final class CodeGenerator {
                         case ">=":
                         case "==":
                         case "!=": {
-                            owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+                            JvmGroup g = new JvmGroup();
                             g.add(accept(node.args.get(0)));
                             g.add(accept(node.args.get(1)));
-                            AstType tl = AstType.ofNode(node.args.get(0));
-                            AstType tr = AstType.ofNode(node.args.get(1));
+                            AstType tl = AstType.of(node.args.get(0));
+                            AstType tr = AstType.of(node.args.get(1));
                             if (tl.equals(AstType.STRING) && tr.equals(AstType.STRING)) {
-                                g.add(new owl.lang.JvmApply("_RT", "compare", 2, AstType.I32));
-                                g.add(new owl.lang.JvmLiteral("0", AstType.I32));
+                                g.add(new JvmApply(Runtime.NAME, "compare", "(II)I"));
+                                g.add(new JvmLiteral(0, Jvm.I32));
                             }
-                            g.add(new owl.lang.JvmOperator(2, fnName.name, node.getType()));
+                            g.add(new JvmOp(2, fnName.name, node.getType().jvmType()));
                             return g;
                         }
 
                         case "&&": {
-                            return new owl.lang.JvmIf(
+                            return new JvmIf(
                                     accept(node.args.get(0)),
-                                    owl.lang.JvmBlock.of(new owl.lang.JvmIf(accept(node.args.get(1)),
-                                            owl.lang.JvmBlock.of(owl.lang.JvmLiteral.TRUE),
-                                            owl.lang.JvmBlock.of(owl.lang.JvmLiteral.FALSE))),
-                                    owl.lang.JvmBlock.of(owl.lang.JvmLiteral.FALSE));
+                                    JvmBlock.of(new JvmIf(accept(node.args.get(1)),
+                                            JvmBlock.of(JvmLiteral.TRUE),
+                                            JvmBlock.of(JvmLiteral.FALSE))),
+                                    JvmBlock.of(JvmLiteral.FALSE));
                         }
 
                         default:
@@ -209,26 +237,41 @@ final class CodeGenerator {
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstCoerce node) {
-            owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+        public JvmNode visit(AstCoerce node) {
+            JvmGroup g = new JvmGroup();
             g.add(accept(node.expr));
-            if (!AstType.ofNode(node.expr).equals(node.type)) {
-                g.add(new owl.lang.JvmCoerce(AstType.ofNode(node), node.getType()));
+            if (AstType.of(node.expr).equals(node.type)) {
+                return g;
             }
+            int kind = -1;
+            AstType sType = AstType.of(node.expr);
+            AstType dType = node.getType();
+            if (sType == AstType.I32) {
+                if (dType == AstType.I64) {
+                    kind = JvmCoerce.I2L;
+                }
+            } else if (sType == AstType.I64) {
+                if (dType == AstType.I32) {
+                    kind = JvmCoerce.L2I;
+                }
+            } else {
+                throw new UnsupportedOperationException("invalid coerce");
+            }
+            g.add(new JvmCoerce(kind, dType.jvmType()));
             return g;
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstAssign node) {
-            owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+        public JvmNode visit(AstAssign node) {
+            JvmGroup g = new JvmGroup();
             g.add(accept(node.r));
             if (node.l instanceof AstName) {
                 AstName name = (AstName) node.l;
                 AstVariable v = (AstVariable) name.entity;
                 if (v.getModuleName() == null) {
-                    g.add(new owl.lang.JvmPutLocal(v.index));
+                    g.add(new JvmPutLocal(v.index));
                 } else {
-                    g.add(new owl.lang.JvmPutField(clazz.name, v.getName(), v.getType()));
+                    g.add(new JvmPutField(clazz.name, v.getName(), v.getType().jvmType()));
                 }
                 return g;
             } else {
@@ -237,13 +280,13 @@ final class CodeGenerator {
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstLiteral node) {
-            return new owl.lang.JvmLiteral(node.text, node.getType());
+        public JvmNode visit(AstLiteral node) {
+            return new JvmLiteral(node.object, node.getType().jvmType());
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstIf node) {
-            owl.lang.JvmNode r = null;
+        public JvmNode visit(AstIf node) {
+            JvmNode r = null;
             int i = node.branches.size() - 1;
             if (node.branches.get(i).condition == null) {
                 r = accept(node.branches.get(i).block);
@@ -251,38 +294,38 @@ final class CodeGenerator {
             }
             while (i >= 0) {
                 AstIf.Branch b = node.branches.get(i);
-                if (r != null && !(r instanceof owl.lang.JvmBlock)) {
-                    owl.lang.JvmBlock wrapIf = new owl.lang.JvmBlock();
+                if (r != null && !(r instanceof JvmBlock)) {
+                    JvmBlock wrapIf = new JvmBlock();
                     wrapIf.add(r);
                     r = wrapIf;
                 }
-                r = new owl.lang.JvmIf(accept(b.condition), (owl.lang.JvmBlock) accept(b.block), (owl.lang.JvmBlock) r);
+                r = new JvmIf(accept(b.condition), (JvmBlock) accept(b.block), (JvmBlock) r);
                 i--;
             }
             return r;
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstReturn node) {
-            owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+        public JvmNode visit(AstReturn node) {
+            JvmGroup g = new JvmGroup();
             g.add(accept(node.expr));
-            g.add(new owl.lang.JvmReturn());
+            g.add(new JvmReturn(getInstrType(AstType.of(node.expr))));
             return g;
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstExpr node) {
-            owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+        public JvmNode visit(AstExpr node) {
+            JvmGroup g = new JvmGroup();
             g.add(accept(node.expr));
             if (node.discards()) {
-                g.add(new owl.lang.JvmPop());
+                g.add(new JvmPop());
             }
             return g;
         }
 
         @Override
-        public owl.lang.JvmNode visit(AstGroup node) {
-            owl.lang.JvmGroup g = new owl.lang.JvmGroup();
+        public JvmNode visit(AstGroup node) {
+            JvmGroup g = new JvmGroup();
             for (AstNode c : node.children) {
                 g.add(accept(c));
             }

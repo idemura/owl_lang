@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Igor Demura
+ * Copyright 2017 Igor Demura
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmBlock {
+import com.google.common.collect.ImmutableList;
+
+import java.util.ArrayList;
+import java.util.List;
+
+final class JvmBlock extends JvmNode {
+    private List<JvmNode> instr = new ArrayList<>();
+
+    static JvmBlock of(JvmNode node) {
+        JvmBlock b = new JvmBlock();
+        b.add(node);
+        return b;
+    }
+
+    void add(JvmNode node) {
+        instr.add(node);
+    }
+
+    List<JvmNode> getInstructions() {
+        return ImmutableList.copyOf(instr);
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

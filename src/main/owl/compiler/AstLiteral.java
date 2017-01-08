@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 final class AstLiteral extends AstNode
         implements Typed {
-    String text;
+    Object object;
     AstType type;
 
-    AstLiteral(String text, AstType type) {
-        this.text = text;
+    AstLiteral(Object object, AstType type) {
+        this.object = object;
         this.type = type;
     }
 

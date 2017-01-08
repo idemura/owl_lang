@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -65,10 +65,6 @@ public final class CLI {
     private boolean flagPrintAst = false;
     @Parameter(names = {"--print_name_map"}, description = "Print module name map")
     private boolean flagPrintNameMap = false;
-    @Parameter(names = {"--echo"}, description = "Echo generated code to stdout")
-    private boolean flagEcho = false;
-    @Parameter(names = {"--gen_version"}, arity = 1, description = "Output compiler version")
-    private boolean flagGenVersion = false;
     @Parameter(names = {"--time"}, description = "Compilation time")
     private boolean flagTime = false;
 
@@ -206,7 +202,7 @@ public final class CLI {
         }
         start = System.nanoTime();
         try {
-            new JavaTranslator(flagGenVersion).translate(jvm, outDir, flagEcho ? System.out : null);
+            BytecodeEmitter.run(jvm, outDir);
         } catch (OwlException e) {
             errorListener.error(e);
             return false;

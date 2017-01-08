@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Igor Demura
+ * Copyright 2017 Igor Demura
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmApply {
+final class JvmApply extends JvmNode {
+    final String object;
+    final String method;
+    final String desc;
+
+    JvmApply(
+            String object,
+            String method,
+            String desc) {
+        this.object = object;
+        this.method = method;
+        this.desc = desc;
+    }
+
+    int getArgsNum() {
+        return Jvm.countArgs(desc);
+    }
+
+    boolean isVoid() {
+        return Jvm.isVoid(desc);
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

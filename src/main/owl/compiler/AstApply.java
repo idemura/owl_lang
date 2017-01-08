@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ final class AstApply extends AstNode
     List<AstType> getArgTypes() {
         List<AstType> types = new ArrayList<>();
         for (AstNode a  : args) {
-            AstType t = AstType.ofNode(a);
+            AstType t = AstType.of(a);
             checkState(t != null);
             types.add(t);
         }

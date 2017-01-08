@@ -12,7 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.bytecode;
+package owl.compiler;
 
-public class JvmReturn {
+final class JvmReturn extends JvmNode {
+    final int itype;
+
+    JvmReturn(int itype) {
+        this.itype = itype;
+    }
+
+    @Override
+    Object accept(JvmVisitor v) {
+        return v.visit(this);
+    }
 }

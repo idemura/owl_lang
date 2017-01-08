@@ -12,28 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-interface Typed {
-    AstType getType();
-}
-
-interface Named {
-    String getModuleName();
-    String getName();
-    default String getUniqueName() {
-        return getName();
-    }
-}
-
 interface Entity extends Typed, Named {
-    default boolean isLocal() {
-        return getModuleName() == null;
-    }
+    String getJvmDescriptor();
 
     static int getHashCode(Entity e) {
         checkArgument(e.getType() != null);

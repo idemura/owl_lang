@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.util.List;
 
@@ -111,7 +111,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.getExpr())) {
                 return false;
             }
-            node.setType(AstType.ofNode(node.getExpr()));
+            node.setType(AstType.of(node.getExpr()));
             if (!fnStack.isEmpty()) {
                 if (entityMap.inTopBlock(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
@@ -203,8 +203,8 @@ final class TypeCheckerAndEntityResolver {
                 return false;
             }
 
-            AstType lType = AstType.ofNode(node.l);
-            AstType rType = AstType.ofNode(node.r);
+            AstType lType = AstType.of(node.l);
+            AstType rType = AstType.of(node.r);
             if (!rType.canAssignTo(lType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
@@ -233,9 +233,9 @@ final class TypeCheckerAndEntityResolver {
                     if (!accept(b.condition)) {
                         res = false;
                     }
-                    if (AstType.ofNode(b.condition) == null) {
+                    if (AstType.of(b.condition) == null) {
                         res = false;
-                    } else if(!AstType.ofNode(b.condition).equals(AstType.BOOL)) {
+                    } else if(!AstType.of(b.condition).equals(AstType.BOOL)) {
                         errorListener.error(node.getLine(), node.getCharPosition(),
                                 "condition must be of type Bool");
                         res = false;
@@ -253,7 +253,7 @@ final class TypeCheckerAndEntityResolver {
             if (!accept(node.expr)) {
                 return false;
             }
-            AstType exprType = AstType.ofNode(node.expr);
+            AstType exprType = AstType.of(node.expr);
             AstType returnType = fnStack.top().getReturnType();
             if (!exprType.canAssignTo(returnType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
@@ -275,7 +275,7 @@ final class TypeCheckerAndEntityResolver {
             if (!(b1 && b2)) {
                 return false;
             }
-            AstType exprType = AstType.ofNode(node.expr);
+            AstType exprType = AstType.of(node.expr);
             if (!exprType.canCoerceTo(node.type)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "no coerce from " + exprType + " to " + node.type);

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package owl.lang;
+package owl.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 // Generic type with parameters
 final class AstType extends AstNode {
-    static final String ARRAY = "Array";
-    static final String FUNCTION = "Fn";
+    private static final String ARRAY = "Array";
+    private static final String FUNCTION = "Fn";
 
     static final AstType BOOL = new AstType("Bool");
     static final AstType CHAR = new AstType("Char");
@@ -100,10 +100,10 @@ final class AstType extends AstNode {
     public boolean equals(Object other) {
         if (other instanceof AstType) {
             AstType otherType = (AstType) other;
-            if (!Objects.equals(name, otherType.name)) {
+            if (!name.equals(otherType.name)) {
                 return false;
             }
-            if (!Objects.equals(args, otherType.args)) {
+            if (!args.equals(otherType.args)) {
                 return false;
             }
             return true;
@@ -166,35 +166,35 @@ final class AstType extends AstNode {
         return false;
     }
 
-    static AstType ofNode(AstNode node) {
+    static AstType of(AstNode node) {
         return ((Typed) node).getType();
     }
 
-    String javaType() {
+    String jvmType() {
         if (isArray()) {
-            return args.get(0).javaType() + "[]";
+            return Jvm.arrayType(args.get(0).jvmType());
         }
         if (args.size() > 0) {
             throw new UnsupportedOperationException("java type name on generic");
         }
         if (equals(AstType.BOOL)) {
-            return "boolean";
+            return Jvm.BOOL;
         } else if (equals(AstType.CHAR)) {
-            return "char";
+            return Jvm.CHAR;
         } else if (equals(AstType.I32)) {
-            return "int";
+            return Jvm.I32;
         } else if (equals(AstType.I64)) {
-            return "long";
+            return Jvm.I64;
         } else if (equals(AstType.F32)) {
-            return "float";
+            return Jvm.F32;
         } else if (equals(AstType.F64)) {
-            return "double";
+            return Jvm.F64;
         } else if (equals(AstType.STRING)) {
-            return "String";
+            return Jvm.STRING;
         } else if (equals(AstType.NONE)) {
-            return "void";
+            return Jvm.NONE;
         } else {
-            return name;
+            return Jvm.classType(name);
         }
     }
 }
