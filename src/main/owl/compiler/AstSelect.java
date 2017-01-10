@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Igor Demura
+ * Copyright 2016 Igor Demura
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,22 +14,24 @@
  */
 package owl.compiler;
 
-import static com.google.common.base.Preconditions.checkArgument;
+final class AstSelect extends AstNode
+        implements Typed {
+    AstNode object;
+    String field;
+    AstType type;  // Deduced
 
-final class JvmOp extends JvmNode {
-    final int arity;
-    final String op;
-    final String type;
-
-    JvmOp(int arity, String op, String type) {
-        checkArgument(1 <= arity && arity <= 2, "arity");
-        this.arity = arity;
-        this.op = op;
-        this.type = type;
+    AstSelect(AstNode object, String member) {
+        this.object = object;
+        this.field = member;
     }
 
     @Override
-    Object accept(JvmVisitor v) {
+    public Object accept(AstVisitor v) {
         return v.visit(this);
+    }
+
+    @Override
+    public AstType getType() {
+        return type;
     }
 }

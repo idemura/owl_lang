@@ -16,13 +16,11 @@ package owl.compiler;
 
 import java.util.Objects;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 interface Entity extends Typed, Named {
     String getJvmDescriptor();
 
     static int getHashCode(Entity e) {
-        checkArgument(e.getType() != null);
+        Util.check(e.getType() != null);
         return Objects.hash(e.getModuleName(), e.getName(), e.getType());
     }
 

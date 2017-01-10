@@ -61,8 +61,8 @@ final class AstFunction extends AstNode
 
     @Override
     public String getJvmDescriptor() {
-        List<String> atypes = args.stream().map(x -> x.getType().jvmType()).collect(Collectors.toList());
-        return "(" + String.join(",", atypes) + ")" + returnType.jvmType();
+        List<String> atypes = args.stream().map(x -> x.getType().getJvmType()).collect(Collectors.toList());
+        return "(" + String.join(",", atypes) + ")" + returnType.getJvmType();
     }
 
     @Override
@@ -74,7 +74,7 @@ final class AstFunction extends AstNode
                 list.add(name);
             }
         } else {
-            list.add(moduleName + "." + name);
+            list.add(moduleName + "::" + name);
         }
         list.add("type=" + getType());
         return String.join(" ", list);
@@ -128,10 +128,10 @@ final class AstFunction extends AstNode
     void indexLocals() {
         int i = 0;
         for (AstVariable a : args) {
-            a.index = i++;
+            a.storage = new AstVariable.Local(i++);
         }
         for (AstVariable v : vars) {
-            v.index = i++;
+            v.storage = new AstVariable.Local(i++);
         }
     }
 }

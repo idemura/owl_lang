@@ -17,8 +17,6 @@ package owl.compiler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
-
 final class AstApply extends AstNode
         implements Typed {
     AstNode fn;
@@ -47,7 +45,7 @@ final class AstApply extends AstNode
         List<AstType> types = new ArrayList<>();
         for (AstNode a  : args) {
             AstType t = AstType.of(a);
-            checkState(t != null);
+            Util.check(t != null);
             types.add(t);
         }
         return types;

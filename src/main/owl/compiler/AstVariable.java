@@ -19,11 +19,28 @@ import java.util.List;
 
 final class AstVariable extends AstNode
         implements Entity {
+    static abstract class Storage {
+    }
+
+    static final class Local extends Storage {
+        int index = -1;
+
+        Local(int index) {
+            this.index = index;
+        }
+    }
+
+    static final class Field extends Storage {
+    }
+
+    static final class Module extends Storage {
+    }
+
     private String moduleName;
     private String name;
     private AstType type;
     private AstNode expr;
-    int index = -1;
+    Storage storage = null;
 
     AstVariable(String moduleName, String name, AstType type, AstNode expr) {
         this.moduleName = moduleName;
@@ -49,7 +66,7 @@ final class AstVariable extends AstNode
         if (moduleName == null) {
             list.add(name);
         } else {
-            list.add(moduleName + "." + name);
+            list.add(moduleName + "::" + name);
         }
         if (type != null) {
             list.add("type=" + type);
@@ -62,7 +79,7 @@ final class AstVariable extends AstNode
 
     @Override
     public String getJvmDescriptor() {
-        return getType().jvmType();
+        return getType().getJvmType();
     }
 
     @Override

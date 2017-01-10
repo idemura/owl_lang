@@ -19,13 +19,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-
 // Generic type with parameters
 final class AstType extends AstNode {
     private static final String ARRAY = "Array";
     private static final String FUNCTION = "Fn";
+
+    static final int kNONE = 0;
+    static final int kBOOL = 1;
+    static final int kCHAR = 2;
+    static final int kF32 = 3;
+    static final int kF64 = 4;
+    static final int kI32 = 5;
+    static final int kI64 = 6;
+    static final int kREF = 7;
 
     static final AstType BOOL = new AstType("Bool");
     static final AstType CHAR = new AstType("Char");
@@ -68,7 +74,7 @@ final class AstType extends AstNode {
     }
 
     AstType getReturnType() {
-        checkState(isFunction());
+        Util.check(isFunction());
         return args.get(args.size() - 1);
     }
 
@@ -113,7 +119,7 @@ final class AstType extends AstNode {
 
     // Not sure if needed
     static boolean equalSignatures(AstType a, AstType b) {
-        checkArgument(a.isFunction() && b.isFunction(), "function type expected");
+        Util.check(a.isFunction() && b.isFunction(), "function type expected");
         if (a.args.size() != b.args.size()) {
             return false;
         }
@@ -127,7 +133,7 @@ final class AstType extends AstNode {
     }
 
     boolean acceptsArgs(List<AstType> argsIn) {
-        checkArgument(isFunction(), "function type expected");
+        Util.check(isFunction(), "function type expected");
         // Do not count return type
         if (args.size() - 1 != argsIn.size()) {
             return false;
@@ -170,31 +176,46 @@ final class AstType extends AstNode {
         return ((Typed) node).getType();
     }
 
-    String jvmType() {
+    int getJvmLocalType() {
+        if (equals(NONE)) return kNONE;
+        if (equals(BOOL)) return kBOOL;
+        if (equals(CHAR)) return kCHAR;
+        if (equals(I32)) return kI32;
+        if (equals(I64)) return kI64;
+        if (equals(F32)) return kF32;
+        if (equals(F64)) return kF64;
+        return kREF;
+    }
+
+    String getJvmType() {
         if (isArray()) {
-            return Jvm.arrayType(args.get(0).jvmType());
+            return "[" + args.get(0).getJvmType();
         }
         if (args.size() > 0) {
             throw new UnsupportedOperationException("java type name on generic");
         }
         if (equals(AstType.BOOL)) {
-            return Jvm.BOOL;
+            return "Z";
         } else if (equals(AstType.CHAR)) {
-            return Jvm.CHAR;
+            return "C";
         } else if (equals(AstType.I32)) {
-            return Jvm.I32;
+            return "I";
         } else if (equals(AstType.I64)) {
-            return Jvm.I64;
+            return "J";
         } else if (equals(AstType.F32)) {
-            return Jvm.F32;
+            return "F";
         } else if (equals(AstType.F64)) {
-            return Jvm.F64;
+            return "D";
         } else if (equals(AstType.STRING)) {
-            return Jvm.STRING;
+            return getJvmClassType("java.lang.String");
         } else if (equals(AstType.NONE)) {
-            return Jvm.NONE;
+            return "V";
         } else {
-            return Jvm.classType(name);
+            return getJvmClassType(name);
         }
+    }
+
+    private static String getJvmClassType(String type) {
+        return "L" + type.replace('.', '/') + ";";
     }
 }

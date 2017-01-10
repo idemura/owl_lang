@@ -16,8 +16,6 @@ package owl.compiler;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
-
 class ResolveResult extends Exception {
     static ResolveResult found(Entity ent) {
         return new ResolveResult(ent, null);
@@ -40,12 +38,12 @@ class ResolveResult extends Exception {
     }
 
     Entity get() {
-        checkState(ent != null);
+        Util.check(ent != null);
         return ent;
     }
 
     List<Entity> getCandidates() {
-        checkState(ent == null);
+        Util.check(ent == null);
         return candidates;
     }
 }

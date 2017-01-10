@@ -29,20 +29,17 @@ import static owl.compiler.OwlParser.*;
 // Checks and possible actions that may result an error are performed on separate stages.
 final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         implements OwlVisitor<AstNode> {
-    static Ast run(ModuleContext ctx, String fileName) {
-        return new Ast(ctx.accept(new AstBuilder(fileName)));
+    static Ast run(ModuleContext ctx) {
+        return new Ast(ctx.accept(new AstBuilder()));
     }
 
-    private final String fileName;
     private String moduleName;
     private int functionNestLevel = 0;
 
-    private AstBuilder(String fileName) {
-        this.fileName = fileName;
-    }
+    private AstBuilder() {}
 
     private static String qualifiedNameText(QualifiedNameContext ctx) {
-        return String.join(".", ctx.NAME().stream().map(t -> t.getSymbol().getText()).collect(Collectors.toList()));
+        return String.join("::", ctx.NAME().stream().map(t -> t.getSymbol().getText()).collect(Collectors.toList()));
     }
 
     private AstNode accept(ParserRuleContext ctx) {
@@ -58,17 +55,13 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     private String getEntityModuleName() {
-        if (functionNestLevel > 0) {
-            return null;
-        }
-        return moduleName;
+        return functionNestLevel > 0? null: moduleName;
     }
 
     @Override
     public AstNode visitModule(ModuleContext ctx) {
         AstModule m = new AstModule();
-        m.name = qualifiedNameText(ctx.qualifiedName());
-        m.fileName = fileName;
+        m.name = ctx.NAME().getText();
         moduleName = m.name;
         for (VariableContext vc : ctx.variable()) {
             m.variables.add((AstVariable) accept(vc));

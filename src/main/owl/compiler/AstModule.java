@@ -19,7 +19,6 @@ import java.util.List;
 
 final class AstModule extends AstNode {
     String name;
-    String fileName;
     List<AstFunction> functions = new ArrayList<>();
     List<AstVariable> variables = new ArrayList<>();
 

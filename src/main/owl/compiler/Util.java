@@ -24,6 +24,18 @@ import static java.util.stream.Collectors.toList;
 final class Util {
     private Util() {}
 
+    static void check(boolean b) {
+        if (!b) {
+            throw new IllegalStateException();
+        }
+    }
+
+    static void check(boolean b, String message) {
+        if (!b) {
+            throw new IllegalStateException(message);
+        }
+    }
+
     static int combineHashes(int a, int b) {
         // Follows Objects.hash
         return 31 * (31 + a) + b;

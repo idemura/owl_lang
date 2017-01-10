@@ -37,7 +37,7 @@ final class DebugPrint {
         }
 
         @Override
-        public Void visit(AstField node) {
+        public Void visit(AstSelect node) {
             beginNode(node, node.field);
             accept(node.object);
             endNode();

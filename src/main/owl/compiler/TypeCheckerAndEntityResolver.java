@@ -61,7 +61,7 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
-        public Boolean visit(AstField node) {
+        public Boolean visit(AstSelect node) {
             throw new UnsupportedOperationException("type checker");
         }
 

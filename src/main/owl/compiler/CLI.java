@@ -69,10 +69,9 @@ public final class CLI {
     private boolean flagTime = false;
 
     private long timeParse = 0;
-    private long timeConvertAst = 0;
+    private long timeBuildAst = 0;
     private long timeAnalysis = 0;
     private long timeCodeGen = 0;
-    private long timeJavaCodeGen = 0;
 
     public static void main(String[] args) {
         System.exit(new CLI(args).run()? 0: 1);
@@ -99,7 +98,7 @@ public final class CLI {
             CountErrorListener errorListener = new CountErrorListener(new PrintErrorListener(System.err, fileName));
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 try {
-                    Ast ast = parse(in, fileName, errorListener);
+                    Ast ast = parse(in, errorListener);
                     compileAst(ast, errorListener, outDir, System.out);
                 } catch (OwlException e) {
                     // Skip, error listener took care
@@ -115,12 +114,10 @@ public final class CLI {
             if (flagTime) {
                 System.out.println("Times compiling " + fileName + ":");
                 System.out.println("  parse: " + formatPerfTime(timeParse));
-                System.out.println("  convert ast: " + formatPerfTime(timeConvertAst));
+                System.out.println("  build ast: " + formatPerfTime(timeBuildAst));
                 System.out.println("  analysis: " + formatPerfTime(timeAnalysis));
                 System.out.println("  code gen: " + formatPerfTime(timeCodeGen));
-                System.out.println("  java code gen: " + formatPerfTime(timeJavaCodeGen));
-                System.out.println("  total: " +
-                        formatPerfTime(timeParse + timeConvertAst + timeAnalysis + timeCodeGen + timeJavaCodeGen));
+                System.out.println("  total: " + formatPerfTime(timeParse + timeBuildAst + timeAnalysis + timeCodeGen));
             }
         }
         if (total == 0) {
@@ -130,7 +127,7 @@ public final class CLI {
         return total == succeeded;
     }
 
-    private Ast parse(InputStream in, String fileName, ErrorListener errorListener)
+    private Ast parse(InputStream in, ErrorListener errorListener)
             throws OwlException {
         long start = System.nanoTime();
         CountErrorListener errorCounter = new CountErrorListener(errorListener);
@@ -156,8 +153,8 @@ public final class CLI {
             }
             timeParse = System.nanoTime() - start;
             start = System.nanoTime();
-            Ast ast = AstBuilder.run(context, fileName);
-            timeConvertAst = System.nanoTime() - start;
+            Ast ast = AstBuilder.run(context);
+            timeBuildAst = System.nanoTime() - start;
             return ast;
         } catch (RecognitionException e) {
             throw new OwlException(e);
@@ -192,22 +189,16 @@ public final class CLI {
             return true;
         }
         start = System.nanoTime();
-        Jvm jvm = CodeGenerator.run(ast, errorListener);
-        if (errorListener.getErrorCount() != 0) {
+        try {
+            BytecodeGenerator.run(ast, outDir);
+        } catch (OwlException e) {
+            errorListener.error(e);
             return false;
         }
         timeCodeGen = System.nanoTime() - start;
         if (flagStopPhase == 3) {
             return true;
         }
-        start = System.nanoTime();
-        try {
-            BytecodeEmitter.run(jvm, outDir);
-        } catch (OwlException e) {
-            errorListener.error(e);
-            return false;
-        }
-        timeJavaCodeGen = System.nanoTime() - start;
         return true;
     }
 

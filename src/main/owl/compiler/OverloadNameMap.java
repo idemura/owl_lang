@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 // TODO: Merge with plain NameMap
 // This is an entity map just for function overloads
 final class OverloadNameMap implements Cloneable {
@@ -82,7 +80,7 @@ final class OverloadNameMap implements Cloneable {
     }
 
     boolean put(Entity e) {
-        checkArgument(e.getType().isFunction());
+        Util.check(e.getType().isFunction());
         return map.computeIfAbsent(e.getName(), k -> new Overload(e.getName())).add(e);
     }
 

@@ -17,8 +17,6 @@ package owl.compiler;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 // Entity map without overload support for local scopes and types
 final class NameMap<T> implements Cloneable {
     private HashMap<String, T> map = new HashMap<>();
@@ -35,7 +33,7 @@ final class NameMap<T> implements Cloneable {
     }
 
     boolean put(T value) {
-        checkArgument(value instanceof Named);
+        Util.check(value instanceof Named);
         return put(((Named) value).getName(), value);
     }
 

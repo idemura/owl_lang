@@ -21,7 +21,7 @@ package owl.compiler;
 
 // Parser Rules
 module
-:   'module' qualifiedName ';'
+:   'module' NAME ';'
     (
         function
     |   variable
@@ -29,7 +29,7 @@ module
 ;
 
 qualifiedName
-:   NAME ('.' NAME)*
+:   NAME ('::' NAME)*
 ;
 
 variable

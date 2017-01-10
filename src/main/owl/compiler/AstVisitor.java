@@ -28,7 +28,7 @@ interface AstVisitor<T> {
     default T visit(AstBlock node) { return visitError(); }
     default T visit(AstCoerce node) { return visitError(); }
     default T visit(AstExpr node) { return visitError(); }
-    default T visit(AstField node) { return visitError(); }
+    default T visit(AstSelect node) { return visitError(); }
     default T visit(AstFunction node) { return visitError(); }
     default T visit(AstGroup node) { return visitError(); }
     default T visit(AstIf node) { return visitError(); }
