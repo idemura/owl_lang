@@ -173,6 +173,9 @@ final class AstType extends AstNode {
     }
 
     static AstType of(AstNode node) {
+        if (node == null) {
+            return AstType.NONE;
+        }
         return ((Typed) node).getType();
     }
 

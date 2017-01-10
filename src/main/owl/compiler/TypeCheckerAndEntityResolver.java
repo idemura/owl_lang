@@ -250,14 +250,14 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstReturn node) {
-            if (!accept(node.expr)) {
+            if (node.expr != null && !accept(node.expr)) {
                 return false;
             }
-            AstType exprType = AstType.of(node.expr);
+            AstType returnExprType = AstType.of(node.expr);
             AstType returnType = fnStack.top().getReturnType();
-            if (!exprType.canAssignTo(returnType)) {
+            if (!returnExprType.canAssignTo(returnType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
-                        "return type " + returnType + " is not compatible with " + exprType);
+                        "return type " + returnType + " is not compatible with " + returnExprType);
                 return false;
             }
             return true;

@@ -422,8 +422,15 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstReturn node) {
-            accept(node.expr);
+            if (node.expr != null) {
+                accept(node.expr);
+            }
+            int d = 1;
             switch (AstType.of(node.expr).getJvmLocalType()) {
+                case AstType.kNONE:
+                    code.add(Opcode.RETURN);
+                    d = 0;
+                    break;
                 case AstType.kBOOL:
                     code.add(Opcode.IRETURN);
                     break;
@@ -448,7 +455,7 @@ final class BytecodeGenerator {
                 default:
                     throw new UnsupportedOperationException("return type");
             }
-            decStack(1);
+            decStack(d);
             return null;
         }
 
