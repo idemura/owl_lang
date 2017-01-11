@@ -89,19 +89,6 @@ final class BytecodeGenerator {
         private final ClassFile clazz;
         private final AstFunction function;
         private Bytecode code;
-        private int maxStack = 0;
-        private int stack = 0;
-
-        private void incStack(int n) {
-            stack += n;
-            if (stack > maxStack) {
-                maxStack = stack;
-            }
-        }
-
-        private void decStack(int n) {
-            stack -= n;
-        }
 
         FunctionVisitor(ClassFile clazz, AstFunction function) {
             this.clazz = clazz;
@@ -122,10 +109,11 @@ final class BytecodeGenerator {
             if (node.getName().equals("main")) {
                 flags |= AccessFlag.PUBLIC;
             }
+            System.out.println(code.getMaxStack());
             method.setAccessFlags(flags);
             method.addAttribute(new CodeAttribute(
                     clazz.getConstPool(),
-                    maxStack,
+                    code.getMaxStack(),
                     function.getVars().size() + function.getArgs().size(),
                     code.get(),
                     new ExceptionTable(clazz.getConstPool())));
@@ -153,7 +141,6 @@ final class BytecodeGenerator {
                     default:
                         throw new UnsupportedOperationException("load local type");
                 }
-                incStack(1);
                 return null;
             }
             if (v.storage instanceof AstVariable.Field) {
@@ -185,20 +172,14 @@ final class BytecodeGenerator {
             }
             AstFunction fn = (AstFunction) ((AstName) node.fn).entity;
             if (Util.isIdFirstChar(fn.getName().charAt(0))) {
-                incStack(node.args.size());
                 code.addInvokestatic(
                         Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : clazz.getName(),
                         fn.getName(),
                         fn.getJvmDescriptor());
-                decStack(node.args.size());
-                if (!fn.getReturnType().equals(AstType.NONE)) {
-                    incStack(1);
-                }
                 return null;
             }
 
             // Operators
-            incStack(node.args.size());
             int lt = fn.getReturnType().getJvmLocalType();
             if (node.args.size() == 1) {
                 switch (fn.getName()) {
@@ -207,10 +188,10 @@ final class BytecodeGenerator {
                     case "-":
                         switch (lt) {
                             case AstType.kI32:
-                                code.add(Opcode.INEG);
+                                code.addOpcode(Opcode.INEG);
                                 break;
                             case AstType.kI64:
-                                code.add(Opcode.LNEG);
+                                code.addOpcode(Opcode.LNEG);
                                 break;
                         }
                         break;
@@ -218,11 +199,11 @@ final class BytecodeGenerator {
                         switch (lt) {
                             case AstType.kI32:
                                 code.addIconst(-1);
-                                code.add(Opcode.IXOR);
+                                code.addOpcode(Opcode.IXOR);
                                 break;
                             case AstType.kI64:
                                 code.addLconst(-1);
-                                code.add(Opcode.LXOR);
+                                code.addOpcode(Opcode.LXOR);
                                 break;
                         }
                         break;
@@ -241,7 +222,6 @@ final class BytecodeGenerator {
 //                            JvmBlock.of(JvmLiteral.FALSE));
 //                }
             }
-            incStack(1);
             return null;
         }
 
@@ -250,62 +230,112 @@ final class BytecodeGenerator {
                 case "+":
                     switch (lt) {
                         case AstType.kI32:
-                            code.add(Opcode.IADD);
+                            code.addOpcode(Opcode.IADD);
                             break;
                         case AstType.kI64:
-                            code.add(Opcode.LADD);
+                            code.addOpcode(Opcode.LADD);
                             break;
                     }
                     break;
                 case "-":
                     switch (lt) {
                         case AstType.kI32:
-                            code.add(Opcode.ISUB);
+                            code.addOpcode(Opcode.ISUB);
                             break;
                         case AstType.kI64:
-                            code.add(Opcode.LSUB);
+                            code.addOpcode(Opcode.LSUB);
                             break;
                     }
                     break;
                 case "*":
                     switch (lt) {
                         case AstType.kI32:
-                            code.add(Opcode.IMUL);
+                            code.addOpcode(Opcode.IMUL);
                             break;
                         case AstType.kI64:
-                            code.add(Opcode.LMUL);
+                            code.addOpcode(Opcode.LMUL);
                             break;
                     }
                     break;
                 case "/":
                     switch (lt) {
                         case AstType.kI32:
-                            code.add(Opcode.IDIV);
+                            code.addOpcode(Opcode.IDIV);
                             break;
                         case AstType.kI64:
-                            code.add(Opcode.LDIV);
+                            code.addOpcode(Opcode.LDIV);
                             break;
                     }
                     break;
                 case "%":
                     switch (lt) {
                         case AstType.kI32:
-                            code.add(Opcode.IREM);
+                            code.addOpcode(Opcode.IREM);
                             break;
                         case AstType.kI64:
-                            code.add(Opcode.LREM);
+                            code.addOpcode(Opcode.LREM);
                             break;
                     }
                     break;
                 case "<<":
-                case ">>":
-                case ">>>":
-                case "&":
-                case "^":
-                case "|":
+                    switch (lt) {
+                        case AstType.kI32:
+                            code.addOpcode(Opcode.ISHL);
+                            break;
+                        case AstType.kI64:
+                            code.addOpcode(Opcode.LSHL);
+                            break;
+                    }
                     break;
-                case "//":
-                    //JvmApply(Runtime.NAME, "fdiv", node.getType().jvmType());
+                case ">>":
+                    switch (lt) {
+                        case AstType.kI32:
+                            code.addOpcode(Opcode.ISHR);
+                            break;
+                        case AstType.kI64:
+                            code.addOpcode(Opcode.LSHR);
+                            break;
+                    }
+                    break;
+                case ">>>":
+                    switch (lt) {
+                        case AstType.kI32:
+                            code.addOpcode(Opcode.IUSHR);
+                            break;
+                        case AstType.kI64:
+                            code.addOpcode(Opcode.LUSHR);
+                            break;
+                    }
+                    break;
+                case "&":
+                    switch (lt) {
+                        case AstType.kI32:
+                            code.addOpcode(Opcode.IAND);
+                            break;
+                        case AstType.kI64:
+                            code.addOpcode(Opcode.LAND);
+                            break;
+                    }
+                    break;
+                case "^":
+                    switch (lt) {
+                        case AstType.kI32:
+                            code.addOpcode(Opcode.IXOR);
+                            break;
+                        case AstType.kI64:
+                            code.addOpcode(Opcode.LXOR);
+                            break;
+                    }
+                    break;
+                case "|":
+                    switch (lt) {
+                        case AstType.kI32:
+                            code.addOpcode(Opcode.IOR);
+                            break;
+                        case AstType.kI64:
+                            code.addOpcode(Opcode.LOR);
+                            break;
+                    }
                     break;
                 case "<":
                 case "<=":
@@ -339,14 +369,14 @@ final class BytecodeGenerator {
                 case AstType.kI32:
                     switch (dtype.getJvmLocalType()) {
                         case AstType.kI64:
-                             code.add(Opcode.I2L);
+                             code.addOpcode(Opcode.I2L);
                              break;
                     }
                     break;
                 case AstType.kI64:
                     switch (dtype.getJvmLocalType()) {
                         case AstType.kI32:
-                             code.add(Opcode.L2I);
+                             code.addOpcode(Opcode.L2I);
                              break;
                     }
                     break;
@@ -370,7 +400,6 @@ final class BytecodeGenerator {
                         default:
                             throw new UnsupportedOperationException("load local type");
                     }
-                    decStack(1);
                     return null;
                 }
                 if (v.storage instanceof AstVariable.Field) {
@@ -428,34 +457,33 @@ final class BytecodeGenerator {
             int d = 1;
             switch (AstType.of(node.expr).getJvmLocalType()) {
                 case AstType.kNONE:
-                    code.add(Opcode.RETURN);
+                    code.addOpcode(Opcode.RETURN);
                     d = 0;
                     break;
                 case AstType.kBOOL:
-                    code.add(Opcode.IRETURN);
+                    code.addOpcode(Opcode.IRETURN);
                     break;
                 case AstType.kCHAR:
-                    code.add(Opcode.IRETURN);
+                    code.addOpcode(Opcode.IRETURN);
                     break;
                 case AstType.kI32:
-                    code.add(Opcode.IRETURN);
+                    code.addOpcode(Opcode.IRETURN);
                     break;
                 case AstType.kI64:
-                    code.add(Opcode.LRETURN);
+                    code.addOpcode(Opcode.LRETURN);
                     break;
                 case AstType.kF32:
-                    code.add(Opcode.FRETURN);
+                    code.addOpcode(Opcode.FRETURN);
                     break;
                 case AstType.kF64:
-                    code.add(Opcode.DRETURN);
+                    code.addOpcode(Opcode.DRETURN);
                     break;
                 case AstType.kREF:
-                    code.add(Opcode.ARETURN);
+                    code.addOpcode(Opcode.ARETURN);
                     break;
                 default:
                     throw new UnsupportedOperationException("return type");
             }
-            decStack(d);
             return null;
         }
 
@@ -463,8 +491,7 @@ final class BytecodeGenerator {
         public Void visit(AstExpr node) {
             accept(node.expr);
             if (node.discards()) {
-                code.add(Opcode.POP);
-                decStack(1);
+                code.addOpcode(Opcode.POP);
             }
             return null;
         }

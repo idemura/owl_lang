@@ -62,7 +62,7 @@ final class AstFunction extends AstNode
     @Override
     public String getJvmDescriptor() {
         List<String> atypes = args.stream().map(x -> x.getType().getJvmType()).collect(Collectors.toList());
-        return "(" + String.join(",", atypes) + ")" + returnType.getJvmType();
+        return "(" + String.join("", atypes) + ")" + returnType.getJvmType();
     }
 
     @Override
