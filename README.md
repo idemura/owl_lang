@@ -28,6 +28,5 @@ Compile it to Java (JVM bytecode is planned in the near future):
 ```
 Run compiled Owl program:
 ```
-# module name comes before the dot, file name - after:
 ./java_owl Main
 ```
