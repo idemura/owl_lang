@@ -31,7 +31,7 @@ final class TypeCheckerAndEntityResolver {
     private static final class Visitor implements AstVisitor<Boolean> {
         private final ErrorListener errorListener;
         private final NameMap<AstAbstractType> abstractTypes;
-        private final NestedNameMap entityMap;
+        private final NestedNameMap nameMap;
         private final Stack<AstFunction> fnStack = new Stack<>();
 
         private Visitor(
@@ -41,12 +41,12 @@ final class TypeCheckerAndEntityResolver {
                 ErrorListener errorListener) {
             this.errorListener = errorListener;
             this.abstractTypes = abstractTypes;
-            this.entityMap = new NestedNameMap(variables, overloads);
+            this.nameMap = new NestedNameMap(variables, overloads);
         }
 
         @Override
         public Boolean visit(AstName node) {
-            node.entity = entityMap.get(node.name);
+            node.entity = nameMap.get(node.name);
             if (node.entity == null) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "name " + node.name + " not found");
@@ -83,26 +83,29 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstFunction node) {
-            entityMap.push();
+            nameMap.push();
             fnStack.push(node);
             boolean res = true;
             for (AstVariable a : node.getArgs()) {
                 if (!accept(a.getType())) {
                     res = false;
                 }
-                if (!entityMap.put(a))  {
+                if (!nameMap.put(a))  {
                     throw new IllegalStateException("error put local");
                 }
+            }
+            if (!accept(node.getReturnType())) {
+                res = false;
             }
             if (!res) {
                 return false;
             }
-            if (!accept(node.getReturnType())) {
-                return false;
-            }
             res = accept(node.getBlock());
             fnStack.pop();
-            entityMap.pop();
+            nameMap.pop();
+            if (!ReturnCheck.run(node, errorListener)) {
+                res = false;
+            }
             return res;
         }
 
@@ -113,12 +116,12 @@ final class TypeCheckerAndEntityResolver {
             }
             node.setType(AstType.of(node.getExpr()));
             if (!fnStack.isEmpty()) {
-                if (entityMap.inTopBlock(node.getName())) {
+                if (nameMap.inTopBlock(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "variable " + node.getName() + " exists in this scope");
                     return false;
                 }
-                if (!entityMap.put(node)) {
+                if (!nameMap.put(node)) {
                     throw new IllegalStateException("error put local");
                 }
                 fnStack.top().addVar(node);
@@ -130,7 +133,7 @@ final class TypeCheckerAndEntityResolver {
         public Boolean visit(AstBlock node) {
             if (fnStack.top().getBlock() != node) {
                 // Function block shares scope with arguments.
-                entityMap.push();
+                nameMap.push();
             }
             boolean res = true;
             for (AstNode s : node.children) {
@@ -139,7 +142,7 @@ final class TypeCheckerAndEntityResolver {
                 }
             }
             if (fnStack.top().getBlock() != node) {
-                entityMap.pop();
+                nameMap.pop();
             }
             return res;
         }
@@ -159,18 +162,18 @@ final class TypeCheckerAndEntityResolver {
             // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
             if (node.fn instanceof AstName) {
                 AstName fn = (AstName) node.fn;
-                if (!entityMap.contains(fn.name)) {
+                if (!nameMap.contains(fn.name)) {
                     // Error printed while visiting name
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "function " + fn.name + " not found");
                     return false;
                 }
-                if (!entityMap.isFunction(fn.name)) {
+                if (!nameMap.isFunction(fn.name)) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             fn.name + " is not a function");
                     return false;
                 }
-                ResolveResult rr = entityMap.resolve(fn.name, node.getArgTypes());
+                ResolveResult rr = nameMap.resolve(fn.name, node.getArgTypes());
                 if (!rr.ok()) {
                     List<Entity> candidates = rr.getCandidates();
                     String s;

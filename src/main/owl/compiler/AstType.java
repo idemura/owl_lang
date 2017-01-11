@@ -104,6 +104,9 @@ final class AstType extends AstNode {
 
     @Override
     public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
         if (other instanceof AstType) {
             AstType otherType = (AstType) other;
             if (!name.equals(otherType.name)) {
