@@ -126,7 +126,7 @@ final class BytecodeGenerator {
             method.addAttribute(new CodeAttribute(
                     clazz.getConstPool(),
                     maxStack,
-                    function.getVars().size(),
+                    function.getVars().size() + function.getArgs().size(),
                     code.get(),
                     new ExceptionTable(clazz.getConstPool())));
             clazz.addMethod2(method);
