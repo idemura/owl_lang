@@ -161,40 +161,51 @@ final class TypeCheckerAndEntityResolver {
 
             // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
             if (node.fn instanceof AstName) {
-                AstName fn = (AstName) node.fn;
-                if (!nameMap.contains(fn.name)) {
-                    // Error printed while visiting name
-                    errorListener.error(node.getLine(), node.getCharPosition(),
-                            "function " + fn.name + " not found");
-                    return false;
-                }
-                if (!nameMap.isFunction(fn.name)) {
-                    errorListener.error(node.getLine(), node.getCharPosition(),
-                            fn.name + " is not a function");
-                    return false;
-                }
-                ResolveResult rr = nameMap.resolve(fn.name, node.getArgTypes());
-                if (!rr.ok()) {
-                    List<Entity> candidates = rr.getCandidates();
-                    String s;
-                    if (candidates == null) {
-                        s = "function " + fn.name + " not found";
-                    } else {
-                        s = "call " + fn.name + " with " + Util.join(", ", node.getArgTypes());
-                        if (candidates.size() == 0) {
-                            s += ": overloads not found";
-                        } else {
-                            s += ": ambiguous:\n" + Util.join("\n", candidates);
-                        }
-                    }
-                    errorListener.error(node.getLine(), node.getCharPosition(), s);
-                    return false;
-                }
-                fn.entity = rr.get();
-                node.type = fn.entity.getType().getReturnType();
+                return resolveFunctionName(node, (AstName) node.fn);
             } else {
                 throw new UnsupportedOperationException("apply function expr");
             }
+        }
+
+        private boolean resolveFunctionName(AstApply node, AstName fn) {
+            if (fn.name.equals("//")) {
+                fn.name = "fdiv";
+            } else if (fn.name.equals("+") &&
+                    AstType.of(node.args.get(0)).equals(AstType.STRING) &&
+                    AstType.of(node.args.get(1)).equals(AstType.STRING)){
+                fn.name = "concat";
+            }
+
+            if (!nameMap.contains(fn.name)) {
+                // Error printed while visiting name
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "function " + fn.name + " not found");
+                return false;
+            }
+            if (!nameMap.isFunction(fn.name)) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        fn.name + " is not a function");
+                return false;
+            }
+            ResolveResult res = nameMap.resolve(fn.name, node.getArgTypes());
+            if (!res.found()) {
+                List<Entity> candidates = res.getCandidates();
+                String s;
+                if (candidates == null) {
+                    s = "function " + fn.name + " not found";
+                } else {
+                    s = "call " + fn.name + " with " + Util.join(", ", node.getArgTypes());
+                    if (candidates.size() == 0) {
+                        s += ": overloads not found";
+                    } else {
+                        s += ": ambiguous:\n" + Util.join("\n", candidates);
+                    }
+                }
+                errorListener.error(node.getLine(), node.getCharPosition(), s);
+                return false;
+            }
+            fn.entity = res.get();
+            node.type = fn.entity.getType().getReturnType();
             return true;
         }
 

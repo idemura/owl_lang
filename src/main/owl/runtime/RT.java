@@ -50,4 +50,7 @@ public class RT {
     public static int size(String s) {
         return s.length();
     }
+    public static String concat(String a, String b) {
+        return a + b;
+    }
 }

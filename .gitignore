@@ -9,5 +9,5 @@ src/owl_lang.iml
 
 # Owl out
 *.class
-.owl_out
+owl_out
 

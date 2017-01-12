@@ -105,6 +105,7 @@ final class Runtime {
         FUNCTIONS.put(function("&&", AstType.BOOL, AstType.BOOL, AstType.BOOL));
 
         FUNCTIONS.put(function("compare", AstType.I32, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(function("concat", AstType.STRING, AstType.STRING, AstType.STRING));
         FUNCTIONS.put(function("size", AstType.I32, AstType.STRING));
         FUNCTIONS.put(function("fdiv", AstType.F64, AstType.I32, AstType.I32));
         FUNCTIONS.put(function("fdiv", AstType.F64, AstType.I64, AstType.I64));

@@ -14,15 +14,11 @@
  */
 package owl.compiler;
 
-import javassist.bytecode.AccessFlag;
-import javassist.bytecode.Bytecode;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.ExceptionTable;
-import javassist.bytecode.MethodInfo;
-import javassist.bytecode.Opcode;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,23 +28,36 @@ final class BytecodeGenerator {
     private BytecodeGenerator() {}
 
     static void run(Ast ast, File dir) throws OwlException {
-        Visitor v = new Visitor();
+        Visitor v = new Visitor(ast);
         v.accept(ast.root);
-        File classFile = new File(dir, v.clazz.getName() + ".class");
+        File classFile = new File(dir, v.getClassName() + ".class");
         classFile.getParentFile().mkdirs();
         try (OutputStream os = new FileOutputStream(classFile)) {
-            v.clazz.write(new DataOutputStream(os));
+            os.write(v.clazz.toByteArray());
         } catch (IOException e) {
             throw new OwlException(e);
         }
     }
 
     private static final class Visitor implements AstVisitor<Void> {
-        private ClassFile clazz;
+        private final Ast ast;
+        private String className;
+        private ClassWriter clazz;
+
+        Visitor(Ast ast) {
+            this.ast = ast;
+        }
+
+        String getClassName() {
+            return className;
+        }
 
         @Override
         public Void visit(AstModule node) {
-            clazz = new ClassFile(true, node.name, null);
+            className = node.name;
+            clazz = new ClassWriter(0);
+            clazz.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, node.name, null, "java/lang/Object", null);
+            clazz.visitSource(ast.fileName, null);
             for (AstNode v : node.variables) {
                 accept(v);
             }
@@ -60,88 +69,69 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstFunction node) {
-            node.accept(new FunctionVisitor(clazz, node));
+            int flags = Opcodes.ACC_STATIC;
+            if (node.getName().equals("main")) {
+                flags |= Opcodes.ACC_PUBLIC;
+            }
+            MethodVisitor method = clazz.visitMethod(flags, node.getName(), node.getJvmDescriptor(), null, null);
+            method.visitCode();
+            node.indexLocals();
+            node.accept(new FunctionVisitor(className, method));
+            method.visitMaxs(10, 10);
+            method.visitEnd();
             return null;
         }
 
         @Override
         public Void visit(AstVariable node) {
-//            if (functionNestLevel == 0) {
-//                JvmGroup g = new JvmGroup();
-//                g.add(new JvmVariable(false, true, node.getName(), node.getJvmDescriptor(), null));
-//                if (node.getExpr() != null) {
-//                    JvmBlock b = new JvmBlock();
-//                    b.add(accept(node.getExpr()));
-//                    b.add(new JvmPutField(clazz.name, node.getName(), node.getType().jvmType()));
-//                    g.add(b);
-//                }
-//                return g;
-//            } else {
-//                return new JvmGroup(Util.listOf(
-//                        accept(node.getExpr()),
-//                        new JvmPutLocal(node.index)));
-//            }
             throw new UnsupportedOperationException("code generator");
         }
     }
 
     private static final class FunctionVisitor implements AstVisitor<Void> {
-        private final ClassFile clazz;
-        private final AstFunction function;
-        private Bytecode code;
+        private final String className;
+        private final MethodVisitor mv;
 
-        FunctionVisitor(ClassFile clazz, AstFunction function) {
-            this.clazz = clazz;
-            this.function = function;
+        FunctionVisitor(String className, MethodVisitor mv) {
+            this.className = className;
+            this.mv = mv;
         }
 
-        @Override
-        public Void visit(AstFunction node) {
-            if (node != function) {
-                throw new UnsupportedOperationException("nested function (lambda)");
+        private static final int BIPUSH_MIN = Byte.MIN_VALUE;
+        private static final int BIPUSH_MAX = Byte.MAX_VALUE;
+        private static final int SIPUSH_MIN = Short.MIN_VALUE;
+        private static final int SIPUSH_MAX = Short.MAX_VALUE;
+
+        private void iconst(int v) {
+            if (-1 <= v && v <= 5) {
+                mv.visitInsn(Opcodes.ICONST_0 + v);
+            } else if (BIPUSH_MIN <= v && v <= BIPUSH_MAX) {
+                mv.visitIntInsn(Opcodes.BIPUSH, v);
+            } else if (SIPUSH_MIN <= v && v <= SIPUSH_MAX) {
+                mv.visitIntInsn(Opcodes.SIPUSH, v);
+            } else {
+                mv.visitLdcInsn(v);
             }
-
-            code = new Bytecode(clazz.getConstPool());
-            accept(node.getBlock());
-
-            MethodInfo method = new MethodInfo(clazz.getConstPool(), function.getName(), function.getJvmDescriptor());
-            int flags = AccessFlag.STATIC;
-            if (node.getName().equals("main")) {
-                flags |= AccessFlag.PUBLIC;
-            }
-            System.out.println(code.getMaxStack());
-            method.setAccessFlags(flags);
-            method.addAttribute(new CodeAttribute(
-                    clazz.getConstPool(),
-                    code.getMaxStack(),
-                    function.getVars().size() + function.getArgs().size(),
-                    code.get(),
-                    new ExceptionTable(clazz.getConstPool())));
-            clazz.addMethod2(method);
-            return null;
         }
 
-        @Override
-        public Void visit(AstVariable node) {
-            throw new UnsupportedOperationException("code generator");
-        }
-
-        @Override
-        public Void visit(AstName node) {
-            AstVariable v = (AstVariable) node.entity;
+        private void getVar(AstVariable v) {
             if (v.storage instanceof AstVariable.Local) {
                 int index = ((AstVariable.Local) v.storage).index;
                 switch (v.getType().getJvmLocalType()) {
+                    case AstType.kBOOL:
                     case AstType.kI32:
-                        code.addIload(index);
+                        mv.visitVarInsn(Opcodes.ILOAD, index);
                         break;
                     case AstType.kI64:
-                        code.addLload(index);
+                        mv.visitVarInsn(Opcodes.ILOAD, index);
+                        break;
+                    case AstType.kREF:
+                        mv.visitVarInsn(Opcodes.ALOAD, index);
                         break;
                     default:
                         throw new UnsupportedOperationException("load local type");
                 }
-                return null;
+                return;
             }
             if (v.storage instanceof AstVariable.Field) {
                 throw new UnsupportedOperationException("field storage");
@@ -150,6 +140,55 @@ final class BytecodeGenerator {
                 throw new UnsupportedOperationException("field storage");
             }
             throw new IllegalStateException("unknown storage");
+        }
+
+        private void putVar(AstVariable v) {
+            if (v.storage instanceof AstVariable.Local) {
+                int index = ((AstVariable.Local) v.storage).index;
+                switch (v.getType().getJvmLocalType()) {
+                    case AstType.kBOOL:
+                    case AstType.kI32:
+                        mv.visitVarInsn(Opcodes.ISTORE, index);
+                        break;
+                    case AstType.kI64:
+                        mv.visitVarInsn(Opcodes.LSTORE, index);
+                        break;
+                    case AstType.kREF:
+                        mv.visitVarInsn(Opcodes.AASTORE, index);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("load local type");
+                }
+                return;
+            }
+            if (v.storage instanceof AstVariable.Field) {
+                throw new UnsupportedOperationException("field storage");
+            }
+            if (v.storage instanceof  AstVariable.Module) {
+                throw new UnsupportedOperationException("field storage");
+            }
+            throw new IllegalStateException("unknown storage");
+        }
+
+        @Override
+        public Void visit(AstFunction node) {
+            accept(node.getBlock());
+            return null;
+        }
+
+        @Override
+        public Void visit(AstVariable node) {
+            if (node.getExpr() != null) {
+                accept(node.getExpr());
+                putVar(node);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstName node) {
+            getVar((AstVariable) node.entity);
+            return null;
         }
 
         @Override
@@ -172,10 +211,11 @@ final class BytecodeGenerator {
             }
             AstFunction fn = (AstFunction) ((AstName) node.fn).entity;
             if (Util.isIdFirstChar(fn.getName().charAt(0))) {
-                code.addInvokestatic(
-                        Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : clazz.getName(),
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : className,
                         fn.getName(),
-                        fn.getJvmDescriptor());
+                        fn.getJvmDescriptor(),
+                        false);
                 return null;
             }
 
@@ -188,173 +228,224 @@ final class BytecodeGenerator {
                     case "-":
                         switch (lt) {
                             case AstType.kI32:
-                                code.addOpcode(Opcode.INEG);
+                                mv.visitInsn(Opcodes.INEG);
                                 break;
                             case AstType.kI64:
-                                code.addOpcode(Opcode.LNEG);
+                                mv.visitInsn(Opcodes.LNEG);
                                 break;
                         }
                         break;
                     case "~":
                         switch (lt) {
                             case AstType.kI32:
-                                code.addIconst(-1);
-                                code.addOpcode(Opcode.IXOR);
+                                mv.visitInsn(Opcodes.ICONST_M1);
+                                mv.visitInsn(Opcodes.IXOR);
                                 break;
                             case AstType.kI64:
-                                code.addLconst(-1);
-                                code.addOpcode(Opcode.LXOR);
+                                mv.visitLdcInsn(-1L);
+                                mv.visitInsn(Opcodes.LXOR);
                                 break;
                         }
+                        break;
+                    case "!":
+                        // Only bool, which we maintain 0 or 1
+                        mv.visitInsn(Opcodes.ICONST_1);
+                        mv.visitInsn(Opcodes.IXOR);
                         break;
                     default:
                         throw new UnsupportedOperationException("unary " + fn.getName());
                 }
             } else {
                 Util.check(node.args.size() == 2);
-                binaryOperation(fn.getName(), lt);
-//                case "&&": {
-//                    return new JvmIf(
-//                            accept(node.args.get(0)),
-//                            JvmBlock.of(new JvmIf(accept(node.args.get(1)),
-//                                    JvmBlock.of(JvmLiteral.TRUE),
-//                                    JvmBlock.of(JvmLiteral.FALSE))),
-//                            JvmBlock.of(JvmLiteral.FALSE));
-//                }
+                switch (fn.getName()) {
+                    case "<":
+                    case "<=":
+                    case ">":
+                    case ">=":
+                    case "==":
+                    case "!=":
+                        boolean lstr = AstType.of(node.args.get(0)).equals(AstType.STRING);
+                        boolean rstr = AstType.of(node.args.get(1)).equals(AstType.STRING);
+                        if (lstr && rstr) {
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.NAME, "compare", "(II)I", false);
+                            mv.visitInsn(Opcodes.ICONST_0);
+                            binaryOp(fn.getName(), AstType.kI32);
+                        }
+                        break;
+                    default:
+                        binaryOp(fn.getName(), lt);
+                }
             }
             return null;
         }
 
-        private void binaryOperation(String op, int lt) {
+        private void binaryOp(String op, int lt) {
             switch (op) {
                 case "+":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IADD);
-                            break;
+                            mv.visitInsn(Opcodes.IADD);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LADD);
-                            break;
+                            mv.visitInsn(Opcodes.LADD);
+                            return;
                     }
                     break;
                 case "-":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.ISUB);
-                            break;
+                            mv.visitInsn(Opcodes.ISUB);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LSUB);
-                            break;
+                            mv.visitInsn(Opcodes.LSUB);
+                            return;
                     }
                     break;
                 case "*":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IMUL);
-                            break;
+                            mv.visitInsn(Opcodes.IMUL);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LMUL);
-                            break;
+                            mv.visitInsn(Opcodes.LMUL);
+                            return;
                     }
                     break;
                 case "/":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IDIV);
-                            break;
+                            mv.visitInsn(Opcodes.IDIV);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LDIV);
-                            break;
+                            mv.visitInsn(Opcodes.LDIV);
+                            return;
                     }
                     break;
                 case "%":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IREM);
-                            break;
+                            mv.visitInsn(Opcodes.IREM);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LREM);
-                            break;
+                            mv.visitInsn(Opcodes.LREM);
+                            return;
                     }
                     break;
                 case "<<":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.ISHL);
-                            break;
+                            mv.visitInsn(Opcodes.ISHL);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LSHL);
-                            break;
+                            mv.visitInsn(Opcodes.LSHL);
+                            return;
                     }
                     break;
                 case ">>":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.ISHR);
-                            break;
+                            mv.visitInsn(Opcodes.ISHR);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LSHR);
-                            break;
+                            mv.visitInsn(Opcodes.LSHR);
+                            return;
                     }
                     break;
                 case ">>>":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IUSHR);
-                            break;
+                            mv.visitInsn(Opcodes.IUSHR);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LUSHR);
-                            break;
+                            mv.visitInsn(Opcodes.LUSHR);
+                            return;
                     }
                     break;
                 case "&":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IAND);
-                            break;
+                            mv.visitInsn(Opcodes.IAND);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LAND);
-                            break;
+                            mv.visitInsn(Opcodes.LAND);
+                            return;
                     }
                     break;
                 case "^":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IXOR);
-                            break;
+                            mv.visitInsn(Opcodes.IXOR);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LXOR);
-                            break;
+                            mv.visitInsn(Opcodes.LXOR);
+                            return;
                     }
                     break;
                 case "|":
                     switch (lt) {
                         case AstType.kI32:
-                            code.addOpcode(Opcode.IOR);
-                            break;
+                            mv.visitInsn(Opcodes.IOR);
+                            return;
                         case AstType.kI64:
-                            code.addOpcode(Opcode.LOR);
-                            break;
+                            mv.visitInsn(Opcodes.LOR);
+                            return;
                     }
                     break;
                 case "<":
-                case "<=":
-                case ">":
-                case ">=":
-                case "==":
-                case "!=":
-//                    AstType tl = AstType.of(node.args.get(0));
-//                    AstType tr = AstType.of(node.args.get(1));
-//                    if (tl.equals(AstType.STRING) && tr.equals(AstType.STRING)) {
-//                        g.add(new JvmApply(Runtime.NAME, "compare", "(II)I"));
-//                        g.add(new JvmLiteral(0, Jvm.I32));
-//                    }
-//                    g.add(new JvmOp(2, fnName.name, node.getType().jvmType()));
-//                    return g;
+                    switch (lt) {
+                        case AstType.kI32:
+                            compare(Opcodes.IF_ICMPGE);
+                            return;
+                    }
                     break;
-                default:
-                    throw new IllegalStateException("invalid operator");
+                case "<=":
+                    switch (lt) {
+                        case AstType.kI32:
+                            compare(Opcodes.IF_ICMPGE);
+                            return;
+                    }
+                    break;
+                case ">":
+                    switch (lt) {
+                        case AstType.kI32:
+                            compare(Opcodes.IF_ICMPGE);
+                            return;
+                    }
+                    break;
+                case ">=":
+                    switch (lt) {
+                        case AstType.kI32:
+                            compare(Opcodes.IF_ICMPGE);
+                            return;
+                    }
+                    break;
+                case "==":
+                    switch (lt) {
+                        case AstType.kI32:
+                            compare(Opcodes.IF_ICMPGE);
+                            return;
+                    }
+                    break;
+                case "!=":
+                    switch (lt) {
+                        case AstType.kI32:
+                            compare(Opcodes.IF_ICMPGE);
+                            return;
+                    }
+                    break;
             }
+            throw new IllegalStateException("invalid operator/type " + op);
+        }
+
+        private void compare(int falseJumpOp) {
+            Label falseJumpLabel = new Label();
+            Label end = new Label();
+            mv.visitJumpInsn(falseJumpOp, falseJumpLabel);
+            mv.visitInsn(Opcodes.ICONST_1);
+            mv.visitJumpInsn(Opcodes.GOTO, end);
+            mv.visitLabel(falseJumpLabel);
+            mv.visitInsn(Opcodes.ICONST_0);
+            mv.visitLabel(end);
         }
 
         @Override
@@ -369,14 +460,14 @@ final class BytecodeGenerator {
                 case AstType.kI32:
                     switch (dtype.getJvmLocalType()) {
                         case AstType.kI64:
-                             code.addOpcode(Opcode.I2L);
+                             mv.visitInsn(Opcodes.I2L);
                              break;
                     }
                     break;
                 case AstType.kI64:
                     switch (dtype.getJvmLocalType()) {
                         case AstType.kI32:
-                             code.addOpcode(Opcode.L2I);
+                             mv.visitInsn(Opcodes.L2I);
                              break;
                     }
                     break;
@@ -387,28 +478,8 @@ final class BytecodeGenerator {
         @Override
         public Void visit(AstAssign node) {
             if (node.l instanceof AstName) {
-                AstVariable v = (AstVariable) ((AstName) node.l).entity;
-                if (v.storage instanceof AstVariable.Local) {
-                    int index = ((AstVariable.Local) v.storage).index;
-                    switch (v.getType().getJvmLocalType()) {
-                        case AstType.kI32:
-                            code.addIstore(index);
-                            break;
-                        case AstType.kI64:
-                            code.addLstore(index);
-                            break;
-                        default:
-                            throw new UnsupportedOperationException("load local type");
-                    }
-                    return null;
-                }
-                if (v.storage instanceof AstVariable.Field) {
-                    throw new UnsupportedOperationException("field storage");
-                }
-                if (v.storage instanceof  AstVariable.Module) {
-                    throw new UnsupportedOperationException("field storage");
-                }
-                throw new IllegalStateException("unknown storage");
+                putVar((AstVariable) ((AstName) node.l).entity);
+                return null;
             } else {
                 throw new UnsupportedOperationException("assign to not a name");
             }
@@ -418,25 +489,34 @@ final class BytecodeGenerator {
         public Void visit(AstLiteral node) {
             switch (node.getType().getJvmLocalType()) {
                 case AstType.kBOOL:
-                    code.addIconst((Boolean) node.object? 1: 0);
+                    if ((Boolean) node.object) {
+                        mv.visitInsn(Opcodes.ICONST_0);
+                    } else {
+                        mv.visitInsn(Opcodes.ICONST_1);
+                    }
                     break;
                 case AstType.kCHAR:
                     throw new UnsupportedOperationException("literal");
                 case AstType.kI32:
-                    code.addIconst((Integer) node.object);
+                    iconst((Integer) node.object);
                     break;
                 case AstType.kI64:
-                    code.addLconst((Long) node.object);
+                    long l = (Long) node.object;
+                    if (l == 0) {
+                        mv.visitInsn(Opcodes.LCONST_0);
+                    } else if (l == 1) {
+                        mv.visitInsn(Opcodes.LCONST_1);
+                    } else {
+                        mv.visitLdcInsn(l);
+                    }
                     break;
                 case AstType.kF32:
-                    code.addFconst((Float) node.object);
-                    break;
                 case AstType.kF64:
-                    code.addDconst((Double) node.object);
+                    mv.visitLdcInsn(node.object);
                     break;
                 case AstType.kREF:
                     Util.check(node.getType().equals(AstType.STRING));
-                    code.addLdc((String) node.object);
+                    mv.visitLdcInsn(node.object);
                     break;
                 default:
                     throw new UnsupportedOperationException("literal type");
@@ -446,7 +526,21 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstIf node) {
-            throw new UnsupportedOperationException("code gen");
+            Label endIf = new Label();
+            for (AstIf.Branch b : node.branches) {
+                if (b.condition != null) {
+                    accept(b.condition);
+                    Label conditionFalse = new Label();
+                    mv.visitJumpInsn(Opcodes.IFEQ, conditionFalse);
+                    accept(b.block);
+                    mv.visitJumpInsn(Opcodes.GOTO, endIf);
+                    mv.visitLabel(conditionFalse);
+                } else {
+                    accept(b.block);
+                }
+            }
+            mv.visitLabel(endIf);
+            return null;
         }
 
         @Override
@@ -454,32 +548,30 @@ final class BytecodeGenerator {
             if (node.expr != null) {
                 accept(node.expr);
             }
-            int d = 1;
             switch (AstType.of(node.expr).getJvmLocalType()) {
                 case AstType.kNONE:
-                    code.addOpcode(Opcode.RETURN);
-                    d = 0;
+                    mv.visitInsn(Opcodes.RETURN);
                     break;
                 case AstType.kBOOL:
-                    code.addOpcode(Opcode.IRETURN);
+                    mv.visitInsn(Opcodes.IRETURN);
                     break;
                 case AstType.kCHAR:
-                    code.addOpcode(Opcode.IRETURN);
+                    mv.visitInsn(Opcodes.IRETURN);
                     break;
                 case AstType.kI32:
-                    code.addOpcode(Opcode.IRETURN);
+                    mv.visitInsn(Opcodes.IRETURN);
                     break;
                 case AstType.kI64:
-                    code.addOpcode(Opcode.LRETURN);
+                    mv.visitInsn(Opcodes.LRETURN);
                     break;
                 case AstType.kF32:
-                    code.addOpcode(Opcode.FRETURN);
+                    mv.visitInsn(Opcodes.FRETURN);
                     break;
                 case AstType.kF64:
-                    code.addOpcode(Opcode.DRETURN);
+                    mv.visitInsn(Opcodes.DRETURN);
                     break;
                 case AstType.kREF:
-                    code.addOpcode(Opcode.ARETURN);
+                    mv.visitInsn(Opcodes.ARETURN);
                     break;
                 default:
                     throw new UnsupportedOperationException("return type");
@@ -491,7 +583,7 @@ final class BytecodeGenerator {
         public Void visit(AstExpr node) {
             accept(node.expr);
             if (node.discards()) {
-                code.addOpcode(Opcode.POP);
+                mv.visitInsn(Opcodes.POP);
             }
             return null;
         }

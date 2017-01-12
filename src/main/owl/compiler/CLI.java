@@ -59,7 +59,7 @@ public final class CLI {
     @Parameter(names = {"--stop_phase"}, description = "Stop after phase #")
     private int flagStopPhase = 0;
     @Parameter(names = {"--out"}, description = "Output directory")
-    private String flagOut = ".owl_out";
+    private String flagOut = "owl_out";
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
     private boolean flagPrintAst = false;
@@ -99,6 +99,7 @@ public final class CLI {
             try (InputStream in = new FileInputStream(new File(fileName))) {
                 try {
                     Ast ast = parse(in, errorListener);
+                    ast.fileName = fileName;
                     compileAst(ast, errorListener, outDir, System.out);
                 } catch (OwlException e) {
                     // Skip, error listener took care

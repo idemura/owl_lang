@@ -33,7 +33,7 @@ class ResolveResult extends Exception {
         this.candidates = candidates;
     }
 
-    boolean ok() {
+    boolean found() {
         return ent != null;
     }
 

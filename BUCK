@@ -1,17 +1,11 @@
-prebuilt_jar(
-    name = 'javassist',
-    binary_jar = 'javassist.jar',
-)
-
 java_library(
     name = 'compiler',
     srcs = glob([
         'src/main/owl/compiler/*.java',
     ]),
     deps = [
-        ':javassist',
         '//lib:antlr4-runtime',
-        '//lib:guava',
+        '//lib:asm',
         '//lib:jcommander',
     ],
 )

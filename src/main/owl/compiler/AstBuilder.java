@@ -185,11 +185,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         if (ctx.op == null) {
             return accept(ctx.t);
         }
-        String op = ctx.op.getText();
-        if (op.equals("//")) {
-            op = "fdiv";
-        }
-        return new AstApply(new AstName(op), Util.listOf(
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
                 accept(ctx.l),
                 accept(ctx.r)));
     }

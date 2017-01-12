@@ -14,9 +14,8 @@
  */
 package owl.compiler;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,11 +51,11 @@ final class AstFunction extends AstNode
     }
 
     List<AstVariable> getArgs() {
-        return ImmutableList.copyOf(args);
+        return Collections.unmodifiableList(args);
     }
 
     List<AstVariable> getVars() {
-        return ImmutableList.copyOf(vars);
+        return Collections.unmodifiableList(vars);
     }
 
     @Override

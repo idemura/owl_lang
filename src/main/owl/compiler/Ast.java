@@ -16,6 +16,7 @@ package owl.compiler;
 
 final class Ast {
     AstNode root;
+    String fileName;
 
     Ast(AstNode root) {
         this.root = root;

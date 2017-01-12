@@ -1,5 +1,4 @@
 #! /bin/bash
 
-CLASS_PATH=`find buck-out/gen -name owl_runtime.jar`:.owl_out
+CLASS_PATH=`find buck-out/gen -name owl_runtime.jar`:owl_out
 java -cp $CLASS_PATH $1
-
