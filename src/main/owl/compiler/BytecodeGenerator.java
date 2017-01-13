@@ -124,7 +124,7 @@ final class BytecodeGenerator {
                         mv.visitVarInsn(Opcodes.ILOAD, index);
                         break;
                     case AstType.kI64:
-                        mv.visitVarInsn(Opcodes.ILOAD, index);
+                        mv.visitVarInsn(Opcodes.LLOAD, index);
                         break;
                     case AstType.kREF:
                         mv.visitVarInsn(Opcodes.ALOAD, index);
@@ -254,12 +254,12 @@ final class BytecodeGenerator {
         }
 
         private void compare(int falseJumpOp) {
-            Label falseJumpLabel = new Label();
+            Label setFalse = new Label();
             Label end = new Label();
-            mv.visitJumpInsn(falseJumpOp, falseJumpLabel);
+            mv.visitJumpInsn(falseJumpOp, setFalse);
             mv.visitInsn(Opcodes.ICONST_1);
             mv.visitJumpInsn(Opcodes.GOTO, end);
-            mv.visitLabel(falseJumpLabel);
+            mv.visitLabel(setFalse);
             mv.visitInsn(Opcodes.ICONST_0);
             mv.visitLabel(end);
         }
@@ -613,10 +613,7 @@ final class BytecodeGenerator {
                 case AstType.kI32:
                     switch (dtype.getJvmLocalType()) {
                         case AstType.kBOOL:
-                            Label zero = new Label();
-                            mv.visitJumpInsn(Opcodes.IFEQ, zero);
-                            mv.visitInsn(Opcodes.ICONST_1);
-                            mv.visitLabel(zero);
+                            compare(Opcodes.IFEQ);
                             return;
                         case AstType.kI64:
                             mv.visitInsn(Opcodes.I2L);
