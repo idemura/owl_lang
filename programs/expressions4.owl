@@ -1,4 +1,4 @@
-module main;
+module expressions4;
 
 main(argv: String[]) {
     println(3 ^ 5);

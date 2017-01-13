@@ -1,4 +1,4 @@
-module main;
+module locals4;
 
 main(argv: String[]) {
     var s = "hello";

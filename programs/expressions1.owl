@@ -1,4 +1,4 @@
-module main;
+module expressions1;
 
 main(argv: String[]) {
     println(2 + 7 * 3);

@@ -1,4 +1,4 @@
-module main;
+module return_expr3;
 
 foo(x: I32): I32 {
     return x * (1 + x);

@@ -1,4 +1,4 @@
-module main;
+module expressions5;
 
 main(argv: String[]) {
     println(-1);

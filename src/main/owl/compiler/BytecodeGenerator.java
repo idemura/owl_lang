@@ -223,39 +223,7 @@ final class BytecodeGenerator {
             // Operators
             int lt = fn.getArgs().get(0).getType().getJvmLocalType();
             if (node.args.size() == 1) {
-                switch (fn.getName()) {
-                    case "+":
-                        break;
-                    case "-":
-                        switch (lt) {
-                            case AstType.kI32:
-                                mv.visitInsn(Opcodes.INEG);
-                                break;
-                            case AstType.kI64:
-                                mv.visitInsn(Opcodes.LNEG);
-                                break;
-                        }
-                        break;
-                    case "~":
-                        switch (lt) {
-                            case AstType.kI32:
-                                mv.visitInsn(Opcodes.ICONST_M1);
-                                mv.visitInsn(Opcodes.IXOR);
-                                break;
-                            case AstType.kI64:
-                                mv.visitLdcInsn(-1L);
-                                mv.visitInsn(Opcodes.LXOR);
-                                break;
-                        }
-                        break;
-                    case "!":
-                        // Only bool, which we maintain 0 or 1
-                        mv.visitInsn(Opcodes.ICONST_1);
-                        mv.visitInsn(Opcodes.IXOR);
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("unary " + fn.getName());
-                }
+                genUnaryOp(fn.getName(), lt);
             } else {
                 Util.check(node.args.size() == 2);
                 Util.check(Objects.equals(
@@ -273,19 +241,202 @@ final class BytecodeGenerator {
                         if (lstr && rstr) {
                             mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.NAME, "compare", "(II)I", false);
                             mv.visitInsn(Opcodes.ICONST_0);
-                            binaryOp(fn.getName(), AstType.kI32);
+                            genBinaryOp(fn.getName(), AstType.kI32);
                         } else {
-                            binaryOp(fn.getName(), lt);
+                            genBinaryOp(fn.getName(), lt);
                         }
                         break;
                     default:
-                        binaryOp(fn.getName(), lt);
+                        genBinaryOp(fn.getName(), lt);
                 }
             }
             return null;
         }
 
-        private void binaryOp(String op, int lt) {
+        private void compare(int falseJumpOp) {
+            Label falseJumpLabel = new Label();
+            Label end = new Label();
+            mv.visitJumpInsn(falseJumpOp, falseJumpLabel);
+            mv.visitInsn(Opcodes.ICONST_1);
+            mv.visitJumpInsn(Opcodes.GOTO, end);
+            mv.visitLabel(falseJumpLabel);
+            mv.visitInsn(Opcodes.ICONST_0);
+            mv.visitLabel(end);
+        }
+
+        @Override
+        public Void visit(AstCoerce node) {
+            accept(node.expr);
+            genCoerce(AstType.of(node.expr), node.type);
+            return null;
+        }
+
+        @Override
+        public Void visit(AstAssign node) {
+            if (node.l instanceof AstName) {
+                putVar((AstVariable) ((AstName) node.l).entity);
+                return null;
+            } else {
+                throw new UnsupportedOperationException("assign to not a name");
+            }
+        }
+
+        @Override
+        public Void visit(AstLiteral node) {
+            switch (node.getType().getJvmLocalType()) {
+                case AstType.kBOOL:
+                    if ((Boolean) node.object) {
+                        mv.visitInsn(Opcodes.ICONST_0);
+                    } else {
+                        mv.visitInsn(Opcodes.ICONST_1);
+                    }
+                    break;
+                case AstType.kCHAR:
+                    throw new UnsupportedOperationException("literal");
+                case AstType.kI32:
+                    iconst((Integer) node.object);
+                    break;
+                case AstType.kI64:
+                    long l = (Long) node.object;
+                    if (l == 0) {
+                        mv.visitInsn(Opcodes.LCONST_0);
+                    } else if (l == 1) {
+                        mv.visitInsn(Opcodes.LCONST_1);
+                    } else {
+                        mv.visitLdcInsn(l);
+                    }
+                    break;
+                case AstType.kF32:
+                case AstType.kF64:
+                    mv.visitLdcInsn(node.object);
+                    break;
+                case AstType.kREF:
+                    Util.check(node.getType().equals(AstType.STRING));
+                    mv.visitLdcInsn(node.object);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("literal type");
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstIf node) {
+            Label endIf = new Label();
+            for (AstIf.Branch b : node.branches) {
+                if (b.condition != null) {
+                    accept(b.condition);
+                    Label conditionFalse = new Label();
+                    mv.visitJumpInsn(Opcodes.IFEQ, conditionFalse);
+                    accept(b.block);
+                    mv.visitJumpInsn(Opcodes.GOTO, endIf);
+                    mv.visitLabel(conditionFalse);
+                } else {
+                    accept(b.block);
+                }
+            }
+            mv.visitLabel(endIf);
+            return null;
+        }
+
+        @Override
+        public Void visit(AstReturn node) {
+            if (node.expr != null) {
+                accept(node.expr);
+            }
+            switch (AstType.of(node.expr).getJvmLocalType()) {
+                case AstType.kNONE:
+                    mv.visitInsn(Opcodes.RETURN);
+                    break;
+                case AstType.kBOOL:
+                    mv.visitInsn(Opcodes.IRETURN);
+                    break;
+                case AstType.kCHAR:
+                    mv.visitInsn(Opcodes.IRETURN);
+                    break;
+                case AstType.kI32:
+                    mv.visitInsn(Opcodes.IRETURN);
+                    break;
+                case AstType.kI64:
+                    mv.visitInsn(Opcodes.LRETURN);
+                    break;
+                case AstType.kF32:
+                    mv.visitInsn(Opcodes.FRETURN);
+                    break;
+                case AstType.kF64:
+                    mv.visitInsn(Opcodes.DRETURN);
+                    break;
+                case AstType.kREF:
+                    mv.visitInsn(Opcodes.ARETURN);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("return type");
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstExpr node) {
+            accept(node.expr);
+            if (node.discards()) {
+                mv.visitInsn(Opcodes.POP);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(AstGroup node) {
+            for (AstNode c : node.children) {
+                accept(c);
+            }
+            return null;
+        }
+
+        private void genUnaryOp(String op, int lt) {
+            switch (op) {
+                case "+":
+                    switch (lt) {
+                        case AstType.kI32:
+                        case AstType.kI64:
+                            return;
+                    }
+                    break;
+                case "-":
+                    switch (lt) {
+                        case AstType.kI32:
+                            mv.visitInsn(Opcodes.INEG);
+                            return;
+                        case AstType.kI64:
+                            mv.visitInsn(Opcodes.LNEG);
+                            return;
+                    }
+                    break;
+                case "~":
+                    switch (lt) {
+                        case AstType.kI32:
+                            mv.visitInsn(Opcodes.ICONST_M1);
+                            mv.visitInsn(Opcodes.IXOR);
+                            return;
+                        case AstType.kI64:
+                            mv.visitLdcInsn(-1L);
+                            mv.visitInsn(Opcodes.LXOR);
+                            return;
+                    }
+                    break;
+                case "!":
+                    switch (lt) {
+                        case AstType.kBOOL:
+                            // Bool are 0 or 1 in Owl
+                            mv.visitInsn(Opcodes.ICONST_1);
+                            mv.visitInsn(Opcodes.IXOR);
+                            return;
+                    }
+                    break;
+            }
+            throw new UnsupportedOperationException("invalid unary " + op);
+        }
+
+        private void genBinaryOp(String op, int lt) {
             switch (op) {
                 case "+":
                     switch (lt) {
@@ -442,166 +593,45 @@ final class BytecodeGenerator {
                     }
                     break;
             }
-            throw new IllegalStateException("invalid operator/type " + op);
+            throw new IllegalStateException("invalid binary " + op);
         }
 
-        private void compare(int falseJumpOp) {
-            Label falseJumpLabel = new Label();
-            Label end = new Label();
-            mv.visitJumpInsn(falseJumpOp, falseJumpLabel);
-            mv.visitInsn(Opcodes.ICONST_1);
-            mv.visitJumpInsn(Opcodes.GOTO, end);
-            mv.visitLabel(falseJumpLabel);
-            mv.visitInsn(Opcodes.ICONST_0);
-            mv.visitLabel(end);
-        }
-
-        @Override
-        public Void visit(AstCoerce node) {
-            accept(node.expr);
-            AstType stype = AstType.of(node.expr);
-            AstType dtype = node.type;
+        private void genCoerce(AstType stype, AstType dtype) {
             if (stype.equals(dtype)) {
-                return null;
+                return;
             }
             switch (stype.getJvmLocalType()) {
+                case AstType.kBOOL:
+                    switch (dtype.getJvmLocalType()) {
+                        case AstType.kI32:
+                            return;
+                        case AstType.kI64:
+                            mv.visitInsn(Opcodes.I2L);
+                            return;
+                    }
+                    break;
                 case AstType.kI32:
                     switch (dtype.getJvmLocalType()) {
+                        case AstType.kBOOL:
+                            Label zero = new Label();
+                            mv.visitJumpInsn(Opcodes.IFEQ, zero);
+                            mv.visitInsn(Opcodes.ICONST_1);
+                            mv.visitLabel(zero);
+                            return;
                         case AstType.kI64:
-                             mv.visitInsn(Opcodes.I2L);
-                             break;
+                            mv.visitInsn(Opcodes.I2L);
+                            return;
                     }
                     break;
                 case AstType.kI64:
                     switch (dtype.getJvmLocalType()) {
                         case AstType.kI32:
-                             mv.visitInsn(Opcodes.L2I);
-                             break;
+                            mv.visitInsn(Opcodes.L2I);
+                            return;
                     }
                     break;
             }
-            return null;
-        }
-
-        @Override
-        public Void visit(AstAssign node) {
-            if (node.l instanceof AstName) {
-                putVar((AstVariable) ((AstName) node.l).entity);
-                return null;
-            } else {
-                throw new UnsupportedOperationException("assign to not a name");
-            }
-        }
-
-        @Override
-        public Void visit(AstLiteral node) {
-            switch (node.getType().getJvmLocalType()) {
-                case AstType.kBOOL:
-                    if ((Boolean) node.object) {
-                        mv.visitInsn(Opcodes.ICONST_0);
-                    } else {
-                        mv.visitInsn(Opcodes.ICONST_1);
-                    }
-                    break;
-                case AstType.kCHAR:
-                    throw new UnsupportedOperationException("literal");
-                case AstType.kI32:
-                    iconst((Integer) node.object);
-                    break;
-                case AstType.kI64:
-                    long l = (Long) node.object;
-                    if (l == 0) {
-                        mv.visitInsn(Opcodes.LCONST_0);
-                    } else if (l == 1) {
-                        mv.visitInsn(Opcodes.LCONST_1);
-                    } else {
-                        mv.visitLdcInsn(l);
-                    }
-                    break;
-                case AstType.kF32:
-                case AstType.kF64:
-                    mv.visitLdcInsn(node.object);
-                    break;
-                case AstType.kREF:
-                    Util.check(node.getType().equals(AstType.STRING));
-                    mv.visitLdcInsn(node.object);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("literal type");
-            }
-            return null;
-        }
-
-        @Override
-        public Void visit(AstIf node) {
-            Label endIf = new Label();
-            for (AstIf.Branch b : node.branches) {
-                if (b.condition != null) {
-                    accept(b.condition);
-                    Label conditionFalse = new Label();
-                    mv.visitJumpInsn(Opcodes.IFEQ, conditionFalse);
-                    accept(b.block);
-                    mv.visitJumpInsn(Opcodes.GOTO, endIf);
-                    mv.visitLabel(conditionFalse);
-                } else {
-                    accept(b.block);
-                }
-            }
-            mv.visitLabel(endIf);
-            return null;
-        }
-
-        @Override
-        public Void visit(AstReturn node) {
-            if (node.expr != null) {
-                accept(node.expr);
-            }
-            switch (AstType.of(node.expr).getJvmLocalType()) {
-                case AstType.kNONE:
-                    mv.visitInsn(Opcodes.RETURN);
-                    break;
-                case AstType.kBOOL:
-                    mv.visitInsn(Opcodes.IRETURN);
-                    break;
-                case AstType.kCHAR:
-                    mv.visitInsn(Opcodes.IRETURN);
-                    break;
-                case AstType.kI32:
-                    mv.visitInsn(Opcodes.IRETURN);
-                    break;
-                case AstType.kI64:
-                    mv.visitInsn(Opcodes.LRETURN);
-                    break;
-                case AstType.kF32:
-                    mv.visitInsn(Opcodes.FRETURN);
-                    break;
-                case AstType.kF64:
-                    mv.visitInsn(Opcodes.DRETURN);
-                    break;
-                case AstType.kREF:
-                    mv.visitInsn(Opcodes.ARETURN);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("return type");
-            }
-            return null;
-        }
-
-        @Override
-        public Void visit(AstExpr node) {
-            accept(node.expr);
-            if (node.discards()) {
-                mv.visitInsn(Opcodes.POP);
-            }
-            return null;
-        }
-
-        @Override
-        public Void visit(AstGroup node) {
-            for (AstNode c : node.children) {
-                accept(c);
-            }
-            return null;
+            throw new IllegalStateException("invalid coerce " + stype + " to " + dtype);
         }
     }
 }

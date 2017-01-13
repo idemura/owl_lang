@@ -1,4 +1,4 @@
-module main;
+module locals2;
 
 foo(x, y: I32): I32 {
     var t = x + y;

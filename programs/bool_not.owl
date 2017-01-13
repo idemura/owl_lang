@@ -1,4 +1,4 @@
-module main;
+module bool_not;
 
 main(argv: String[]) {
     var s = "hello";

@@ -1,4 +1,4 @@
-module main;
+module casts;
 
 intOverload(x: I32) {
     println("32");
@@ -15,7 +15,15 @@ foo(x: I32) {
     intOverload(y);
 }
 
+castBool(x: I32) {
+    println(x : Bool);
+    var b = x > 10;
+    println(b : I32);
+}
+
 main(argv: String[]) {
     foo(1);
     println("hello" : String);
+    castBool(0);
+    castBool(12);
 }

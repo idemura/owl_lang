@@ -1,4 +1,4 @@
-module main;
+module call_overload;
 
 foo(x: I32): I32 {
     return 1;

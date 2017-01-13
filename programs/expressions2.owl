@@ -1,4 +1,4 @@
-module main;
+module expressions2;
 
 main(argv: String[]) {
     println(16 >>> 1);

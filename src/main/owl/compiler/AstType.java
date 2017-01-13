@@ -162,16 +162,19 @@ final class AstType extends AstNode {
     }
 
     boolean canCoerceTo(AstType dst) {
-        if (this.equals(dst)) {
+        if (equals(dst)) {
             return true;
         }
-        if (this.equals(AstType.I32) && dst.equals(AstType.I64)) {
+        if (equals(AstType.I32) && dst.equals(AstType.I64)) {
             return true;
         }
-        if (this.equals(AstType.I64) && dst.equals(AstType.I32)) {
+        if (equals(AstType.I64) && dst.equals(AstType.I32)) {
             return true;
         }
-        // TODO: Bool to integers
+        if (equals(AstType.I32) && dst.equals(AstType.BOOL) || equals(AstType.BOOL) && dst.equals(AstType.I32)) {
+            return true;
+        }
+        // TODO: Bool <-> I64
         return false;
     }
 

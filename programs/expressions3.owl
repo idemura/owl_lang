@@ -1,4 +1,4 @@
-module main;
+module expressions3;
 
 main(argv: String[]) {
     println(7 >> 1 & 5);

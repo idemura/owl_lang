@@ -1,4 +1,4 @@
-module main;
+module module_var;
 
 var g = "hello ";
 

@@ -1,4 +1,4 @@
-module main;
+module if1;
 
 main(argv: String[]) {
     var a = 1;

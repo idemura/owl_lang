@@ -1,4 +1,4 @@
-module main;
+module recursion;
 
 fact(n: I32): I32 {
     if n <= 1 {

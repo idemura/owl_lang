@@ -1,4 +1,4 @@
-module main;
+module locals3;
 
 foo(x, y: I32): I32 {
     x += 1;
