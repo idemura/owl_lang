@@ -1,4 +1,4 @@
-module casts;
+module cast1;
 
 intOverload(x: I32) {
     println("32");
