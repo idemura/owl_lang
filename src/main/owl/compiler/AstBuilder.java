@@ -137,7 +137,8 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
             return new AstLiteral(Integer.valueOf(ctx.INT().getText()), AstType.I32);
         }
         if (ctx.STRING() != null) {
-            return new AstLiteral(ctx.STRING().getText(), AstType.STRING);
+            String text = ctx.STRING().getText();
+            return new AstLiteral(text.substring(1, text.length() - 1), AstType.STRING);
         }
         return accept(ctx.expression());
     }

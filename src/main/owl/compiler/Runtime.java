@@ -93,9 +93,11 @@ final class Runtime {
         FUNCTIONS.put(function(">=", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(function(">=", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(function(">=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(function("==", AstType.BOOL, AstType.BOOL, AstType.BOOL));
         FUNCTIONS.put(function("==", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(function("==", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(function("==", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(function("!=", AstType.BOOL, AstType.BOOL, AstType.BOOL));
         FUNCTIONS.put(function("!=", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(function("!=", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(function("!=", AstType.BOOL, AstType.STRING, AstType.STRING));

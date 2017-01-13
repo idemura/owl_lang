@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 final class BytecodeGenerator {
     private BytecodeGenerator() {}
@@ -55,7 +56,7 @@ final class BytecodeGenerator {
         @Override
         public Void visit(AstModule node) {
             className = node.name;
-            clazz = new ClassWriter(0);
+            clazz = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             clazz.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, node.name, null, "java/lang/Object", null);
             clazz.visitSource(ast.fileName, null);
             for (AstNode v : node.variables) {
@@ -77,7 +78,7 @@ final class BytecodeGenerator {
             method.visitCode();
             node.indexLocals();
             node.accept(new FunctionVisitor(className, method));
-            method.visitMaxs(10, 10);
+            method.visitMaxs(0, 0);
             method.visitEnd();
             return null;
         }
@@ -154,7 +155,7 @@ final class BytecodeGenerator {
                         mv.visitVarInsn(Opcodes.LSTORE, index);
                         break;
                     case AstType.kREF:
-                        mv.visitVarInsn(Opcodes.AASTORE, index);
+                        mv.visitVarInsn(Opcodes.ASTORE, index);
                         break;
                     default:
                         throw new UnsupportedOperationException("load local type");
@@ -220,7 +221,7 @@ final class BytecodeGenerator {
             }
 
             // Operators
-            int lt = fn.getReturnType().getJvmLocalType();
+            int lt = fn.getArgs().get(0).getType().getJvmLocalType();
             if (node.args.size() == 1) {
                 switch (fn.getName()) {
                     case "+":
@@ -257,6 +258,9 @@ final class BytecodeGenerator {
                 }
             } else {
                 Util.check(node.args.size() == 2);
+                Util.check(Objects.equals(
+                        fn.getArgs().get(0).getType(),
+                        fn.getArgs().get(1).getType()));
                 switch (fn.getName()) {
                     case "<":
                     case "<=":
@@ -270,6 +274,8 @@ final class BytecodeGenerator {
                             mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.NAME, "compare", "(II)I", false);
                             mv.visitInsn(Opcodes.ICONST_0);
                             binaryOp(fn.getName(), AstType.kI32);
+                        } else {
+                            binaryOp(fn.getName(), lt);
                         }
                         break;
                     default:
@@ -401,35 +407,37 @@ final class BytecodeGenerator {
                 case "<=":
                     switch (lt) {
                         case AstType.kI32:
-                            compare(Opcodes.IF_ICMPGE);
+                            compare(Opcodes.IF_ICMPGT);
                             return;
                     }
                     break;
                 case ">":
                     switch (lt) {
                         case AstType.kI32:
-                            compare(Opcodes.IF_ICMPGE);
+                            compare(Opcodes.IF_ICMPLE);
                             return;
                     }
                     break;
                 case ">=":
                     switch (lt) {
                         case AstType.kI32:
-                            compare(Opcodes.IF_ICMPGE);
+                            compare(Opcodes.IF_ICMPLT);
                             return;
                     }
                     break;
                 case "==":
                     switch (lt) {
+                        case AstType.kBOOL:
                         case AstType.kI32:
-                            compare(Opcodes.IF_ICMPGE);
+                            compare(Opcodes.IF_ICMPNE);
                             return;
                     }
                     break;
                 case "!=":
                     switch (lt) {
+                        case AstType.kBOOL:
                         case AstType.kI32:
-                            compare(Opcodes.IF_ICMPGE);
+                            compare(Opcodes.IF_ICMPEQ);
                             return;
                     }
                     break;
