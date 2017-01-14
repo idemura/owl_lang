@@ -1,0 +1,35 @@
+module locals;
+
+foo(x, y: I32): I32 {
+    x += 1;
+    y += 1;
+    var t = x + y;
+    t -= 4;
+    return 10 * t;
+}
+
+test1() {
+    assert(foo(1, 2) == 10);
+}
+
+test2() {
+    var s = "cat";
+    if size(s) == 3 {
+        var s = "dog";
+        assert(s == "dog");
+    } else {
+        assert(false);
+    }
+    assert(s == "cat");
+    if false {
+        assert(false);
+    } else {
+        s += "fox";
+    }
+    assert(s == "catfox");
+}
+
+main(argv: String[]) {
+    test1();
+    test2();
+}
