@@ -5,7 +5,8 @@ _Because this is my personal repository,_
 _the license you receive to my code is from me and not from my employer (Facebook)_.
 
 ## Build
-Go to `lib` and run `python download_libs.py lib_list`, then from the project root:
+To build Owl from command line, Buck build is required (https://buckbuild.com/).
+First, download dependencies: `cd lib && python download_libs.py lib_list`. In the project root run:
 
 ```
 ./antlr && ./build
@@ -17,7 +18,7 @@ Let's create a sample Owl program and save it in `test.owl`:
 # Module name should match file name
 module test;
 
-main(String[]) {
+main(argv: String[]) {
   var greeting = "hello world";
   println(greeting);
 }
