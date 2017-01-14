@@ -46,7 +46,7 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstModule node) {
-            beginNode(node);
+            beginNode(node, node.name);
             for (AstNode f : node.variables) {
                 accept(f);
                 printer.println("");
@@ -106,7 +106,11 @@ final class DebugPrint {
 
         @Override
         public Void visit(AstLiteral node) {
-            leaf(node, node.object + " " + node.getType());
+            String s = node.object.toString();
+            if (node.object instanceof String) {
+                s = "\"" + s + "\"";
+            }
+            leaf(node, s + " " + node.getType());
             return null;
         }
 
