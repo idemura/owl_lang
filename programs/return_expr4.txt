@@ -1,20 +1,17 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class return_expr4
-{
-  static int foo (
-      int x
-  )
-  {
-    return x ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = foo ( 2 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/return_expr4.owl"
+public class return_expr4 {
+  static int foo(int);
+    Code:
+       0: iload_0
+       1: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_2
+       1: invokestatic  #11                 // Method foo:(I)I
+       4: invokestatic  #17                 // Method owl/runtime/RT.println:(I)V
+       7: return
 }
+2
 --- STDERR

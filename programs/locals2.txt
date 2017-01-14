@@ -1,26 +1,24 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class locals2
-{
-  static int foo (
-      int x ,
-      int y
-  )
-  {
-    int _l_a ;
-    // _l_a is t
-    int _t_a = x + y ;
-    _l_a = _t_a ;
-    int _t_b = 10 * _l_a ;
-    return _t_b ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = foo ( 1, 2 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/locals2.owl"
+public class locals2 {
+  static int foo(int, int);
+    Code:
+       0: iload_0
+       1: iload_1
+       2: iadd
+       3: istore_2
+       4: bipush        10
+       6: iload_2
+       7: imul
+       8: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_1
+       1: iconst_2
+       2: invokestatic  #11                 // Method foo:(II)I
+       5: invokestatic  #17                 // Method owl/runtime/RT.println:(I)V
+       8: return
 }
+30
 --- STDERR

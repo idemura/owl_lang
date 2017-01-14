@@ -1,32 +1,36 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class locals3
-{
-  static int foo (
-      int x ,
-      int y
-  )
-  {
-    int _l_a ;
-    // _l_a is t
-    int _t_a = x + 1 ;
-    x = _t_a ;
-    int _t_b = y + 1 ;
-    y = _t_b ;
-    int _t_c = x + y ;
-    _l_a = _t_c ;
-    int _t_d = _l_a - 4 ;
-    _l_a = _t_d ;
-    int _t_e = 10 * _l_a ;
-    return _t_e ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = foo ( 1, 2 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/locals3.owl"
+public class locals3 {
+  static int foo(int, int);
+    Code:
+       0: iload_0
+       1: iconst_1
+       2: iadd
+       3: istore_0
+       4: iload_1
+       5: iconst_1
+       6: iadd
+       7: istore_1
+       8: iload_0
+       9: iload_1
+      10: iadd
+      11: istore_2
+      12: iload_2
+      13: iconst_4
+      14: isub
+      15: istore_2
+      16: bipush        10
+      18: iload_2
+      19: imul
+      20: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_1
+       1: iconst_2
+       2: invokestatic  #11                 // Method foo:(II)I
+       5: invokestatic  #17                 // Method owl/runtime/RT.println:(I)V
+       8: return
 }
+10
 --- STDERR

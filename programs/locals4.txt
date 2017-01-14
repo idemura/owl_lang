@@ -1,44 +1,43 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class locals4
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    String _l_a ;
-    // _l_a is s
-    String _l_b ;
-    // _l_b is s
-    String _l_c ;
-    // _l_c is s
-    _l_a = "hello" ;
-    if ( true )
-    {
-      _l_b = "world" ;
-      RT.println ( _l_b );
-    }
-    RT.println ( _l_a );
-    if ( false )
-    {
-      _l_a = "holy shit" ;
-    }
-    else
-    {
-      _l_c = "world" ;
-    }
-    RT.println ( _l_a );
-    if ( false )
-    {
-      _l_a = "holy shit" ;
-    }
-    else
-    {
-      String _t_a = _l_a + " cat" ;
-      _l_a = _t_a ;
-    }
-    RT.println ( _l_a );
-  }
+Compiled from "programs/locals4.owl"
+public class locals4 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: ldc           #9                  // String hello
+       2: astore_1
+       3: iconst_1
+       4: ifeq          17
+       7: ldc           #11                 // String world
+       9: astore_2
+      10: aload_2
+      11: invokestatic  #17                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      14: goto          17
+      17: aload_1
+      18: invokestatic  #17                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      21: iconst_0
+      22: ifeq          31
+      25: ldc           #19                 // String holy shit
+      27: astore_1
+      28: goto          34
+      31: ldc           #11                 // String world
+      33: astore_3
+      34: aload_1
+      35: invokestatic  #17                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      38: iconst_0
+      39: ifeq          48
+      42: ldc           #19                 // String holy shit
+      44: astore_1
+      45: goto          55
+      48: aload_1
+      49: ldc           #21                 // String  cat
+      51: invokestatic  #25                 // Method owl/runtime/RT.concat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      54: astore_1
+      55: aload_1
+      56: invokestatic  #17                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      59: return
 }
+world
+hello
+hello
+hello cat
 --- STDERR

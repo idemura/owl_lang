@@ -1,42 +1,77 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class expressions2
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = 16 >>> 1 ;
-    RT.println ( _t_a );
-    int _t_b = 16 >> 1 ;
-    RT.println ( _t_b );
-    int _t_c = 16 << 1 ;
-    RT.println ( _t_c );
-    int _t_d = 15 + 1 ;
-    int _t_e = 2 - 1 ;
-    int _t_f = _t_d >>> _t_e ;
-    RT.println ( _t_f );
-    int _t_g = 14 + 2 ;
-    int _t_h = 2 - 1 ;
-    int _t_i = _t_g >> _t_h ;
-    RT.println ( _t_i );
-    int _t_j = 13 + 3 ;
-    int _t_k = 2 - 1 ;
-    int _t_l = _t_j << _t_k ;
-    RT.println ( _t_l );
-    int _t_m = 15 + 1 ;
-    int _t_n = _t_m >>> 2 ;
-    int _t_o = _t_n - 1 ;
-    RT.println ( _t_o );
-    int _t_p = 14 + 2 ;
-    int _t_q = _t_p >> 2 ;
-    int _t_r = _t_q - 1 ;
-    RT.println ( _t_r );
-    int _t_s = 13 + 3 ;
-    int _t_t = _t_s << 2 ;
-    int _t_u = _t_t - 1 ;
-    RT.println ( _t_u );
-  }
+Compiled from "programs/expressions2.owl"
+public class expressions2 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: bipush        16
+       2: iconst_1
+       3: iushr
+       4: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+       7: bipush        16
+       9: iconst_1
+      10: ishr
+      11: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      14: bipush        16
+      16: iconst_1
+      17: ishl
+      18: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      21: bipush        15
+      23: iconst_1
+      24: iadd
+      25: iconst_2
+      26: iconst_1
+      27: isub
+      28: iushr
+      29: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      32: bipush        14
+      34: iconst_2
+      35: iadd
+      36: iconst_2
+      37: iconst_1
+      38: isub
+      39: ishr
+      40: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      43: bipush        13
+      45: iconst_3
+      46: iadd
+      47: iconst_2
+      48: iconst_1
+      49: isub
+      50: ishl
+      51: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      54: bipush        15
+      56: iconst_1
+      57: iadd
+      58: iconst_2
+      59: iushr
+      60: iconst_1
+      61: isub
+      62: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      65: bipush        14
+      67: iconst_2
+      68: iadd
+      69: iconst_2
+      70: ishr
+      71: iconst_1
+      72: isub
+      73: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      76: bipush        13
+      78: iconst_3
+      79: iadd
+      80: iconst_2
+      81: ishl
+      82: iconst_1
+      83: isub
+      84: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      87: return
 }
+8
+8
+32
+8
+8
+32
+3
+3
+63
 --- STDERR

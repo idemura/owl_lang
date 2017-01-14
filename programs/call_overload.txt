@@ -1,52 +1,42 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class call_overload
-{
-  static int foo (
-      int x
-  )
-  {
-    return 1 ;
-  }
-  static int foo (
-      int x ,
-      int y
-  )
-  {
-    return 2 ;
-  }
-  static int foo (
-      int x ,
-      String y
-  )
-  {
-    return 3 ;
-  }
-  static int foo (
-      String x
-  )
-  {
-    return 4 ;
-  }
-  static int foo (
-      String x ,
-      int y
-  )
-  {
-    return 5 ;
-  }
-  static int foo (
-  )
-  {
-    return 6 ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = foo ( 2 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/call_overload.owl"
+public class call_overload {
+  static int foo(int);
+    Code:
+       0: iconst_1
+       1: ireturn
+
+  static int foo(int, int);
+    Code:
+       0: iconst_2
+       1: ireturn
+
+  static int foo(int, java.lang.String);
+    Code:
+       0: iconst_3
+       1: ireturn
+
+  static int foo(java.lang.String);
+    Code:
+       0: iconst_4
+       1: ireturn
+
+  static int foo(java.lang.String, int);
+    Code:
+       0: iconst_5
+       1: ireturn
+
+  static int foo();
+    Code:
+       0: bipush        6
+       2: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_2
+       1: invokestatic  #16                 // Method foo:(I)I
+       4: invokestatic  #22                 // Method owl/runtime/RT.println:(I)V
+       7: return
 }
+1
 --- STDERR

@@ -1,1 +1,1 @@
---print_ast --print_name_map --stop_phase 2
+--print_ast --stop_phase 2

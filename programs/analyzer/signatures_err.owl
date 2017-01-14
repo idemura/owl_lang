@@ -1,4 +1,4 @@
-module test;
+module signatures_err;
 
 # Missing argument type
 f10(x: I32, y) {}

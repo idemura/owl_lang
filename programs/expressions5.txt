@@ -1,27 +1,38 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class expressions5
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = - 1 ;
-    RT.println ( _t_a );
-    int _t_b = ~ 1 ;
-    RT.println ( _t_b );
-    int _t_c = + 1 ;
-    RT.println ( _t_c );
-    int _t_d = - 1 ;
-    int _t_e = _t_d + 1 ;
-    RT.println ( _t_e );
-    int _t_f = ~ 1 ;
-    int _t_g = _t_f + 2 ;
-    RT.println ( _t_g );
-    int _t_h = + 1 ;
-    int _t_i = _t_h - 1 ;
-    RT.println ( _t_i );
-  }
+Compiled from "programs/expressions5.owl"
+public class expressions5 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_1
+       1: ineg
+       2: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+       5: iconst_1
+       6: iconst_m1
+       7: ixor
+       8: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      11: iconst_1
+      12: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      15: iconst_1
+      16: ineg
+      17: iconst_1
+      18: iadd
+      19: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      22: iconst_1
+      23: iconst_m1
+      24: ixor
+      25: iconst_2
+      26: iadd
+      27: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      30: iconst_1
+      31: iconst_1
+      32: isub
+      33: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      36: return
 }
+-1
+-2
+1
+0
+0
+0
 --- STDERR

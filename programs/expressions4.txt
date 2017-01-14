@@ -1,34 +1,60 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class expressions4
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = 3 ^ 5 ;
-    RT.println ( _t_a );
-    int _t_b = 3 ^ 5 ;
-    int _t_c = _t_b ^ 1 ;
-    RT.println ( _t_c );
-    int _t_d = 3 | 5 ;
-    RT.println ( _t_d );
-    int _t_e = 3 | 5 ;
-    int _t_f = _t_e | 1 ;
-    RT.println ( _t_f );
-    int _t_g = 3 ^ 4 ;
-    int _t_h = _t_g | 1 ;
-    RT.println ( _t_h );
-    int _t_i = 4 | 1 ;
-    int _t_j = 3 ^ _t_i ;
-    RT.println ( _t_j );
-    int _t_k = 4 ^ 1 ;
-    int _t_l = 3 | _t_k ;
-    RT.println ( _t_l );
-    int _t_m = 3 | 4 ;
-    int _t_n = _t_m ^ 1 ;
-    RT.println ( _t_n );
-  }
+Compiled from "programs/expressions4.owl"
+public class expressions4 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_3
+       1: iconst_5
+       2: ixor
+       3: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+       6: iconst_3
+       7: iconst_5
+       8: ixor
+       9: iconst_1
+      10: ixor
+      11: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      14: iconst_3
+      15: iconst_5
+      16: ior
+      17: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      20: iconst_3
+      21: iconst_5
+      22: ior
+      23: iconst_1
+      24: ior
+      25: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      28: iconst_3
+      29: iconst_4
+      30: ixor
+      31: iconst_1
+      32: ior
+      33: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      36: iconst_3
+      37: iconst_4
+      38: iconst_1
+      39: ior
+      40: ixor
+      41: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      44: iconst_3
+      45: iconst_4
+      46: iconst_1
+      47: ixor
+      48: ior
+      49: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      52: iconst_3
+      53: iconst_4
+      54: ior
+      55: iconst_1
+      56: ixor
+      57: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      60: return
 }
+6
+7
+7
+7
+7
+6
+7
+6
 --- STDERR

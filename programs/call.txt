@@ -1,20 +1,17 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class call
-{
-  static int foo (
-      int x
-  )
-  {
-    return 10 ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = foo ( 0 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/call.owl"
+public class call {
+  static int foo(int);
+    Code:
+       0: bipush        10
+       2: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_0
+       1: invokestatic  #11                 // Method foo:(I)I
+       4: invokestatic  #17                 // Method owl/runtime/RT.println:(I)V
+       7: return
 }
+10
 --- STDERR

@@ -1,10 +1,10 @@
 --- STDOUT
-Module
+Module signatures_err
   Variable x
-    Literal 10: I32
+    Literal 10 I32
   
   Variable x
-    Literal 11: I32
+    Literal 11 I32
   
   Function f10
     ReturnType: None

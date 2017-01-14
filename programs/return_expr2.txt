@@ -1,22 +1,21 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class return_expr2
-{
-  static int foo (
-      int x
-  )
-  {
-    int _t_a = 13 * 3 ;
-    int _t_b = x + _t_a ;
-    return _t_b ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = foo ( 1 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/return_expr2.owl"
+public class return_expr2 {
+  static int foo(int);
+    Code:
+       0: iload_0
+       1: bipush        13
+       3: iconst_3
+       4: imul
+       5: iadd
+       6: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_1
+       1: invokestatic  #11                 // Method foo:(I)I
+       4: invokestatic  #17                 // Method owl/runtime/RT.println:(I)V
+       7: return
 }
+40
 --- STDERR

@@ -1,28 +1,34 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class recursion
-{
-  static int fact (
-      int n
-  )
-  {
-    boolean _t_a = n <= 1 ;
-    if ( _t_a )
-    {
-      return 1 ;
-    }
-    int _t_b = n - 1 ;
-    int _t_c = fact ( _t_b );
-    int _t_d = _t_c * n ;
-    return _t_d ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = fact ( 5 );
-    RT.println ( _t_a );
-  }
+Compiled from "programs/recursion.owl"
+public class recursion {
+  static int fact(int);
+    Code:
+       0: iload_0
+       1: iconst_1
+       2: if_icmpgt     9
+       5: iconst_1
+       6: goto          10
+       9: iconst_0
+      10: ifeq          18
+      13: iconst_1
+      14: ireturn
+      15: nop
+      16: nop
+      17: athrow
+      18: iload_0
+      19: iconst_1
+      20: isub
+      21: invokestatic  #9                  // Method fact:(I)I
+      24: iload_0
+      25: imul
+      26: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_5
+       1: invokestatic  #9                  // Method fact:(I)I
+       4: invokestatic  #19                 // Method owl/runtime/RT.println:(I)V
+       7: return
 }
+120
 --- STDERR

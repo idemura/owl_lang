@@ -1,41 +1,81 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class expressions6
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    String _l_a ;
-    // _l_a is a
-    String _l_b ;
-    // _l_b is b1
-    String _l_c ;
-    // _l_c is b2
-    _l_a = "ac" ;
-    _l_b = "ab" ;
-    _l_c = "ab" ;
-    int _t_a = RT.compare ( _l_a, _l_b );
-    boolean _t_b = _t_a < 0 ;
-    RT.println ( _t_b );
-    int _t_c = RT.compare ( _l_a, _l_c );
-    boolean _t_d = _t_c > 0 ;
-    RT.println ( _t_d );
-    int _t_e = RT.compare ( _l_b, _l_c );
-    boolean _t_f = _t_e == 0 ;
-    RT.println ( _t_f );
-    int _t_g = 2 + 3 ;
-    boolean _t_h = _t_g > 4 ;
-    RT.println ( _t_h );
-    int _t_i = 2 * 3 ;
-    boolean _t_j = _t_i < 7 ;
-    RT.println ( _t_j );
-    int _t_k = - 1 ;
-    boolean _t_l = 0 == _t_k ;
-    RT.println ( _t_l );
-    boolean _t_m = 0 != 10 ;
-    RT.println ( _t_m );
-  }
+Compiled from "programs/expressions6.owl"
+public class expressions6 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: ldc           #9                  // String ac
+       2: astore_1
+       3: ldc           #11                 // String ab
+       5: astore_2
+       6: ldc           #11                 // String ab
+       8: astore_3
+       9: aload_1
+      10: aload_2
+      11: invokestatic  #17                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
+      14: iconst_0
+      15: if_icmpge     22
+      18: iconst_1
+      19: goto          23
+      22: iconst_0
+      23: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+      26: aload_1
+      27: aload_3
+      28: invokestatic  #17                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
+      31: iconst_0
+      32: if_icmple     39
+      35: iconst_1
+      36: goto          40
+      39: iconst_0
+      40: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+      43: aload_2
+      44: aload_3
+      45: invokestatic  #17                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
+      48: iconst_0
+      49: if_icmpne     56
+      52: iconst_1
+      53: goto          57
+      56: iconst_0
+      57: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+      60: iconst_2
+      61: iconst_3
+      62: iadd
+      63: iconst_4
+      64: if_icmple     71
+      67: iconst_1
+      68: goto          72
+      71: iconst_0
+      72: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+      75: iconst_2
+      76: iconst_3
+      77: imul
+      78: bipush        7
+      80: if_icmpge     87
+      83: iconst_1
+      84: goto          88
+      87: iconst_0
+      88: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+      91: iconst_0
+      92: iconst_1
+      93: ineg
+      94: if_icmpne     101
+      97: iconst_1
+      98: goto          102
+     101: iconst_0
+     102: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+     105: iconst_0
+     106: bipush        10
+     108: if_icmpeq     115
+     111: iconst_1
+     112: goto          116
+     115: iconst_0
+     116: invokestatic  #21                 // Method owl/runtime/RT.println:(Z)V
+     119: return
 }
+false
+true
+true
+true
+true
+false
+true
 --- STDERR

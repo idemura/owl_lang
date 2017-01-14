@@ -1,24 +1,36 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class expressions3
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = 7 >> 1 ;
-    int _t_b = _t_a & 5 ;
-    RT.println ( _t_b );
-    int _t_c = 3 << 1 ;
-    int _t_d = _t_c & 5 ;
-    RT.println ( _t_d );
-    int _t_e = 1 & 5 ;
-    int _t_f = 7 >> _t_e ;
-    RT.println ( _t_f );
-    int _t_g = 1 & 5 ;
-    int _t_h = 3 << _t_g ;
-    RT.println ( _t_h );
-  }
+Compiled from "programs/expressions3.owl"
+public class expressions3 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: bipush        7
+       2: iconst_1
+       3: ishr
+       4: iconst_5
+       5: iand
+       6: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+       9: iconst_3
+      10: iconst_1
+      11: ishl
+      12: iconst_5
+      13: iand
+      14: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      17: bipush        7
+      19: iconst_1
+      20: iconst_5
+      21: iand
+      22: ishr
+      23: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      26: iconst_3
+      27: iconst_1
+      28: iconst_5
+      29: iand
+      30: ishl
+      31: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      34: return
 }
+1
+4
+3
+6
 --- STDERR

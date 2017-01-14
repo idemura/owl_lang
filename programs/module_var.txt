@@ -1,22 +1,30 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class module_var
-{
-  static String g ;
-  static {
-    module_var.g = "hello " ;
-  }
-  public static void main (
-      String[] argv
-  )
-  {
-    RT.println ( module_var.g );
-    String _t_a = module_var.g + "world" ;
-    module_var.g = _t_a ;
-    RT.println ( module_var.g );
-    int _t_b = RT.size ( module_var.g );
-    RT.println ( _t_b );
-  }
+Compiled from "programs/module_var.owl"
+public class module_var {
+  static java.lang.String g;
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: getstatic     #11                 // Field g:Ljava/lang/String;
+       3: invokestatic  #17                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+       6: getstatic     #11                 // Field g:Ljava/lang/String;
+       9: ldc           #19                 // String world
+      11: invokestatic  #23                 // Method owl/runtime/RT.concat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      14: putstatic     #11                 // Field g:Ljava/lang/String;
+      17: getstatic     #11                 // Field g:Ljava/lang/String;
+      20: invokestatic  #17                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      23: getstatic     #11                 // Field g:Ljava/lang/String;
+      26: invokestatic  #27                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
+      29: invokestatic  #30                 // Method owl/runtime/RT.println:(I)V
+      32: return
+
+  static {};
+    Code:
+       0: ldc           #34                 // String hello
+       2: putstatic     #11                 // Field g:Ljava/lang/String;
+       5: return
 }
+hello 
+hello world
+11
 --- STDERR

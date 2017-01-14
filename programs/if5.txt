@@ -1,0 +1,60 @@
+--- STDOUT
+Compiled from "programs/if5.owl"
+public class if5 {
+  static void f10();
+    Code:
+       0: ldc           #8                  // String f10
+       2: invokestatic  #14                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+       5: return
+
+  static int f11(int);
+    Code:
+       0: iload_0
+       1: iconst_0
+       2: if_icmpge     9
+       5: iconst_1
+       6: goto          10
+       9: iconst_0
+      10: ifeq          18
+      13: iconst_1
+      14: ireturn
+      15: nop
+      16: nop
+      17: athrow
+      18: iconst_0
+      19: ireturn
+
+  static int f12(int);
+    Code:
+       0: iload_0
+       1: iconst_0
+       2: if_icmpge     9
+       5: iconst_1
+       6: goto          10
+       9: iconst_0
+      10: ifeq          18
+      13: iconst_1
+      14: ireturn
+      15: nop
+      16: nop
+      17: athrow
+      18: iconst_0
+      19: ireturn
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokestatic  #23                 // Method f10:()V
+       3: iconst_1
+       4: ineg
+       5: invokestatic  #25                 // Method f11:(I)I
+       8: invokestatic  #28                 // Method owl/runtime/RT.println:(I)V
+      11: iconst_1
+      12: ineg
+      13: invokestatic  #30                 // Method f12:(I)I
+      16: invokestatic  #28                 // Method owl/runtime/RT.println:(I)V
+      19: return
+}
+f10
+1
+1
+--- STDERR

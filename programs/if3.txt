@@ -1,45 +1,47 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class if3
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    int _l_a ;
-    // _l_a is a
-    int _l_b ;
-    // _l_b is b
-    int _l_c ;
-    // _l_c is c
-    int _l_d ;
-    // _l_d is d
-    _l_a = 1 ;
-    _l_b = 3 ;
-    _l_c = 2 ;
-    int _t_a = _l_b * _l_b ;
-    int _t_b = 4 * _l_a ;
-    int _t_c = _t_b * _l_c ;
-    int _t_d = _t_a - _t_c ;
-    _l_d = _t_d ;
-    boolean _t_e = _l_d < 0 ;
-    if ( _t_e )
-    {
-      RT.println ( "no solution" );
-    }
-    else
-    {
-      boolean _t_f = _l_d == 0 ;
-      if ( _t_f )
-      {
-        RT.println ( "single root" );
-      }
-      else
-      {
-        RT.println ( "different roots" );
-      }
-    }
-  }
+Compiled from "programs/if3.owl"
+public class if3 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_1
+       1: istore_1
+       2: iconst_3
+       3: istore_2
+       4: iconst_2
+       5: istore_3
+       6: iload_2
+       7: iload_2
+       8: imul
+       9: iconst_4
+      10: iload_1
+      11: imul
+      12: iload_3
+      13: imul
+      14: isub
+      15: istore        4
+      17: iload         4
+      19: iconst_0
+      20: if_icmpge     27
+      23: iconst_1
+      24: goto          28
+      27: iconst_0
+      28: ifeq          39
+      31: ldc           #9                  // String no solution
+      33: invokestatic  #15                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      36: goto          66
+      39: iload         4
+      41: iconst_0
+      42: if_icmpne     49
+      45: iconst_1
+      46: goto          50
+      49: iconst_0
+      50: ifeq          61
+      53: ldc           #17                 // String single root
+      55: invokestatic  #15                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      58: goto          66
+      61: ldc           #19                 // String different roots
+      63: invokestatic  #15                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      66: return
 }
+different roots
 --- STDERR

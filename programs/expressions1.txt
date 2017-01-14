@@ -1,40 +1,74 @@
 --- STDOUT
-package main ;
-import owl.runtime.RT ;
-public final class expressions1
-{
-  public static void main (
-      String[] argv
-  )
-  {
-    int _t_a = 7 * 3 ;
-    int _t_b = 2 + _t_a ;
-    RT.println ( _t_b );
-    int _t_c = 2 + 7 ;
-    int _t_d = _t_c - 3 ;
-    RT.println ( _t_d );
-    int _t_e = 7 / 3 ;
-    int _t_f = 2 + _t_e ;
-    RT.println ( _t_f );
-    int _t_g = 7 % 3 ;
-    int _t_h = 2 + _t_g ;
-    RT.println ( _t_h );
-    int _t_i = 2 * 7 ;
-    int _t_j = _t_i / 3 ;
-    RT.println ( _t_j );
-    int _t_k = 2 + 7 ;
-    int _t_l = _t_k / 3 ;
-    RT.println ( _t_l );
-    int _t_m = 1 + 2 ;
-    int _t_n = 9 / _t_m ;
-    RT.println ( _t_n );
-    int _t_o = 1 + 2 ;
-    int _t_p = 9 % _t_o ;
-    RT.println ( _t_p );
-    double _t_q = RT.fdiv ( 10, 3 );
-    RT.println ( _t_q );
-    double _t_r = RT.fdiv ( 10, 5 );
-    RT.println ( _t_r );
-  }
+Compiled from "programs/expressions1.owl"
+public class expressions1 {
+  public static void main(java.lang.String[]);
+    Code:
+       0: iconst_2
+       1: bipush        7
+       3: iconst_3
+       4: imul
+       5: iadd
+       6: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+       9: iconst_2
+      10: bipush        7
+      12: iadd
+      13: iconst_3
+      14: isub
+      15: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      18: iconst_2
+      19: bipush        7
+      21: iconst_3
+      22: idiv
+      23: iadd
+      24: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      27: iconst_2
+      28: bipush        7
+      30: iconst_3
+      31: irem
+      32: iadd
+      33: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      36: iconst_2
+      37: bipush        7
+      39: imul
+      40: iconst_3
+      41: idiv
+      42: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      45: iconst_2
+      46: bipush        7
+      48: iadd
+      49: iconst_3
+      50: idiv
+      51: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      54: bipush        9
+      56: iconst_1
+      57: iconst_2
+      58: iadd
+      59: idiv
+      60: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      63: bipush        9
+      65: iconst_1
+      66: iconst_2
+      67: iadd
+      68: irem
+      69: invokestatic  #13                 // Method owl/runtime/RT.println:(I)V
+      72: bipush        10
+      74: iconst_3
+      75: invokestatic  #17                 // Method owl/runtime/RT.fdiv:(II)D
+      78: invokestatic  #20                 // Method owl/runtime/RT.println:(D)V
+      81: bipush        10
+      83: iconst_5
+      84: invokestatic  #17                 // Method owl/runtime/RT.fdiv:(II)D
+      87: invokestatic  #20                 // Method owl/runtime/RT.println:(D)V
+      90: return
 }
+23
+6
+4
+3
+4
+3
+3
+0
+3.3333333333333335
+2.0
 --- STDERR
