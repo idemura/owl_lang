@@ -17,6 +17,11 @@ package owl.runtime;
 public class RT {
     private RT() {}
 
+    public static void owl_assert(boolean x) {
+        if (!x) {
+            throw new IllegalStateException("assertion failed");
+        }
+    }
     public static void println(boolean x) {
         System.out.println(x);
     }

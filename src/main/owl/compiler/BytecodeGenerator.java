@@ -30,8 +30,8 @@ import java.util.Objects;
 final class BytecodeGenerator {
     private BytecodeGenerator() {}
 
-    static void run(Ast ast, File dir) throws OwlException {
-        Visitor v = new Visitor(ast);
+    static void run(Ast ast, File dir, int optLevel) throws OwlException {
+        Visitor v = new Visitor(ast, optLevel);
         v.accept(ast.root);
         File classFile = new File(dir, v.getClassName() + ".class");
         classFile.getParentFile().mkdirs();
@@ -44,11 +44,13 @@ final class BytecodeGenerator {
 
     private static final class Visitor implements AstVisitor<Void> {
         private final Ast ast;
+        private final int optLevel;
         private final List<AstVariable> staticInit = new ArrayList<>();
         private ClassWriter clazz;
 
-        Visitor(Ast ast) {
+        Visitor(Ast ast, int optLevel) {
             this.ast = ast;
+            this.optLevel = optLevel;
         }
 
         String getClassName() {
@@ -79,7 +81,7 @@ final class BytecodeGenerator {
             MethodVisitor mv = clazz.visitMethod(flags, node.getName(), node.getJvmDescriptor(), null, null);
             mv.visitCode();
             node.indexLocals();
-            node.accept(new FunctionVisitor(getClassName(), mv));
+            node.accept(new FunctionVisitor(getClassName(), mv, optLevel));
             mv.visitMaxs(0, 0);
             mv.visitEnd();
             return null;
@@ -101,7 +103,7 @@ final class BytecodeGenerator {
             MethodVisitor mv = clazz.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
             mv.visitCode();
             for (AstVariable v : staticInit) {
-                v.getExpr().accept(new FunctionVisitor(getClassName(), mv));
+                v.getExpr().accept(new FunctionVisitor(getClassName(), mv, optLevel));
                 mv.visitFieldInsn(Opcodes.PUTSTATIC, v.getModuleName(), v.getName(), v.getJvmDescriptor());
             }
             mv.visitInsn(Opcodes.RETURN);
@@ -113,28 +115,18 @@ final class BytecodeGenerator {
     private static final class FunctionVisitor implements AstVisitor<Void> {
         private final String className;
         private final MethodVisitor mv;
+        private final int optLevel;
 
-        FunctionVisitor(String className, MethodVisitor mv) {
+        FunctionVisitor(String className, MethodVisitor mv, int optLevel) {
             this.className = className;
             this.mv = mv;
+            this.optLevel = optLevel;
         }
 
         private static final int BIPUSH_MIN = Byte.MIN_VALUE;
         private static final int BIPUSH_MAX = Byte.MAX_VALUE;
         private static final int SIPUSH_MIN = Short.MIN_VALUE;
         private static final int SIPUSH_MAX = Short.MAX_VALUE;
-
-        private void iconst(int v) {
-            if (-1 <= v && v <= 5) {
-                mv.visitInsn(Opcodes.ICONST_0 + v);
-            } else if (BIPUSH_MIN <= v && v <= BIPUSH_MAX) {
-                mv.visitIntInsn(Opcodes.BIPUSH, v);
-            } else if (SIPUSH_MIN <= v && v <= SIPUSH_MAX) {
-                mv.visitIntInsn(Opcodes.SIPUSH, v);
-            } else {
-                mv.visitLdcInsn(v);
-            }
-        }
 
         private void getVar(AstVariable v) {
             if (v.getStorage() instanceof AstVariable.Local) {
@@ -230,14 +222,22 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstApply node) {
+            AstFunction fn = (AstFunction) ((AstName) node.fn).entity;
+            if (optLevel > 0 && fn.getName().equals("assert")) {
+                return null;
+            }
+
             for (AstNode a : node.args) {
                 accept(a);
             }
-            AstFunction fn = (AstFunction) ((AstName) node.fn).entity;
-            if (Util.isIdFirstChar(fn.getName().charAt(0))) {
+            String methodName = fn.getMethodName();
+            if (Util.isIdFirstChar(fn.getName().charAt(0)) || methodName != null) {
+                if (methodName == null) {
+                    methodName = fn.getName();
+                }
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                         Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : className,
-                        fn.getName(),
+                        methodName,
                         fn.getJvmDescriptor(),
                         false);
                 return null;
@@ -318,7 +318,16 @@ final class BytecodeGenerator {
                 case AstType.kCHAR:
                     throw new UnsupportedOperationException("literal");
                 case AstType.kI32:
-                    iconst((Integer) node.object);
+                    int v = (Integer) node.object;
+                    if (-1 <= v && v <= 5) {
+                        mv.visitInsn(Opcodes.ICONST_0 + v);
+                    } else if (BIPUSH_MIN <= v && v <= BIPUSH_MAX) {
+                        mv.visitIntInsn(Opcodes.BIPUSH, v);
+                    } else if (SIPUSH_MIN <= v && v <= SIPUSH_MAX) {
+                        mv.visitIntInsn(Opcodes.SIPUSH, v);
+                    } else {
+                        mv.visitLdcInsn(v);
+                    }
                     break;
                 case AstType.kI64:
                     long l = (Long) node.object;

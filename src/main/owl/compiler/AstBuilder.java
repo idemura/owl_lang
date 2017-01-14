@@ -110,6 +110,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         AstNode r = new AstFunction(
                 getEntityModuleName(),
                 getTextOpt(ctx.NAME()),
+                null,
                 args,
                 (AstType) accept(ctx.type()),
                 (AstBlock) accept(ctx.block()));

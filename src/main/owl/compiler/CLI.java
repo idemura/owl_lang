@@ -60,6 +60,8 @@ public final class CLI {
     private int flagStopPhase = 0;
     @Parameter(names = {"--out"}, description = "Output directory")
     private String flagOut = "owl_out";
+    @Parameter(names = {"--opt"}, description = "Optimization")
+    private int flagOpt = 0;
 
     @Parameter(names = {"--print_ast"}, description = "Print AST")
     private boolean flagPrintAst = false;
@@ -191,7 +193,7 @@ public final class CLI {
         }
         start = System.nanoTime();
         try {
-            BytecodeGenerator.run(ast, outDir);
+            BytecodeGenerator.run(ast, outDir, flagOpt);
         } catch (OwlException e) {
             errorListener.error(e);
             return false;

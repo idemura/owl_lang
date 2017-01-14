@@ -65,6 +65,9 @@ final class DebugPrint {
             if (node.getReturnType() != null) {
                 prop("ReturnType", node.getReturnType().toString());
             }
+            if (node.getMethodName() != null) {
+                prop("MethodName", node.getMethodName());
+            }
             for (AstVariable a : node.getArgs()) {
                 leaf(a, a.getName() + ": " + a.getType());
             }

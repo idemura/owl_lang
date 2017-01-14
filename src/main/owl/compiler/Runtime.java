@@ -46,88 +46,95 @@ final class Runtime {
     private static final OverloadNameMap FUNCTIONS = new OverloadNameMap();
     static {
         // Unary
-        FUNCTIONS.put(function("+", AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("+", AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("-", AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("-", AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("~", AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("~", AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("+", AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("+", AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("-", AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("-", AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("~", AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("~", AstType.I64, AstType.I64));
 
         // Binary arithmetic
-        FUNCTIONS.put(function("+", AstType.STRING, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function("+", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("+", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("-", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("-", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("*", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("*", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("/", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("/", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("//", AstType.F64, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("//", AstType.F64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("%", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("%", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("<<", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("<<", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function(">>", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function(">>", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function(">>>", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function(">>>", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("&", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("&", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("^", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("^", AstType.I64, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("|", AstType.I32, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("|", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fnWithMethod("+", "concat", AstType.STRING, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("+", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("+", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("-", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("-", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("*", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("*", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("/", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("/", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fnWithMethod("//", "fdiv", AstType.F64, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fnWithMethod("//", "fdiv", AstType.F64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("%", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("%", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("<<", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("<<", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn(">>", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn(">>", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn(">>>", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn(">>>", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("&", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("&", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("^", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("^", AstType.I64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("|", AstType.I32, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("|", AstType.I64, AstType.I64, AstType.I64));
 
         // Comparisons
-        FUNCTIONS.put(function("<", AstType.BOOL, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("<", AstType.BOOL, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("<", AstType.BOOL, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function("<=", AstType.BOOL, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("<=", AstType.BOOL, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("<=", AstType.BOOL, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function(">", AstType.BOOL, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function(">", AstType.BOOL, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function(">", AstType.BOOL, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function(">=", AstType.BOOL, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function(">=", AstType.BOOL, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function(">=", AstType.BOOL, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function("==", AstType.BOOL, AstType.BOOL, AstType.BOOL));
-        FUNCTIONS.put(function("==", AstType.BOOL, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("==", AstType.BOOL, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("==", AstType.BOOL, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function("!=", AstType.BOOL, AstType.BOOL, AstType.BOOL));
-        FUNCTIONS.put(function("!=", AstType.BOOL, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("!=", AstType.BOOL, AstType.I64, AstType.I64));
-        FUNCTIONS.put(function("!=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("<", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("<", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("<", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn(">", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn(">", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn(">", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("==", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("==", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("==", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("==", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.STRING, AstType.STRING));
 
         // Boolean operators
-        FUNCTIONS.put(function("!", AstType.BOOL, AstType.BOOL));
-        FUNCTIONS.put(function("&&", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("!", AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("&&", AstType.BOOL, AstType.BOOL, AstType.BOOL));
 
-        FUNCTIONS.put(function("compare", AstType.I32, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function("concat", AstType.STRING, AstType.STRING, AstType.STRING));
-        FUNCTIONS.put(function("size", AstType.I32, AstType.STRING));
-        FUNCTIONS.put(function("fdiv", AstType.F64, AstType.I32, AstType.I32));
-        FUNCTIONS.put(function("fdiv", AstType.F64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fnWithMethod("assert", "owl_assert", AstType.NONE, AstType.BOOL));
+        FUNCTIONS.put(fn("compare", AstType.I32, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("concat", AstType.STRING, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("fdiv", AstType.F64, AstType.I32, AstType.I32));
+        FUNCTIONS.put(fn("fdiv", AstType.F64, AstType.I64, AstType.I64));
+        FUNCTIONS.put(fn("size", AstType.I32, AstType.STRING));
 
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.BOOL));
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.CHAR));
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.I32));
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.I64));
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.F32));
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.F64));
-        FUNCTIONS.put(function("println", AstType.NONE, AstType.STRING));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.BOOL));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.CHAR));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.I32));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.I64));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.F32));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.F64));
+        FUNCTIONS.put(fn("println", AstType.NONE, AstType.STRING));
     }
 
-    private static AstFunction function(String op, AstType returnType, AstType... argTypes) {
+    private static AstFunction fn(String name, AstType returnType, AstType... argTypes) {
+        return fnWithMethod(name, null, returnType, argTypes);
+    }
+
+    private static AstFunction fnWithMethod(String name, String methodName,
+            AstType returnType,
+            AstType... argTypes) {
         List<AstVariable> args = new ArrayList<>();
         int i = 0;
         for (AstType t : argTypes) {
             TypeMatcher.run(t, ABSTRACT_TYPES, null);
             args.add(new AstVariable(new AstVariable.Local(), null, "_" + i++, t, null));
         }
-        return new AstFunction("", op, args, returnType, null);
+        return new AstFunction("", name, methodName, args, returnType, null);
     }
 }

@@ -23,6 +23,7 @@ final class AstFunction extends AstNode
         implements Entity {
     private String moduleName;
     private String name;
+    private String methodName;
     private List<AstVariable> args = new ArrayList<>();
     private List<AstVariable> vars = new ArrayList<>();
     private AstType returnType = AstType.NONE;
@@ -31,11 +32,13 @@ final class AstFunction extends AstNode
     AstFunction(
             String moduleName,
             String name,
+            String methodName,
             List<AstVariable> args,
             AstType returnType,
             AstBlock block) {
         this.moduleName = moduleName;
         this.name = name;
+        this.methodName = methodName;
         this.args = args;
         this.returnType = returnType == null? AstType.NONE: returnType;
         this.block = block;
@@ -117,6 +120,10 @@ final class AstFunction extends AstNode
     @Override
     public String getName() {
         return name;
+    }
+
+    String getMethodName() {
+        return methodName;
     }
 
     AstType getReturnType() {

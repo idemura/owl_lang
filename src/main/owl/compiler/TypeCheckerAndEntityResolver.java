@@ -169,15 +169,10 @@ final class TypeCheckerAndEntityResolver {
 
         private boolean resolveFunction(AstApply node) {
             AstName fn = (AstName) node.fn;
-            if (fn.name.equals("//")) {
-                fn.name = "fdiv";
-            } else if (node.args.size() == 2 &&
+            if (node.args.size() == 2 &&
                     AstType.of(node.args.get(0)).equals(AstType.STRING) &&
                     AstType.of(node.args.get(1)).equals(AstType.STRING)) {
                 switch (fn.name) {
-                    case "+":
-                        fn.name = "concat";
-                        break;
                     case "<":
                     case "<=":
                     case ">":
