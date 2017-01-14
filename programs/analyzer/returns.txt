@@ -65,5 +65,5 @@ Module returns
     ;;
   
 --- STDERR
-programs/analyzer/returns.owl: error: missing return statement  in f10
-programs/analyzer/returns.owl: error: missing return statement  in f11
+programs/analyzer/returns.owl: error: missing return statement in f10
+programs/analyzer/returns.owl: error: missing return statement in f11
