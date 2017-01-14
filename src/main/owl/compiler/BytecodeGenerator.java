@@ -310,9 +310,9 @@ final class BytecodeGenerator {
             switch (node.getType().getJvmLocalType()) {
                 case AstType.kBOOL:
                     if ((Boolean) node.object) {
-                        mv.visitInsn(Opcodes.ICONST_0);
-                    } else {
                         mv.visitInsn(Opcodes.ICONST_1);
+                    } else {
+                        mv.visitInsn(Opcodes.ICONST_0);
                     }
                     break;
                 case AstType.kCHAR:

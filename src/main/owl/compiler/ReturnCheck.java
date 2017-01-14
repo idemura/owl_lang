@@ -48,7 +48,7 @@ final class ReturnCheck {
                     node.getBlock().add(new AstReturn(null));
                 } else {
                     errorListener.error(node.getLine(), node.getCharPosition(),
-                            "missing return statement  in " + function.getName());
+                            "missing return statement in " + function.getName());
                 }
             }
             return ret;
@@ -77,6 +77,9 @@ final class ReturnCheck {
                 if (ret == null) {
                     return null;
                 }
+            }
+            if (Util.last(node.branches).condition != null) {
+                return null;
             }
             return node;
         }

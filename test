@@ -1,5 +1,6 @@
 #! /bin/bash
 
+CLASS_PATH=`find buck-out/gen -name owl_runtime.jar`:owl_out
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
     out=`mktemp`
@@ -9,7 +10,7 @@ for owl in `find programs -name '*.owl'`; do
     name=`basename ${owl%.owl}`
     ./owl $flags $owl 1>> $out 2>> $err \
             && javap -c owl_out/$name.class 1>> $out \
-            && ./java_owl $name 1>> $out
+            && java -cp $CLASS_PATH $name 1>> $out
     cat $out $err > ${owl%.owl}.txt
 done
 if git status -s programs | grep '\.txt$'; then
