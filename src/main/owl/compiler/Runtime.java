@@ -126,7 +126,7 @@ final class Runtime {
         int i = 0;
         for (AstType t : argTypes) {
             TypeMatcher.run(t, ABSTRACT_TYPES, null);
-            args.add(new AstVariable(null, "_" + i++, t, null));
+            args.add(new AstVariable(new AstVariable.Local(), null, "_" + i++, t, null));
         }
         return new AstFunction("", op, args, returnType, null);
     }

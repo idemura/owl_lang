@@ -11,7 +11,7 @@ java_library(
 )
 
 java_library(
-    name = 'runtime',
+    name = 'owl_runtime',
     srcs = glob([
         'src/main/owl/runtime/*.java',
     ]),

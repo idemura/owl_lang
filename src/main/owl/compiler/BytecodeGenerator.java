@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 final class BytecodeGenerator {
@@ -42,7 +44,7 @@ final class BytecodeGenerator {
 
     private static final class Visitor implements AstVisitor<Void> {
         private final Ast ast;
-        private String className;
+        private final List<AstVariable> staticInit = new ArrayList<>();
         private ClassWriter clazz;
 
         Visitor(Ast ast) {
@@ -50,12 +52,11 @@ final class BytecodeGenerator {
         }
 
         String getClassName() {
-            return className;
+            return ((AstModule) ast.root).name;
         }
 
         @Override
         public Void visit(AstModule node) {
-            className = node.name;
             clazz = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             clazz.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, node.name, null, "java/lang/Object", null);
             clazz.visitSource(ast.fileName, null);
@@ -65,6 +66,7 @@ final class BytecodeGenerator {
             for (AstNode f : node.functions) {
                 accept(f);
             }
+            genStaticInit();
             return null;
         }
 
@@ -74,18 +76,37 @@ final class BytecodeGenerator {
             if (node.getName().equals("main")) {
                 flags |= Opcodes.ACC_PUBLIC;
             }
-            MethodVisitor method = clazz.visitMethod(flags, node.getName(), node.getJvmDescriptor(), null, null);
-            method.visitCode();
+            MethodVisitor mv = clazz.visitMethod(flags, node.getName(), node.getJvmDescriptor(), null, null);
+            mv.visitCode();
             node.indexLocals();
-            node.accept(new FunctionVisitor(className, method));
-            method.visitMaxs(0, 0);
-            method.visitEnd();
+            node.accept(new FunctionVisitor(getClassName(), mv));
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
             return null;
         }
 
         @Override
         public Void visit(AstVariable node) {
-            throw new UnsupportedOperationException("code generator");
+            clazz.visitField(Opcodes.ACC_STATIC, node.getName(), node.getJvmDescriptor(), null, null).visitEnd();
+            if (node.getExpr() != null) {
+                staticInit.add(node);
+            }
+            return null;
+        }
+
+        private void genStaticInit() {
+            if (staticInit.isEmpty()) {
+                return;
+            }
+            MethodVisitor mv = clazz.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
+            mv.visitCode();
+            for (AstVariable v : staticInit) {
+                v.getExpr().accept(new FunctionVisitor(getClassName(), mv));
+                mv.visitFieldInsn(Opcodes.PUTSTATIC, v.getModuleName(), v.getName(), v.getJvmDescriptor());
+            }
+            mv.visitInsn(Opcodes.RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
         }
     }
 
@@ -116,8 +137,8 @@ final class BytecodeGenerator {
         }
 
         private void getVar(AstVariable v) {
-            if (v.storage instanceof AstVariable.Local) {
-                int index = ((AstVariable.Local) v.storage).index;
+            if (v.getStorage() instanceof AstVariable.Local) {
+                int index = ((AstVariable.Local) v.getStorage()).index;
                 switch (v.getType().getJvmLocalType()) {
                     case AstType.kBOOL:
                     case AstType.kI32:
@@ -134,18 +155,19 @@ final class BytecodeGenerator {
                 }
                 return;
             }
-            if (v.storage instanceof AstVariable.Field) {
+            if (v.getStorage() instanceof AstVariable.Field) {
                 throw new UnsupportedOperationException("field storage");
             }
-            if (v.storage instanceof  AstVariable.Module) {
-                throw new UnsupportedOperationException("field storage");
+            if (v.getStorage() instanceof AstVariable.Module) {
+                mv.visitFieldInsn(Opcodes.GETSTATIC, v.getModuleName(), v.getName(), v.getJvmDescriptor());
+                return;
             }
             throw new IllegalStateException("unknown storage");
         }
 
         private void putVar(AstVariable v) {
-            if (v.storage instanceof AstVariable.Local) {
-                int index = ((AstVariable.Local) v.storage).index;
+            if (v.getStorage() instanceof AstVariable.Local) {
+                int index = ((AstVariable.Local) v.getStorage()).index;
                 switch (v.getType().getJvmLocalType()) {
                     case AstType.kBOOL:
                     case AstType.kI32:
@@ -162,11 +184,12 @@ final class BytecodeGenerator {
                 }
                 return;
             }
-            if (v.storage instanceof AstVariable.Field) {
+            if (v.getStorage() instanceof AstVariable.Field) {
                 throw new UnsupportedOperationException("field storage");
             }
-            if (v.storage instanceof  AstVariable.Module) {
-                throw new UnsupportedOperationException("field storage");
+            if (v.getStorage() instanceof  AstVariable.Module) {
+                mv.visitFieldInsn(Opcodes.PUTSTATIC, v.getModuleName(), v.getName(), v.getJvmDescriptor());
+                return;
             }
             throw new IllegalStateException("unknown storage");
         }
@@ -273,6 +296,7 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstAssign node) {
+            accept(node.r);
             if (node.l instanceof AstName) {
                 putVar((AstVariable) ((AstName) node.l).entity);
                 return null;

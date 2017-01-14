@@ -130,10 +130,10 @@ final class AstFunction extends AstNode
     void indexLocals() {
         int i = 0;
         for (AstVariable a : args) {
-            a.storage = new AstVariable.Local(i++);
+            ((AstVariable.Local) a.getStorage()).index = i++;
         }
         for (AstVariable v : vars) {
-            v.storage = new AstVariable.Local(i++);
+            ((AstVariable.Local) v.getStorage()).index = i++;
         }
     }
 }

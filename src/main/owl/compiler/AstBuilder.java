@@ -79,11 +79,21 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitVariable(VariableContext ctx) {
-        return new AstVariable(
-                getEntityModuleName(),
-                ctx.NAME().getText(),
-                null,
-                accept(ctx.expression()));
+        if (functionNestLevel > 0) {
+            return new AstVariable(
+                    new AstVariable.Local(),
+                    null,
+                    ctx.NAME().getText(),
+                    null,
+                    accept(ctx.expression()));
+        } else {
+            return new AstVariable(
+                    new AstVariable.Module(),
+                    moduleName,
+                    ctx.NAME().getText(),
+                    null,
+                    accept(ctx.expression()));
+        }
     }
 
     @Override
@@ -110,6 +120,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     @Override
     public AstNode visitArgument(ArgumentContext ctx) {
         return new AstVariable(
+                new AstVariable.Local(),
                 null,
                 ctx.NAME().getText(),
                 (AstType) accept(ctx.type()),

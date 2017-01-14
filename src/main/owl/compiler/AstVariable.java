@@ -19,30 +19,39 @@ import java.util.List;
 
 final class AstVariable extends AstNode
         implements Entity {
+    static final int MODULE = 0;
+    static final int FIELD = 1;
+    static final int LOCAL = 2;
+
     static abstract class Storage {
+        abstract int getKind();
+    }
+
+    static final class Module extends Storage {
+        @Override
+        int getKind() { return MODULE; }
+    }
+
+    static final class Field extends Storage {
+        @Override
+        int getKind() { return FIELD; }
     }
 
     static final class Local extends Storage {
         int index = -1;
 
-        Local(int index) {
-            this.index = index;
-        }
+        @Override
+        int getKind() { return LOCAL; }
     }
 
-    static final class Field extends Storage {
-    }
-
-    static final class Module extends Storage {
-    }
-
+    private Storage storage;
     private String moduleName;
     private String name;
     private AstType type;
     private AstNode expr;
-    Storage storage = null;
 
-    AstVariable(String moduleName, String name, AstType type, AstNode expr) {
+    AstVariable(Storage storage, String moduleName, String name, AstType type, AstNode expr) {
+        this.storage = storage;
         this.moduleName = moduleName;
         this.name = name;
         this.type = type;
@@ -115,5 +124,9 @@ final class AstVariable extends AstNode
 
     AstNode getExpr() {
         return expr;
+    }
+
+    Storage getStorage() {
+        return storage;
     }
 }
