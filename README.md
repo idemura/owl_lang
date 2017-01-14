@@ -11,22 +11,22 @@ Go to `lib` and run `python download_libs.py lib_list`, then from the project ro
 ./antlr && ./build
 ```
 
-## Compile and Run
+## Compile and Run Owl Program
 Let's create a sample Owl program and save it in `test.owl`:
 ```
-# Module name used in call to java_owl
-module Main;
+# Module name should match file name
+module test;
 
 main(String[]) {
   var greeting = "hello world";
   println(greeting);
 }
 ```
-Compile it to Java (JVM bytecode is planned in the near future):
+Compile it to JVM class file (compiler writes output to owl_out by default):
 ```
 ./owl test.owl
 ```
-Run compiled Owl program:
+To compile and run, do:
 ```
-./java_owl Main
+./run test.owl
 ```
