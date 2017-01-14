@@ -1,4 +1,4 @@
-module call_overload;
+module overload;
 
 foo(x: I32): I32 {
     return 1;
@@ -24,6 +24,16 @@ foo(): I32 {
     return 6;
 }
 
+foo(x: Bool): I32 {
+    return 7;
+}
+
 main(argv: String[]) {
-    println(foo(2));
+    assert(foo(2) == 1);
+    assert(foo(2, 3) == 2);
+    assert(foo(2, "cat") == 3);
+    assert(foo("cat") == 4);
+    assert(foo("cat", 2) == 5);
+    assert(foo() == 6);
+    assert(foo(false) == 7);
 }

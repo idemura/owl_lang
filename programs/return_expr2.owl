@@ -1,9 +1,0 @@
-module return_expr2;
-
-foo(x: I32): I32 {
-    return x + 13 * 3;
-}
-
-main(argv: String[]) {
-    println(foo(1));
-}

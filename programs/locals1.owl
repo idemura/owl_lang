@@ -1,9 +1,0 @@
-module locals1;
-
-foo(x, y: I32): I32 {
-    return x + y;
-}
-
-main(argv: String[]) {
-    println(foo(1, 2));
-}

@@ -1,0 +1,62 @@
+--- STDOUT
+Module analyzer
+  Variable x
+    Literal 10 I32
+  
+  Variable x
+    Literal 11 I32
+  
+  Function f10
+    ReturnType: None
+    Variable x: I32
+    Variable y: null
+    Block
+    ;;
+  
+  Function f11
+    ReturnType: None
+    Variable x: I32
+    Variable y: I32
+    Variable x: I32
+    Block
+    ;;
+  
+  Function f10
+    ReturnType: None
+    Variable x: I32
+    Block
+    ;;
+  
+  Function f10
+    ReturnType: None
+    Variable x: I32
+    Block
+    ;;
+  
+  Function f10
+    ReturnType: I32
+    Block
+    ;;
+  
+  Function f11
+    ReturnType: I32
+    Variable x: I32
+    Block
+      If
+        Apply
+          Name <
+          Name x
+          Literal 0 I32
+        Block
+          Return
+            Literal 1 I32
+          ;
+        ;;
+      ;
+    ;;
+  
+--- STDERR
+programs/analyzer/analyzer.owl: error: duplicated entity x
+programs/analyzer/analyzer.owl: error: function argument y missing type
+programs/analyzer/analyzer.owl: error: function argument x duplicated
+programs/analyzer/analyzer.owl: error: overload with same signature f10

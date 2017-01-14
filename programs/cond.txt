@@ -1,0 +1,149 @@
+--- STDOUT
+Compiled from "programs/cond.owl"
+public class cond {
+  static void test1();
+    Code:
+       0: iconst_1
+       1: ifeq          7
+       4: goto          11
+       7: iconst_0
+       8: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      11: return
+
+  static int foo(int);
+    Code:
+       0: iload_0
+       1: bipush        10
+       3: if_icmpge     10
+       6: iconst_1
+       7: goto          11
+      10: iconst_0
+      11: ifeq          19
+      14: iconst_1
+      15: ireturn
+      16: nop
+      17: nop
+      18: athrow
+      19: iload_0
+      20: bipush        20
+      22: if_icmpge     29
+      25: iconst_1
+      26: goto          30
+      29: iconst_0
+      30: ifeq          38
+      33: iconst_2
+      34: ireturn
+      35: nop
+      36: nop
+      37: athrow
+      38: iconst_3
+      39: ireturn
+
+  static void test2();
+    Code:
+       0: bipush        9
+       2: invokestatic  #20                 // Method foo:(I)I
+       5: iconst_1
+       6: if_icmpne     13
+       9: iconst_1
+      10: goto          14
+      13: iconst_0
+      14: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      17: bipush        19
+      19: invokestatic  #20                 // Method foo:(I)I
+      22: iconst_2
+      23: if_icmpne     30
+      26: iconst_1
+      27: goto          31
+      30: iconst_0
+      31: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      34: bipush        24
+      36: invokestatic  #20                 // Method foo:(I)I
+      39: iconst_3
+      40: if_icmpne     47
+      43: iconst_1
+      44: goto          48
+      47: iconst_0
+      48: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      51: return
+
+  static int f1(int);
+    Code:
+       0: iload_0
+       1: iconst_0
+       2: if_icmpge     9
+       5: iconst_1
+       6: goto          10
+       9: iconst_0
+      10: ifeq          18
+      13: iconst_1
+      14: ireturn
+      15: nop
+      16: nop
+      17: athrow
+      18: iconst_0
+      19: ireturn
+
+  static int f2(int);
+    Code:
+       0: iload_0
+       1: iconst_0
+       2: if_icmpge     9
+       5: iconst_1
+       6: goto          10
+       9: iconst_0
+      10: ifeq          18
+      13: iconst_1
+      14: ireturn
+      15: nop
+      16: nop
+      17: athrow
+      18: iconst_0
+      19: ireturn
+
+  static void test3();
+    Code:
+       0: iconst_1
+       1: ineg
+       2: invokestatic  #25                 // Method f1:(I)I
+       5: iconst_1
+       6: if_icmpne     13
+       9: iconst_1
+      10: goto          14
+      13: iconst_0
+      14: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      17: iconst_1
+      18: invokestatic  #25                 // Method f1:(I)I
+      21: iconst_0
+      22: if_icmpne     29
+      25: iconst_1
+      26: goto          30
+      29: iconst_0
+      30: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      33: iconst_1
+      34: ineg
+      35: invokestatic  #27                 // Method f2:(I)I
+      38: iconst_1
+      39: if_icmpne     46
+      42: iconst_1
+      43: goto          47
+      46: iconst_0
+      47: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      50: iconst_1
+      51: invokestatic  #27                 // Method f2:(I)I
+      54: iconst_0
+      55: if_icmpne     62
+      58: iconst_1
+      59: goto          63
+      62: iconst_0
+      63: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      66: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokestatic  #31                 // Method test1:()V
+       3: invokestatic  #33                 // Method test2:()V
+       6: invokestatic  #35                 // Method test3:()V
+       9: return
+}
+--- STDERR

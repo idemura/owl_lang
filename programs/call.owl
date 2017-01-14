@@ -1,9 +1,0 @@
-module call;
-
-foo(x: I32): I32 {
-    return 10;
-}
-
-main(argv: String[]) {
-    println(foo(0));
-}

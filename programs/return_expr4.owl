@@ -1,9 +1,0 @@
-module return_expr4;
-
-foo(x: I32): I32 {
-    return (x);
-}
-
-main(argv: String[]) {
-    println(foo(2));
-}

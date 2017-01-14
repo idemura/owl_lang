@@ -1,0 +1,53 @@
+module cond;
+
+test1() {
+    if true {
+        # Empty
+    } else {
+        assert(false);
+    }
+}
+
+foo(x: I32): I32 {
+    if x < 10 {
+        return 1;
+    } elif x < 20 {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+test2() {
+    assert(foo(9) == 1);
+    assert(foo(19) == 2);
+    assert(foo(24) == 3);
+}
+
+f1(x: I32): I32 {
+    if (x < 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+f2(x: I32): I32 {
+    if (x < 0) {
+        return 1;
+    }
+    return 0;
+}
+
+test3() {
+    assert(f1(-1) == 1);
+    assert(f1(1) == 0);
+    assert(f2(-1) == 1);
+    assert(f2(1) == 0);
+}
+
+main(argv: String[]) {
+    test1();
+    test2();
+    test3();
+}

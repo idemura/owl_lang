@@ -1,10 +1,14 @@
 module module_var;
 
-var g = "hello ";
+var g = "cat";
+
+test1() {
+    assert(g == "cat");
+    g += "dog";
+    assert(s == "catdog");
+    assert(size(s) == 6);
+}
 
 main(argv: String[]) {
-    println(g);
-    g += "world";
-    println(g);
-    println(size(g));
+    test1();
 }
