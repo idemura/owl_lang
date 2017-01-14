@@ -164,7 +164,7 @@ public final class CLI {
 
     private boolean compileAst(Ast ast, CountErrorListener errorListener, File outDir, PrintStream debugOut) {
         if (flagPrintAst) {
-            DebugPrint.printAst(ast,debugOut);
+            DebugPrint.printAst(ast, debugOut);
         }
         if (flagStopPhase == 1) {
             return true;
