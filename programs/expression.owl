@@ -63,7 +63,7 @@ testLogical() {
     var s = "hello";
     var b = size(s) == 5;
     assert(b);
-    # assert(!!b);
+    assert(!!b);
     assert(!size(s) == 4);
 }
 

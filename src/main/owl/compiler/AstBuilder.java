@@ -275,11 +275,11 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitExprNot(OwlParser.ExprNotContext ctx) {
-        AstNode l = accept(ctx.t);
         if (ctx.op == null) {
-            return l;
+            return accept(ctx.t);
         }
-        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(l));
+        return new AstApply(new AstName(ctx.op.getText()), Util.listOf(
+                accept(ctx.l)));
     }
 
     @Override

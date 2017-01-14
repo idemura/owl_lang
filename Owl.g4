@@ -123,7 +123,8 @@ exprEq
 ;
 
 exprNot
-:   (op = '!')? t = exprEq
+:   t = exprEq
+|   op = '!' l = exprNot
 ;
 
 exprAnd
