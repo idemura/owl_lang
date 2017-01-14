@@ -227,6 +227,20 @@ final class BytecodeGenerator {
                 return null;
             }
 
+            switch (fn.getName()) {
+                case "&&":
+                    accept(node.args.get(0));
+                    Label conditionFalse = new Label();
+                    Label end = new Label();
+                    mv.visitJumpInsn(Opcodes.IFEQ, conditionFalse);
+                    accept(node.args.get(1));
+                    mv.visitJumpInsn(Opcodes.GOTO, end);
+                    mv.visitLabel(conditionFalse);
+                    mv.visitInsn(Opcodes.ICONST_0);
+                    mv.visitLabel(end);
+                    return null;
+            }
+
             for (AstNode a : node.args) {
                 accept(a);
             }
@@ -277,12 +291,12 @@ final class BytecodeGenerator {
         }
 
         private void compare(int falseJumpOp) {
-            Label setFalse = new Label();
+            Label conditionFalse = new Label();
             Label end = new Label();
-            mv.visitJumpInsn(falseJumpOp, setFalse);
+            mv.visitJumpInsn(falseJumpOp, conditionFalse);
             mv.visitInsn(Opcodes.ICONST_1);
             mv.visitJumpInsn(Opcodes.GOTO, end);
-            mv.visitLabel(setFalse);
+            mv.visitLabel(conditionFalse);
             mv.visitInsn(Opcodes.ICONST_0);
             mv.visitLabel(end);
         }
