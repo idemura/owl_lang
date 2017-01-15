@@ -59,12 +59,19 @@ testCompare() {
     assert(3 * 2 != 5);
 }
 
+range(x: I32): Bool {
+    return 2 < x && x < 7;
+}
+
 testLogical() {
     var s = "hello";
     var b = size(s) == 5;
     assert(b);
     assert(!!b);
     assert(!size(s) == 4);
+    assert(!range(1));
+    assert(range(5));
+    assert(!range(8));
 }
 
 # Test (...) as well
@@ -91,6 +98,17 @@ testString() {
     assert("01" + s == "01abc");
 }
 
+getInt(): I32 {
+    return 10;
+}
+
+testPop() {
+    var x = 12;
+    getInt();
+    x + 10;
+    x < 13;
+}
+
 main(argv: String[]) {
     testArithm();
     testBitOps();
@@ -99,4 +117,5 @@ main(argv: String[]) {
     testLogical();
     testCast();
     testString();
+    testPop();
 }
