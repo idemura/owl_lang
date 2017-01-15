@@ -382,20 +382,33 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstIf node) {
-            Label endIf = new Label();
+            Label end = new Label();
             for (AstIf.Branch b : node.branches) {
                 if (b.condition != null) {
                     accept(b.condition);
                     Label conditionFalse = new Label();
                     mv.visitJumpInsn(Opcodes.IFEQ, conditionFalse);
                     accept(b.block);
-                    mv.visitJumpInsn(Opcodes.GOTO, endIf);
+                    mv.visitJumpInsn(Opcodes.GOTO, end);
                     mv.visitLabel(conditionFalse);
                 } else {
                     accept(b.block);
                 }
             }
-            mv.visitLabel(endIf);
+            mv.visitLabel(end);
+            return null;
+        }
+
+        @Override
+        public Void visit(AstFor node) {
+            Label begin = new Label();
+            Label end = new Label();
+            mv.visitLabel(begin);
+            accept(node.condition);
+            mv.visitJumpInsn(Opcodes.IFEQ, end);
+            accept(node.block);
+            mv.visitJumpInsn(Opcodes.GOTO, begin);
+            mv.visitLabel(end);
             return null;
         }
 

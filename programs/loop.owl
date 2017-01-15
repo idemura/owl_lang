@@ -1,0 +1,16 @@
+module loop;
+
+test1() {
+    var i = 1;
+    var s = 0;
+    for i <= 4 {
+        s += i;
+        i += 1;
+    }
+    assert(s == 10);
+    assert(i == 5);
+}
+
+main(argv: String[]) {
+    test1();
+}

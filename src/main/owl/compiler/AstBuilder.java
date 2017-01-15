@@ -344,6 +344,11 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     @Override
+    public AstNode visitStmtFor(StmtForContext ctx) {
+        return new AstFor(accept(ctx.expression()), (AstBlock) accept(ctx.block()));
+    }
+
+    @Override
     public AstNode visitStmtReturn(StmtReturnContext ctx) {
         return new AstReturn(accept(ctx.expression()));
     }
@@ -361,6 +366,9 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
         }
         if (ctx.variable() != null) {
             return accept(ctx.variable());
+        }
+        if (ctx.stmtFor() != null) {
+            return accept(ctx.stmtFor());
         }
         throw new IllegalStateException("unknown statement");
     }

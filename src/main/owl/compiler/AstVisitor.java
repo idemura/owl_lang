@@ -39,4 +39,5 @@ interface AstVisitor<T> {
     default T visit(AstReturn node) { return visitError(); }
     default T visit(AstType node) { return visitError(); }
     default T visit(AstVariable node) { return visitError(); }
+    default T visit(AstFor node) { return visitError(); }
 }

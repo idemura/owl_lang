@@ -1,0 +1,47 @@
+--- STDOUT
+Compiled from "programs/loop.owl"
+public class loop {
+  static void test1();
+    Code:
+       0: iconst_1
+       1: istore_0
+       2: iconst_0
+       3: istore_1
+       4: iload_0
+       5: iconst_4
+       6: if_icmpgt     13
+       9: iconst_1
+      10: goto          14
+      13: iconst_0
+      14: ifeq          28
+      17: iload_1
+      18: iload_0
+      19: iadd
+      20: istore_1
+      21: iload_0
+      22: iconst_1
+      23: iadd
+      24: istore_0
+      25: goto          4
+      28: iload_1
+      29: bipush        10
+      31: if_icmpne     38
+      34: iconst_1
+      35: goto          39
+      38: iconst_0
+      39: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      42: iload_0
+      43: iconst_5
+      44: if_icmpne     51
+      47: iconst_1
+      48: goto          52
+      51: iconst_0
+      52: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      55: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokestatic  #17                 // Method test1:()V
+       3: return
+}
+--- STDERR

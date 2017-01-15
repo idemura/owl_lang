@@ -131,6 +131,15 @@ final class DebugPrint {
         }
 
         @Override
+        public Void visit(AstFor node) {
+            beginNode(node);
+            accept(node.condition);
+            accept(node.block);
+            endNode();
+            return null;
+        }
+
+        @Override
         public Void visit(AstReturn node) {
             beginNode(node);
             if (node.expr != null) {

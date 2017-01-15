@@ -275,6 +275,23 @@ final class TypeCheckerAndEntityResolver {
         }
 
         @Override
+        public Boolean visit(AstFor node) {
+            boolean res = accept(node.condition);
+            if (!accept(node.block)) {
+                res = false;
+            }
+            if (!res) {
+                return false;
+            }
+            if (!AstType.of(node.condition).equals(AstType.BOOL)) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "condition must be of type Bool");
+                res = false;
+            }
+            return res;
+        }
+
+        @Override
         public Boolean visit(AstReturn node) {
             if (node.expr != null && !accept(node.expr)) {
                 return false;

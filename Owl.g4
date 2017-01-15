@@ -172,6 +172,12 @@ stmtReturn
 :   'return' expression? ';'
 ;
 
+stmtFor
+:   'for' expression block
+;
+
+// Another would be stmtForKey
+
 // TODO:
 //  - While
 //  - For
@@ -181,6 +187,7 @@ statement
 |   stmtIf
 |   stmtReturn
 |   variable
+|   stmtFor
 ;
 
 arrayTypeSuffix

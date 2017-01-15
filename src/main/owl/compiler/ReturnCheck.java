@@ -85,6 +85,11 @@ final class ReturnCheck {
         }
 
         @Override
+        public AstNode visit(AstFor node) {
+            return null;
+        }
+
+        @Override
         public AstNode visit(AstReturn node) {
             return node;
         }
