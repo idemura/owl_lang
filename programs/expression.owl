@@ -59,8 +59,20 @@ testCompare() {
     assert(3 * 2 != 5);
 }
 
-range(x: I32): Bool {
+myAnd(x: I32): Bool {
     return 2 < x && x < 7;
+}
+
+myXor(x, y: I32): Bool {
+    return x == 1 ^^ y == 1;
+}
+
+myOr(x: I32): Bool {
+    return x < 2 || x > 7;
+}
+
+twoRange(x: I32): Bool {
+    return 2 < x && x < 7 || x > 12 && 17 > x;
 }
 
 testLogical() {
@@ -69,9 +81,23 @@ testLogical() {
     assert(b);
     assert(!!b);
     assert(!size(s) == 4);
-    assert(!range(1));
-    assert(range(5));
-    assert(!range(8));
+    # TODO: Test short circuit, but fine because we see bytecode anyways.
+    assert(!myAnd(1));
+    assert(myAnd(5));
+    assert(!myAnd(8));
+    assert(!myXor(1, 1));
+    assert(myXor(0, 1));
+    assert(myXor(1, 0));
+    assert(!myXor(0, 0));
+    assert(myOr(1));
+    assert(!myOr(5));
+    assert(myOr(8));
+    assert(!twoRange(1));
+    assert(twoRange(5));
+    assert(!twoRange(8));
+    assert(!twoRange(11));
+    assert(twoRange(15));
+    assert(!twoRange(18));
 }
 
 # Test (...) as well

@@ -15,7 +15,7 @@
 grammar Owl;
 
 @header {
-// This file is a prt of the Owl Programming Language.
+// This file is a part of the Owl Programming Language.
 package owl.compiler;
 }
 
@@ -132,8 +132,19 @@ exprAnd
 |   l = exprAnd op = '&&' r = exprNot
 ;
 
-expression
+// Compared to == has different priority
+exprXor
 :   t = exprAnd
+|   l = exprXor op = '^^' r = exprAnd
+;
+
+exprOr
+:   t = exprXor
+|   l = exprOr op = '||' r = exprXor
+;
+
+expression
+:   t = exprOr
 ;
 
 // TODO:

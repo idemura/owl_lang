@@ -228,7 +228,7 @@ final class BytecodeGenerator {
             }
 
             switch (fn.getName()) {
-                case "&&":
+                case "&&": {
                     accept(node.args.get(0));
                     Label conditionFalse = new Label();
                     Label end = new Label();
@@ -239,6 +239,19 @@ final class BytecodeGenerator {
                     mv.visitInsn(Opcodes.ICONST_0);
                     mv.visitLabel(end);
                     return null;
+                }
+                case "||": {
+                    accept(node.args.get(0));
+                    Label conditionFalse = new Label();
+                    Label end = new Label();
+                    mv.visitJumpInsn(Opcodes.IFEQ, conditionFalse);
+                    mv.visitInsn(Opcodes.ICONST_1);
+                    mv.visitJumpInsn(Opcodes.GOTO, end);
+                    mv.visitLabel(conditionFalse);
+                    accept(node.args.get(1));
+                    mv.visitLabel(end);
+                    return null;
+                }
             }
 
             for (AstNode a : node.args) {
@@ -636,6 +649,14 @@ final class BytecodeGenerator {
                         case AstType.kBOOL:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPEQ);
+                            return;
+                    }
+                    break;
+                case "^^":
+                    switch (lt) {
+                        case AstType.kBOOL:
+                            mv.visitInsn(Opcodes.IXOR);
+                            compare(Opcodes.IFEQ);
                             return;
                     }
                     break;

@@ -105,6 +105,8 @@ final class Runtime {
         // Boolean operators
         FUNCTIONS.put(fn("!", AstType.BOOL, AstType.BOOL));
         FUNCTIONS.put(fn("&&", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("^^", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("||", AstType.BOOL, AstType.BOOL, AstType.BOOL));
 
         FUNCTIONS.put(fnWithMethod("assert", "owl_assert", AstType.NONE, AstType.BOOL));
         FUNCTIONS.put(fn("compare", AstType.I32, AstType.STRING, AstType.STRING));
