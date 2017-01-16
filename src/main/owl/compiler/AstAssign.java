@@ -23,7 +23,7 @@ final class AstAssign extends AstNode {
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public <T> T accept(AstVisitor<T> v) {
         return v.visit(this);
     }
 }

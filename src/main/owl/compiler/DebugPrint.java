@@ -20,7 +20,7 @@ final class DebugPrint {
     private DebugPrint() {}
 
     static void printAst(Ast ast, PrintStream out) {
-        new Visitor(new IndentPrinter(out)).accept(ast.root);
+        ast.accept(new Visitor(new IndentPrinter(out)));
     }
 
     private static final class Visitor implements AstVisitor<Void> {
@@ -79,7 +79,7 @@ final class DebugPrint {
         @Override
         public Void visit(AstVariable node) {
             beginNode(node, node.getName());
-            accept(node.getExpr());
+            accept(node.expr);
             endNode();
             return null;
         }

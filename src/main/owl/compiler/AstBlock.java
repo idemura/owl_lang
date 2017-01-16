@@ -21,7 +21,7 @@ final class AstBlock extends AstNode {
     List<AstNode> children = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) {
+    public <T> T accept(AstVisitor<T> v) {
         return v.visit(this);
     }
 

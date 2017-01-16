@@ -16,7 +16,7 @@ package owl.compiler;
 
 import java.util.List;
 
-class ResolveResult extends Exception {
+final class ResolveResult extends Exception {
     static ResolveResult found(Entity ent) {
         return new ResolveResult(ent, null);
     }

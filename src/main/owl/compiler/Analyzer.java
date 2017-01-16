@@ -17,15 +17,15 @@ package owl.compiler;
 import java.util.List;
 
 // Check types of function applications. Resolves entity names and function overloads.
-final class TypeCheckerAndEntityResolver {
-    private TypeCheckerAndEntityResolver() {}
+final class Analyzer {
+    private Analyzer() {}
 
     static boolean run(Ast ast,
             NameMap<AstAbstractType> abstractTypes,
             NameMap<Entity> variables,
             OverloadNameMap overloads,
             ErrorListener errorListener) {
-        return new Visitor(abstractTypes, variables, overloads, errorListener).accept(ast.root);
+        return ast.accept(new Visitor(abstractTypes, variables, overloads, errorListener));
     }
 
     private static final class Visitor implements AstVisitor<Boolean> {
@@ -88,7 +88,7 @@ final class TypeCheckerAndEntityResolver {
             fnStack.push(node);
             boolean res = true;
             for (AstVariable a : node.getArgs()) {
-                if (!accept(a.getType())) {
+                if (!accept(a.type)) {
                     res = false;
                 }
                 if (!nameMap.put(a))  {
@@ -113,10 +113,10 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstVariable node) {
-            if (!accept(node.getExpr())) {
+            if (!accept(node.expr)) {
                 return false;
             }
-            node.setType(AstType.of(node.getExpr()));
+            node.type = AstType.of(node.expr);
             if (!fnStack.isEmpty()) {
                 if (nameMap.shadows(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),

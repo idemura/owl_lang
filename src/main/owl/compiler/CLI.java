@@ -56,8 +56,6 @@ public final class CLI {
     @Parameter(names = "--help", help = true)
     private boolean flagHelp = false;
 
-    @Parameter(names = {"--stop_phase"}, description = "Stop after phase #")
-    private int flagStopPhase = 0;
     @Parameter(names = {"--out"}, description = "Output directory")
     private String flagOut = "owl_out";
     @Parameter(names = {"--opt"}, description = "Optimization")
@@ -168,9 +166,6 @@ public final class CLI {
         if (flagPrintAst) {
             DebugPrint.printAst(ast, debugOut);
         }
-        if (flagStopPhase == 1) {
-            return true;
-        }
         long start = System.nanoTime();
         NameMap<AstAbstractType> abstractTypes = Runtime.getAbstractTypes();
         OverloadNameMap overloads = Runtime.getFunctions();
@@ -183,14 +178,11 @@ public final class CLI {
             debugOut.println(overloads.toString());
             debugOut.println(abstractTypes.toString());
         }
-        TypeCheckerAndEntityResolver.run(ast, abstractTypes, variables, overloads, errorListener);
+        Analyzer.run(ast, abstractTypes, variables, overloads, errorListener);
         if (errorListener.getErrorCount() != 0) {
             return false;
         }
         timeAnalysis = System.nanoTime() - start;
-        if (flagStopPhase == 2) {
-            return true;
-        }
         start = System.nanoTime();
         try {
             BytecodeGenerator.run(ast, outDir, flagOpt);
@@ -199,9 +191,6 @@ public final class CLI {
             return false;
         }
         timeCodeGen = System.nanoTime() - start;
-        if (flagStopPhase == 3) {
-            return true;
-        }
         return true;
     }
 

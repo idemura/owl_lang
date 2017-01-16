@@ -43,7 +43,7 @@ final class AstScalarType extends AstAbstractType {
     }
 
     @Override
-    Object accept(AstVisitor v) {
+    <T> T accept(AstVisitor<T> v) {
         // Should not visit, because never defined in Owl code
         throw new UnsupportedOperationException("accept");
     }

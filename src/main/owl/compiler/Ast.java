@@ -21,4 +21,12 @@ final class Ast {
     Ast(AstNode root) {
         this.root = root;
     }
+
+    AstModule getModule() {
+        return (AstModule) root;
+    }
+
+    <T> T accept(AstVisitor<T> visitor) {
+        return root.accept(visitor);
+    }
 }

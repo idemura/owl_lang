@@ -23,3 +23,9 @@ foo(b: I32) {
     }
     var b = 24;
 }
+
+# Bool conditions
+boolCondTest() {
+    if 0 {}
+    for 0 == 1 {}
+}

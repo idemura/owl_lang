@@ -44,11 +44,11 @@ final class AstVariable extends AstNode
         int getKind() { return LOCAL; }
     }
 
-    private Storage storage;
-    private String moduleName;
-    private String name;
-    private AstType type;
-    private AstNode expr;
+    private final Storage storage;
+    private final String moduleName;
+    private final String name;
+    AstType type;
+    AstNode expr;
 
     AstVariable(Storage storage, String moduleName, String name, AstType type, AstNode expr) {
         this.storage = storage;
@@ -58,13 +58,8 @@ final class AstVariable extends AstNode
         this.expr = expr;
     }
 
-    // Needed by argument type deduction and type inference.
-    void setType(AstType type) {
-        this.type = type;
-    }
-
     @Override
-    public Object accept(AstVisitor v) {
+    public <T> T accept(AstVisitor<T> v) {
         return v.visit(this);
     }
 
@@ -120,10 +115,6 @@ final class AstVariable extends AstNode
     @Override
     public String getName() {
         return name;
-    }
-
-    AstNode getExpr() {
-        return expr;
     }
 
     Storage getStorage() {

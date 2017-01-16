@@ -27,7 +27,7 @@ final class EntityCollector {
             OverloadNameMap overloads,
             ErrorListener errorListener) {
         CountErrorListener errorCounter = new CountErrorListener(errorListener);
-        return new Visitor(variables, overloads, errorCounter).accept(ast.root);
+        return ast.accept(new Visitor(variables, overloads, errorCounter));
     }
 
     private static final class Visitor implements AstVisitor<Boolean> {
@@ -84,7 +84,7 @@ final class EntityCollector {
                                     "function argument " + a.getName() + " missing type");
                             res = false;
                         }
-                        a.setType(type);
+                        a.type = type;
                     } else {
                         type = a.getType();
                     }

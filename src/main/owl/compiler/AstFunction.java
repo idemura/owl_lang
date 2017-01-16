@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 
 final class AstFunction extends AstNode
         implements Entity {
-    private String moduleName;
-    private String name;
-    private String methodName;
+    private final String moduleName;
+    private final String name;
+    private final String methodName;
     private List<AstVariable> args = new ArrayList<>();
     private List<AstVariable> vars = new ArrayList<>();
     private AstType returnType = AstType.NONE;
@@ -45,7 +45,7 @@ final class AstFunction extends AstNode
     }
 
     @Override
-    public Object accept(AstVisitor v) {
+    public <T> T accept(AstVisitor<T> v) {
         return v.visit(this);
     }
 

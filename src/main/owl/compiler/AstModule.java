@@ -23,7 +23,7 @@ final class AstModule extends AstNode {
     List<AstVariable> variables = new ArrayList<>();
 
     @Override
-    public Object accept(AstVisitor v) {
+    public <T> T accept(AstVisitor<T> v) {
         return v.visit(this);
     }
 }

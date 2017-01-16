@@ -15,12 +15,12 @@
 package owl.compiler;
 
 interface AstVisitor<T> {
-    default T visitError() {
-        throw new UnsupportedOperationException("visitor incomplete " + getClass().getName());
-    }
-
     default T accept(AstNode node) {
         return (T) node.accept(this);
+    }
+
+    default T visitError() {
+        throw new UnsupportedOperationException("visitor incomplete " + getClass().getName());
     }
 
     default T visit(AstApply node) { return visitError(); }

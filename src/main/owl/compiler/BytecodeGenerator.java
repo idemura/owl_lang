@@ -32,7 +32,7 @@ final class BytecodeGenerator {
 
     static void run(Ast ast, File dir, int optLevel) throws OwlException {
         Visitor v = new Visitor(ast, optLevel);
-        v.accept(ast.root);
+        ast.accept(v);
         File classFile = new File(dir, v.getClassName() + ".class");
         classFile.getParentFile().mkdirs();
         try (OutputStream os = new FileOutputStream(classFile)) {
@@ -54,7 +54,7 @@ final class BytecodeGenerator {
         }
 
         String getClassName() {
-            return ((AstModule) ast.root).name;
+            return ast.getModule().name;
         }
 
         @Override
@@ -90,7 +90,7 @@ final class BytecodeGenerator {
         @Override
         public Void visit(AstVariable node) {
             clazz.visitField(Opcodes.ACC_STATIC, node.getName(), node.getJvmDescriptor(), null, null).visitEnd();
-            if (node.getExpr() != null) {
+            if (node.expr != null) {
                 staticInit.add(node);
             }
             return null;
@@ -103,7 +103,7 @@ final class BytecodeGenerator {
             MethodVisitor mv = clazz.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
             mv.visitCode();
             for (AstVariable v : staticInit) {
-                v.getExpr().accept(new FunctionVisitor(getClassName(), mv, optLevel));
+                v.expr.accept(new FunctionVisitor(getClassName(), mv, optLevel));
                 mv.visitFieldInsn(Opcodes.PUTSTATIC, v.getModuleName(), v.getName(), v.getJvmDescriptor());
             }
             mv.visitInsn(Opcodes.RETURN);
@@ -194,8 +194,8 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstVariable node) {
-            if (node.getExpr() != null) {
-                accept(node.getExpr());
+            if (node.expr != null) {
+                accept(node.expr);
                 putVar(node);
             }
             return null;
