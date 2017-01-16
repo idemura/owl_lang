@@ -179,8 +179,7 @@ stmtFor
 // Another would be stmtForKey
 
 // TODO:
-//  - While
-//  - For
+//  - Range for
 //  - Yield (add to return)
 statement
 :   assignment ';'
