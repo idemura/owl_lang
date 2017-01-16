@@ -53,9 +53,26 @@ Module analyzer
       ;
     ;;
   
+  Function boolCondTest
+    ReturnType: None
+    Block
+      If
+        Literal 0 I32
+        Block
+        ;;
+      ;
+      For
+        Literal "hello" String
+        Block
+        ;;
+      ;
+    ;;
+  
 --- STDERR
 programs/analyzer/analyzer.owl: error: missing return statement in f10
 programs/analyzer/analyzer.owl: error: missing return statement in f11
 programs/analyzer/analyzer.owl: error: variable a shadows existing local
 programs/analyzer/analyzer.owl: error: variable a shadows existing local
 programs/analyzer/analyzer.owl: error: variable b shadows existing local
+programs/analyzer/analyzer.owl: error: condition must be of type Bool
+programs/analyzer/analyzer.owl: error: condition must be of type Bool

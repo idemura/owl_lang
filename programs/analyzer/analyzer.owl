@@ -27,5 +27,5 @@ foo(b: I32) {
 # Bool conditions
 boolCondTest() {
     if 0 {}
-    for 0 == 1 {}
+    for "hello" {}
 }
