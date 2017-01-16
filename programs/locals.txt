@@ -41,61 +41,28 @@ public class locals {
     Code:
        0: ldc           #20                 // String cat
        2: astore_0
-       3: aload_0
-       4: invokestatic  #24                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
-       7: iconst_3
-       8: if_icmpne     15
-      11: iconst_1
-      12: goto          16
-      15: iconst_0
-      16: ifeq          43
-      19: ldc           #26                 // String dog
-      21: astore_1
-      22: aload_1
-      23: ldc           #26                 // String dog
-      25: invokestatic  #30                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
-      28: iconst_0
-      29: if_icmpne     36
-      32: iconst_1
-      33: goto          37
-      36: iconst_0
-      37: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
-      40: goto          47
-      43: iconst_0
-      44: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
-      47: aload_0
-      48: ldc           #20                 // String cat
-      50: invokestatic  #30                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
-      53: iconst_0
-      54: if_icmpne     61
-      57: iconst_1
-      58: goto          62
-      61: iconst_0
-      62: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
-      65: iconst_0
-      66: ifeq          76
-      69: iconst_0
-      70: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
-      73: goto          83
-      76: aload_0
-      77: ldc           #32                 // String fox
-      79: invokestatic  #36                 // Method owl/runtime/RT.concat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-      82: astore_0
-      83: aload_0
-      84: ldc           #38                 // String catfox
-      86: invokestatic  #30                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
-      89: iconst_0
-      90: if_icmpne     97
-      93: iconst_1
-      94: goto          98
-      97: iconst_0
-      98: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
-     101: return
+       3: iconst_1
+       4: ifeq          17
+       7: aload_0
+       8: ldc           #22                 // String fox
+      10: invokestatic  #26                 // Method owl/runtime/RT.concat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      13: astore_0
+      14: goto          17
+      17: aload_0
+      18: ldc           #28                 // String catfox
+      20: invokestatic  #32                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
+      23: iconst_0
+      24: if_icmpne     31
+      27: iconst_1
+      28: goto          32
+      31: iconst_0
+      32: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
+      35: return
 
   public static void main(java.lang.String[]);
     Code:
-       0: invokestatic  #44                 // Method test1:()V
-       3: invokestatic  #46                 // Method test2:()V
+       0: invokestatic  #38                 // Method test1:()V
+       3: invokestatic  #40                 // Method test2:()V
        6: return
 }
 --- STDERR

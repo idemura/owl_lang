@@ -21,14 +21,23 @@ final class NestedNameMap {
     private NameMap<Entity> variables;
     private OverloadNameMap overloads = new OverloadNameMap();
     private Stack<NameMap<Entity>> scope = new Stack<>();
+    private int scopeId = 0;
 
     NestedNameMap(NameMap<Entity> variables, OverloadNameMap overloads) {
         this.variables = variables.clone();
         this.overloads = overloads.clone();
     }
 
+    void pushScopeId() {
+        scopeId++;
+    }
+
+    void popScopeId() {
+        scopeId--;
+    }
+
     void push() {
-        scope.push(new NameMap<>());
+        scope.push(new NameMap<>(scopeId));
     }
 
     void pop() {
@@ -39,8 +48,18 @@ final class NestedNameMap {
         return scope.top().put(e.getName(), e);
     }
 
-    boolean inTopBlock(String name) {
-        return !scope.isEmpty() && scope.top().contains(name);
+    boolean shadows(String name) {
+        Util.check(!scope.isEmpty());
+        for (int i = scope.size(); i > 0; ) {
+            NameMap<Entity> map = scope.get(--i);
+            if (map.getScopeId() != scopeId) {
+                break;
+            }
+            if (map.contains(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean contains(String name) {

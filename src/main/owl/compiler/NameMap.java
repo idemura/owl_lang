@@ -20,10 +20,15 @@ import java.util.stream.Collectors;
 // Entity map without overload support for local scopes and types
 final class NameMap<T> implements Cloneable {
     private HashMap<String, T> map = new HashMap<>();
+    private final int scopeId;
+
+    NameMap(int scopeId) {
+        this.scopeId = scopeId;
+    }
 
     @Override
     public NameMap<T> clone() {
-        NameMap<T> other = new NameMap<>();
+        NameMap<T> other = new NameMap<>(scopeId);
         map.forEach((k, v) -> other.map.put(k, v));
         return other;
     }
@@ -43,6 +48,10 @@ final class NameMap<T> implements Cloneable {
 
     T get(String name) {
         return map.get(name);
+    }
+
+    int getScopeId() {
+        return scopeId;
     }
 
     @Override

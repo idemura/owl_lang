@@ -30,7 +30,7 @@ final class Runtime {
         return FUNCTIONS.clone();
     }
 
-    private static final NameMap<AstAbstractType> ABSTRACT_TYPES = new NameMap<>();
+    private static final NameMap<AstAbstractType> ABSTRACT_TYPES = new NameMap<>(0);
     static {
         ABSTRACT_TYPES.put(AstScalarType.BOOL);
         ABSTRACT_TYPES.put(AstScalarType.CHAR);

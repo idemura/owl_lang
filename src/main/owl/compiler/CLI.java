@@ -174,7 +174,7 @@ public final class CLI {
         long start = System.nanoTime();
         NameMap<AstAbstractType> abstractTypes = Runtime.getAbstractTypes();
         OverloadNameMap overloads = Runtime.getFunctions();
-        NameMap<Entity> variables = new NameMap<>();
+        NameMap<Entity> variables = new NameMap<>(0);
         if (!EntityCollector.run(ast, variables, overloads, errorListener)) {
             return false;
         }

@@ -1,0 +1,15 @@
+module entity;
+
+# Missing argument type
+f10(x: I32, y) {}
+
+# Duplicate argument
+f11(x: I32, y: I32, x: I32) {}
+
+# Duplicate entry, but not overload
+f10(x: I32) {}
+f10(x: I32) {}
+
+# Duplicate vars
+var x = 10;
+var x = 11;

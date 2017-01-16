@@ -83,6 +83,7 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstFunction node) {
+            nameMap.pushScopeId();
             nameMap.push();
             fnStack.push(node);
             boolean res = true;
@@ -103,6 +104,7 @@ final class TypeCheckerAndEntityResolver {
             res = accept(node.getBlock());
             fnStack.pop();
             nameMap.pop();
+            nameMap.popScopeId();
             if (!ReturnCheck.run(node, errorListener)) {
                 res = false;
             }
@@ -116,9 +118,9 @@ final class TypeCheckerAndEntityResolver {
             }
             node.setType(AstType.of(node.getExpr()));
             if (!fnStack.isEmpty()) {
-                if (nameMap.inTopBlock(node.getName())) {
+                if (nameMap.shadows(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
-                            "variable " + node.getName() + " exists in this scope");
+                            "variable " + node.getName() + " shadows existing local");
                     return false;
                 }
                 if (!nameMap.put(node)) {
@@ -206,7 +208,12 @@ final class TypeCheckerAndEntityResolver {
                 if (candidates == null) {
                     s.append("function ").append(fn.name).append(" not found");
                 } else {
-                    s.append("call ").append(fn.name).append(" with ").append(Util.join(", ", node.getArgTypes()));
+                    s.append("call ").append(fn.name).append(" with ");
+                    if (node.getArgTypes().isEmpty()) {
+                        s.append("no arguments");
+                    } else {
+                        s.append(Util.join(", ", node.getArgTypes()));
+                    }
                     if (candidates.size() == 0) {
                         s.append(": overloads not found");
                     } else {

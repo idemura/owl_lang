@@ -39,6 +39,14 @@ final class Stack<T> implements Iterable<T> {
         return stack.get(stack.size() - 1);
     }
 
+    T get(int n) {
+        return stack.get(n);
+    }
+
+    int size() {
+        return stack.size();
+    }
+
     boolean isEmpty() {
         return stack.isEmpty();
     }

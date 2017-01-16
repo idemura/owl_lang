@@ -1,19 +1,5 @@
 module analyzer;
 
-# Missing argument type
-f10(x: I32, y) {}
-
-# Duplicate argument
-f11(x: I32, y: I32, x: I32) {}
-
-# Duplicate entry, but not overload
-f10(x: I32) {}
-f10(x: I32) {}
-
-# Duplicate vars
-var x = 10;
-var x = 11;
-
 # Missing return
 f10(): I32 {
 }
@@ -23,4 +9,17 @@ f11(x: I32): I32 {
     if (x < 0) {
         return 1;
     }
+}
+
+# Shadowing
+var a = 15;
+foo(b: I32) {
+    var a = 10;
+    if true {
+        var a = 11;
+    }
+    if true {
+        var a = 12;
+    }
+    var b = 24;
 }

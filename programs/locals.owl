@@ -14,16 +14,7 @@ test1() {
 
 test2() {
     var s = "cat";
-    if size(s) == 3 {
-        var s = "dog";
-        assert(s == "dog");
-    } else {
-        assert(false);
-    }
-    assert(s == "cat");
-    if false {
-        assert(false);
-    } else {
+    if true {
         s += "fox";
     }
     assert(s == "catfox");
