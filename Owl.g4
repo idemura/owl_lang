@@ -55,6 +55,11 @@ exprPrime
 |   INT
 |   STRING
 |   '(' expression ')'
+|   exprNew
+;
+
+exprNew
+:   'new' type '{' expression* '}'
 ;
 
 exprApply
@@ -193,13 +198,13 @@ arrayTypeSuffix
 :   '[' ']'
 ;
 
-typeSimple
+typeConstructor
 :   '(' type ')'
 |   qualifiedName ('(' type (',' type)* ')')? arrayTypeSuffix*
 ;
 
 type
-:   typeSimple ('=>' typeSimple)*
+:   typeConstructor ('=>' typeConstructor)*
 ;
 
 

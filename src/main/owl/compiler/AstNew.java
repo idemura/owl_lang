@@ -14,12 +14,14 @@
  */
 package owl.compiler;
 
+import java.util.List;
+
 final class AstNew extends AstNode
         implements Typed {
     AstType type;
-    AstGroup init;
+    final List<AstNode> init;
 
-    AstNew(AstType type, AstGroup init) {
+    AstNew(AstType type, List<AstNode> init) {
         this.type = type;
         this.init = init;
     }

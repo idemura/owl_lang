@@ -131,7 +131,7 @@ final class BytecodeGenerator {
         private void getVar(AstVariable v) {
             if (v.getStorage() instanceof AstVariable.Local) {
                 int index = ((AstVariable.Local) v.getStorage()).index;
-                switch (v.getType().getJvmLocalType()) {
+                switch (v.getType().getJvmStackType()) {
                     case AstType.kBOOL:
                     case AstType.kI32:
                         mv.visitVarInsn(Opcodes.ILOAD, index);
@@ -160,7 +160,7 @@ final class BytecodeGenerator {
         private void putVar(AstVariable v) {
             if (v.getStorage() instanceof AstVariable.Local) {
                 int index = ((AstVariable.Local) v.getStorage()).index;
-                switch (v.getType().getJvmLocalType()) {
+                switch (v.getType().getJvmStackType()) {
                     case AstType.kBOOL:
                     case AstType.kI32:
                         mv.visitVarInsn(Opcodes.ISTORE, index);
@@ -221,6 +221,33 @@ final class BytecodeGenerator {
         }
 
         @Override
+        public Void visit(AstNew node) {
+            if (node.type.isArray()) {
+                accept(node.init.get(0));
+                AstType elemType = node.type.args.get(0);
+                switch (elemType.getJvmStackType()) {
+                    case AstType.kBOOL:
+                        mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_BOOLEAN);
+                        break;
+                    case AstType.kI32:
+                        mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
+                        break;
+                    case AstType.kI64:
+                        mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_LONG);
+                        break;
+                    case AstType.kREF:
+                        mv.visitTypeInsn(Opcodes.ANEWARRAY, elemType.getJvmType());
+                        break;
+                    default:
+                        Util.check("new of stack type");
+                }
+            } else {
+                throw new UnsupportedOperationException("code generator");
+            }
+            return null;
+        }
+
+        @Override
         public Void visit(AstApply node) {
             AstFunction fn = (AstFunction) ((AstName) node.fn).entity;
             if (optLevel > 0 && fn.getName().equals("assert")) {
@@ -271,7 +298,7 @@ final class BytecodeGenerator {
             }
 
             // Operators
-            int lt = fn.getArgs().get(0).getType().getJvmLocalType();
+            int lt = fn.getArgs().get(0).getType().getJvmStackType();
             if (node.args.size() == 1) {
                 genUnaryOp(fn.getName(), lt);
             } else {
@@ -334,7 +361,7 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstLiteral node) {
-            switch (node.getType().getJvmLocalType()) {
+            switch (node.getType().getJvmStackType()) {
                 case AstType.kBOOL:
                     if ((Boolean) node.object) {
                         mv.visitInsn(Opcodes.ICONST_1);
@@ -417,7 +444,7 @@ final class BytecodeGenerator {
             if (node.expr != null) {
                 accept(node.expr);
             }
-            switch (AstType.of(node.expr).getJvmLocalType()) {
+            switch (AstType.of(node.expr).getJvmStackType()) {
                 case AstType.kNONE:
                     mv.visitInsn(Opcodes.RETURN);
                     break;
@@ -681,9 +708,9 @@ final class BytecodeGenerator {
             if (stype.equals(dtype)) {
                 return;
             }
-            switch (stype.getJvmLocalType()) {
+            switch (stype.getJvmStackType()) {
                 case AstType.kBOOL:
-                    switch (dtype.getJvmLocalType()) {
+                    switch (dtype.getJvmStackType()) {
                         case AstType.kI32:
                             return;
                         case AstType.kI64:
@@ -692,7 +719,7 @@ final class BytecodeGenerator {
                     }
                     break;
                 case AstType.kI32:
-                    switch (dtype.getJvmLocalType()) {
+                    switch (dtype.getJvmStackType()) {
                         case AstType.kBOOL:
                             compare(Opcodes.IFEQ);
                             return;
@@ -702,7 +729,7 @@ final class BytecodeGenerator {
                     }
                     break;
                 case AstType.kI64:
-                    switch (dtype.getJvmLocalType()) {
+                    switch (dtype.getJvmStackType()) {
                         case AstType.kI32:
                             mv.visitInsn(Opcodes.L2I);
                             return;

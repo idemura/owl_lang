@@ -347,8 +347,50 @@ final class TypeCheckerAndEntityResolver {
 
         @Override
         public Boolean visit(AstNew node) {
-            // TODO: Resolve constructor call here
-            throw new UnsupportedOperationException("new");
+            boolean res = true;
+            for (AstNode n : node.init) {
+                if (!accept(n)) {
+                    res = false;
+                }
+            }
+            if (!res) {
+                return false;
+            }
+            if (node.type.isFunction()) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "new of a function");
+                return false;
+            }
+            if (node.type.isArray()) {
+                AstType elemType = node.type.args.get(0);
+                if (elemType.equals(AstType.NONE)) {
+                    errorListener.error(node.getLine(), node.getCharPosition(),
+                            "array of time None is invalid");
+                    return false;
+                }
+                if (elemType.isArray()) {
+                    throw new UnsupportedOperationException("new");
+                }
+                if (elemType.isFunction()) {
+                    throw new UnsupportedOperationException("new");
+                }
+                if (node.init.size() != 1) {
+                    errorListener.error(node.getLine(), node.getCharPosition(),
+                            "array init must have one argument");
+                    return false;
+                }
+                AstType sizeType = AstType.of(node.init.get(0));
+                if (!sizeType.equals(AstType.I32)) {
+                    errorListener.error(node.getLine(), node.getCharPosition(),
+                            "array init must I32, provided " + sizeType);
+                    return false;
+                }
+                return true;
+            } else {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "new of non-array is not supported");
+                return false;
+            }
         }
     }
 }

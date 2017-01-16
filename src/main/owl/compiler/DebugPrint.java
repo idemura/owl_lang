@@ -100,9 +100,7 @@ final class DebugPrint {
         public Void visit(AstApply node) {
             beginNode(node);
             accept(node.fn);
-            for (AstNode e : node.args) {
-                accept(e);
-            }
+            node.args.forEach(this::accept);
             endNode();
             return null;
         }
@@ -168,9 +166,7 @@ final class DebugPrint {
         @Override
         public Void visit(AstGroup node) {
             beginNode(node);
-            for (AstNode c : node.children) {
-                accept(c);
-            }
+            node.children.forEach(this::accept);
             endNode();
             return null;
         }
@@ -187,7 +183,7 @@ final class DebugPrint {
         @Override
         public Void visit(AstNew node) {
             beginNode(node, node.type.toString());
-            accept(node.init);
+            node.init.forEach(this::accept);
             endNode();
             return null;
         }

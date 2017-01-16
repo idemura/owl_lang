@@ -24,15 +24,19 @@ import static java.util.stream.Collectors.toList;
 final class Util {
     private Util() {}
 
+    static void check(String msg) {
+        throw new IllegalStateException(msg);
+    }
+
     static void check(boolean b) {
         if (!b) {
             throw new IllegalStateException();
         }
     }
 
-    static void check(boolean b, String message) {
+    static void check(boolean b, String msg) {
         if (!b) {
-            throw new IllegalStateException(message);
+            throw new IllegalStateException(msg);
         }
     }
 

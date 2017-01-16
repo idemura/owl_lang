@@ -185,7 +185,7 @@ final class AstType extends AstNode {
         return ((Typed) node).getType();
     }
 
-    int getJvmLocalType() {
+    int getJvmStackType() {
         if (equals(NONE)) return kNONE;
         if (equals(BOOL)) return kBOOL;
         if (equals(CHAR)) return kCHAR;

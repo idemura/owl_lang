@@ -137,6 +137,9 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitExprPrime(ExprPrimeContext ctx) {
+        if (ctx.exprNew() != null) {
+            return accept(ctx.exprNew());
+        }
         if (ctx.NAME() != null) {
             return new AstName(ctx.NAME().getText());
         }
@@ -153,6 +156,12 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
             return new AstLiteral(text.substring(1, text.length() - 1), AstType.STRING);
         }
         return accept(ctx.expression());
+    }
+
+    @Override
+    public AstNode visitExprNew(ExprNewContext ctx) {
+        List<AstNode> init = ctx.expression().stream().map(this::accept).collect(Collectors.toList());
+        return new AstNew((AstType) accept(ctx.type()), init);
     }
 
     @Override
@@ -377,8 +386,9 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     public AstNode visitArrayTypeSuffix(ArrayTypeSuffixContext ctx) {
         throw new UnsupportedOperationException("array suffix");
     }
+
     @Override
-    public AstNode visitTypeSimple(TypeSimpleContext ctx) {
+    public AstNode visitTypeConstructor(TypeConstructorContext ctx) {
         if (ctx.qualifiedName() == null) {
             return accept(ctx.type(0));
         }
@@ -403,12 +413,12 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitType(TypeContext ctx) {
-        if (ctx.typeSimple().size() > 1) {
-            return AstType.functionOf(ctx.typeSimple().stream()
+        if (ctx.typeConstructor().size() > 1) {
+            return AstType.functionOf(ctx.typeConstructor().stream()
                     .map(x -> (AstType) accept(x))
                     .collect(Collectors.toList()));
         } else {
-            return accept(ctx.typeSimple().get(0));
+            return accept(ctx.typeConstructor().get(0));
         }
     }
 }
