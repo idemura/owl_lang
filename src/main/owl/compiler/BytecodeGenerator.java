@@ -330,6 +330,31 @@ final class BytecodeGenerator {
             return null;
         }
 
+        @Override
+        public Void visit(AstIndex node) {
+            Util.check(AstType.of(node.array).isArray());
+            accept(node.array);
+            accept(node.index);
+            AstType elemType = AstType.of(node.array).args.get(0);
+            switch (elemType.getJvmStackType()) {
+                case AstType.kBOOL:
+                    mv.visitInsn(Opcodes.BALOAD);
+                    break;
+                case AstType.kI32:
+                    mv.visitInsn(Opcodes.IALOAD);
+                    break;
+                case AstType.kI64:
+                    mv.visitInsn(Opcodes.LALOAD);
+                    break;
+                case AstType.kREF:
+                    mv.visitInsn(Opcodes.AALOAD);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("array element");
+            }
+            return null;
+        }
+
         private void compare(int falseJumpOp) {
             Label conditionFalse = new Label();
             Label end = new Label();
@@ -357,6 +382,32 @@ final class BytecodeGenerator {
             } else {
                 throw new UnsupportedOperationException("assign to not a name");
             }
+        }
+
+        @Override
+        public Void visit(AstAssignIndex node) {
+            Util.check(AstType.of(node.array).isArray());
+            accept(node.array);
+            accept(node.index);
+            accept(node.r);
+            AstType elemType = AstType.of(node.array).args.get(0);
+            switch (elemType.getJvmStackType()) {
+                case AstType.kBOOL:
+                    mv.visitInsn(Opcodes.BASTORE);
+                    break;
+                case AstType.kI32:
+                    mv.visitInsn(Opcodes.IASTORE);
+                    break;
+                case AstType.kI64:
+                    mv.visitInsn(Opcodes.LASTORE);
+                    break;
+                case AstType.kREF:
+                    mv.visitInsn(Opcodes.AASTORE);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("array element");
+            }
+            return null;
         }
 
         @Override

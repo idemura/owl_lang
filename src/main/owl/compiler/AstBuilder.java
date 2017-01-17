@@ -176,7 +176,9 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
                     ctx.expression().stream().map(this::accept).collect(Collectors.toList()));
         }
         if (op.equals("[")) {
-            throw new UnsupportedOperationException("index is not implemented");
+            return new AstIndex(
+                    accept(ctx.exprApply()),
+                    accept(ctx.expression().get(0)));
         }
         if (op.equals(".")) {
             throw new UnsupportedOperationException("field is not implemented");

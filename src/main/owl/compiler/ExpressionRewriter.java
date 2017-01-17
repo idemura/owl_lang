@@ -14,8 +14,6 @@
  */
 package owl.compiler;
 
-import java.util.stream.Collectors;
-
 class ExpressionRewriter implements AstVisitor<AstNode> {
     @Override
     public AstNode visit(AstModule node) {
@@ -42,13 +40,13 @@ class ExpressionRewriter implements AstVisitor<AstNode> {
 
     @Override
     public AstNode visit(AstBlock node) {
-        node.children = node.children.stream().map(this::accept).collect(Collectors.toList());
+        node.children.forEach(this::accept);
         return null;
     }
 
     @Override
     public AstNode visit(AstGroup node) {
-        node.children = node.children.stream().map(this::accept).collect(Collectors.toList());
+        node.children.forEach(this::accept);
         return null;
     }
 

@@ -11,3 +11,6 @@ src/owl_lang.iml
 *.class
 owl_out
 
+# Test
+test.owl
+

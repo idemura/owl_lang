@@ -1,0 +1,24 @@
+module arrays;
+
+test1() {
+    var a = new I32[]{4};
+    var i = 0;
+    for i < size(a) {
+        a[i] = i;
+    }
+    assert(a[0] == 0);
+    assert(a[1] == 1);
+    assert(a[2] == 2);
+    assert(a[3] == 3);
+
+    var s = 0;
+    i = 0;
+    for i < size(a) {
+        s += a[i];
+    }
+    assert(s == 10);
+}
+
+main(argv: String[]) {
+    test1();
+}

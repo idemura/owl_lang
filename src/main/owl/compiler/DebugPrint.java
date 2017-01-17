@@ -106,6 +106,15 @@ final class DebugPrint {
         }
 
         @Override
+        public Void visit(AstIndex node) {
+            beginNode(node);
+            accept(node.array);
+            accept(node.index);
+            endNode();
+            return null;
+        }
+
+        @Override
         public Void visit(AstLiteral node) {
             String s = node.object.toString();
             if (node.object instanceof String) {
@@ -175,6 +184,16 @@ final class DebugPrint {
         public Void visit(AstAssign node) {
             beginNode(node);
             accept(node.l);
+            accept(node.r);
+            endNode();
+            return null;
+        }
+
+        @Override
+        public Void visit(AstAssignIndex node) {
+            beginNode(node);
+            accept(node.array);
+            accept(node.index);
             accept(node.r);
             endNode();
             return null;

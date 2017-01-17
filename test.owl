@@ -1,6 +1,0 @@
-module test;
-
-main(argv: String[]) {
-    var a = new I32[]{5};
-    var b = new String[]{5};
-}

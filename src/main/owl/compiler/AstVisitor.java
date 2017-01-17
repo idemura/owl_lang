@@ -25,10 +25,11 @@ interface AstVisitor<T> {
 
     default T visit(AstApply node) { return visitError(); }
     default T visit(AstAssign node) { return visitError(); }
+    default T visit(AstAssignIndex node) { return visitError(); }
     default T visit(AstBlock node) { return visitError(); }
     default T visit(AstCoerce node) { return visitError(); }
     default T visit(AstExpr node) { return visitError(); }
-    default T visit(AstSelect node) { return visitError(); }
+    default T visit(AstIndex node) { return visitError(); }
     default T visit(AstFunction node) { return visitError(); }
     default T visit(AstGroup node) { return visitError(); }
     default T visit(AstIf node) { return visitError(); }
@@ -37,6 +38,7 @@ interface AstVisitor<T> {
     default T visit(AstName node) { return visitError(); }
     default T visit(AstNew node) { return visitError(); }
     default T visit(AstReturn node) { return visitError(); }
+    default T visit(AstSelect node) { return visitError(); }
     default T visit(AstType node) { return visitError(); }
     default T visit(AstVariable node) { return visitError(); }
     default T visit(AstFor node) { return visitError(); }

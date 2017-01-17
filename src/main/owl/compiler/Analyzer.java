@@ -169,6 +169,31 @@ final class Analyzer {
             }
         }
 
+        @Override
+        public Boolean visit(AstIndex node) {
+            boolean res = true;
+            if (!accept(node.array)) {
+                res = false;
+            }
+            if (!accept(node.index)) {
+                res = false;
+            }
+            if (!res) {
+                return false;
+            }
+            if (!AstType.of(node.array).isArray()) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "array expected on the left of []");
+                return false;
+            }
+            if (!AstType.of(node.index).equals(AstType.I32)) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "array index must be I32");
+                return false;
+            }
+            return true;
+        }
+
         private boolean resolveFunction(AstApply node) {
             AstName fn = (AstName) node.fn;
             if (node.args.size() == 2 &&
@@ -244,11 +269,11 @@ final class Analyzer {
                 return false;
             }
 
-            // TODO: This is basically LValue check
-            if (node.l instanceof AstName) {
-                // Pass
-            } else {
-                throw new UnsupportedOperationException("assign left op must be a name");
+            // TODO: This is lvalue check
+            boolean lvalue = node.l instanceof AstName || node.l instanceof AstIndex;
+            if (!lvalue) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "left of assignment is not lvalue");
             }
             return true;
         }
