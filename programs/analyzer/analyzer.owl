@@ -31,14 +31,7 @@ boolCondTest() {
 }
 
 # Array
-arrays1() {
-    var a = new I32[] {};
-    var a = new I32[] {10, 20};
-    var a = new I32[] {"fail"};
-}
-
-# Array
-arrays2(a: I32[]) {
+arrays1(a: I32[]) {
     a["fail"];
     a[0] = "fail";
 }

@@ -68,6 +68,24 @@ Module analyzer
       ;
     ;;
   
+  Function arrays1
+    ReturnType: None
+    Variable a: Array(I32)
+    Block
+      Expr
+        Index
+          Name a
+          Literal "fail" String
+      ;
+      Expr
+        Assign
+          Index
+            Name a
+            Literal 0 I32
+          Literal "fail" String
+      ;
+    ;;
+  
 --- STDERR
 programs/analyzer/analyzer.owl: error: missing return statement in f10
 programs/analyzer/analyzer.owl: error: missing return statement in f11
@@ -76,3 +94,5 @@ programs/analyzer/analyzer.owl: error: variable a shadows existing local
 programs/analyzer/analyzer.owl: error: variable b shadows existing local
 programs/analyzer/analyzer.owl: error: condition must be of type Bool
 programs/analyzer/analyzer.owl: error: condition must be of type Bool
+programs/analyzer/analyzer.owl: error: array index must be I32
+programs/analyzer/analyzer.owl: error: String not assignable to I32

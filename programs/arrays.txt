@@ -1,0 +1,101 @@
+--- STDOUT
+Compiled from "programs/arrays.owl"
+public class arrays {
+  static void test1();
+    Code:
+       0: iconst_4
+       1: newarray       int
+       3: astore_0
+       4: iconst_0
+       5: istore_1
+       6: iload_1
+       7: aload_0
+       8: arraylength
+       9: if_icmpge     16
+      12: iconst_1
+      13: goto          17
+      16: iconst_0
+      17: ifeq          31
+      20: aload_0
+      21: iload_1
+      22: iload_1
+      23: iastore
+      24: iload_1
+      25: iconst_1
+      26: iadd
+      27: istore_1
+      28: goto          6
+      31: aload_0
+      32: iconst_0
+      33: iaload
+      34: iconst_0
+      35: if_icmpne     42
+      38: iconst_1
+      39: goto          43
+      42: iconst_0
+      43: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      46: aload_0
+      47: iconst_1
+      48: iaload
+      49: iconst_1
+      50: if_icmpne     57
+      53: iconst_1
+      54: goto          58
+      57: iconst_0
+      58: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      61: aload_0
+      62: iconst_2
+      63: iaload
+      64: iconst_2
+      65: if_icmpne     72
+      68: iconst_1
+      69: goto          73
+      72: iconst_0
+      73: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      76: aload_0
+      77: iconst_3
+      78: iaload
+      79: iconst_3
+      80: if_icmpne     87
+      83: iconst_1
+      84: goto          88
+      87: iconst_0
+      88: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      91: iconst_0
+      92: istore_2
+      93: iconst_0
+      94: istore_1
+      95: iload_1
+      96: aload_0
+      97: arraylength
+      98: if_icmpge     105
+     101: iconst_1
+     102: goto          106
+     105: iconst_0
+     106: ifeq          122
+     109: iload_2
+     110: aload_0
+     111: iload_1
+     112: iaload
+     113: iadd
+     114: istore_2
+     115: iload_1
+     116: iconst_1
+     117: iadd
+     118: istore_1
+     119: goto          95
+     122: iload_2
+     123: bipush        6
+     125: if_icmpne     132
+     128: iconst_1
+     129: goto          133
+     132: iconst_0
+     133: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+     136: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokestatic  #19                 // Method test1:()V
+       3: return
+}
+--- STDERR

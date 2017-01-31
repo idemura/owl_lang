@@ -5,6 +5,7 @@ test1() {
     var i = 0;
     for i < size(a) {
         a[i] = i;
+        i += 1;
     }
     assert(a[0] == 0);
     assert(a[1] == 1);
@@ -15,8 +16,9 @@ test1() {
     i = 0;
     for i < size(a) {
         s += a[i];
+        i += 1;
     }
-    assert(s == 10);
+    assert(s == 6);
 }
 
 main(argv: String[]) {

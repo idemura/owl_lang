@@ -178,7 +178,9 @@ public final class CLI {
             debugOut.println(overloads.toString());
             debugOut.println(abstractTypes.toString());
         }
-        Analyzer.run(ast, abstractTypes, variables, overloads, errorListener);
+        if (!Analyzer.run(ast, abstractTypes, variables, overloads, errorListener)) {
+            return false;
+        }
         AssignmentGen.run(ast);
         if (errorListener.getErrorCount() != 0) {
             return false;
