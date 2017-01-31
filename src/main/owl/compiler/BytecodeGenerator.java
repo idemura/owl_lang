@@ -279,6 +279,16 @@ final class BytecodeGenerator {
                     mv.visitLabel(end);
                     return null;
                 }
+
+                case "size": {
+                    AstType fnType = ((AstName) node.fn).getType();
+                    if (fnType.args.get(0).abstractType == AstArrayType.INSTANCE) {
+                        accept(node.args.get(0));
+                        mv.visitInsn(Opcodes.ARRAYLENGTH);
+                        return null;
+                    }
+                    break;
+                }
             }
 
             for (AstNode a : node.args) {

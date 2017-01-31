@@ -20,7 +20,7 @@ final class AstArrayType extends AstAbstractType {
     static final AstArrayType INSTANCE = new AstArrayType();
     static final String NAME = "Array";
 
-    private final List<TypeMatcher.ParamMatcher> params = Util.listOf(new TypeMatcher.ParamMatcher());
+    private final List<TypeParam> params = Util.listOf(TypeParam.getScalarTypeParam());
 
     private AstArrayType() {}
 
@@ -41,7 +41,7 @@ final class AstArrayType extends AstAbstractType {
     }
 
     @Override
-    List<TypeMatcher.ParamMatcher> getParamMatchers() {
+    List<TypeParam> getTypeParams() {
         return params;
     }
 

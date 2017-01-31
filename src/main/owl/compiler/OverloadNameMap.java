@@ -51,7 +51,7 @@ final class OverloadNameMap implements Cloneable {
         List<Entity> resolve(List<AstType> args) {
             List<Entity> res = new ArrayList<>();
             for (Entity f : overload) {
-                if (f.getType().acceptsArgs(args)) {
+                if (f.getType().functionTakes(args)) {
                     res.add(f);
                 }
             }

@@ -19,8 +19,8 @@ import java.util.List;
 
 // Collects module level entities (functions, variables). Checks function signature (infers argument types and checks
 // no duplicates).
-final class EntityCollector {
-    private EntityCollector() {}
+final class NameCollector {
+    private NameCollector() {}
 
     static boolean run(Ast ast,
             NameMap<Entity> variables,

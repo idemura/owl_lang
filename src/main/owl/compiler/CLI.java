@@ -170,7 +170,7 @@ public final class CLI {
         NameMap<AstAbstractType> abstractTypes = Runtime.getAbstractTypes();
         OverloadNameMap overloads = Runtime.getFunctions();
         NameMap<Entity> variables = new NameMap<>(0);
-        if (!EntityCollector.run(ast, variables, overloads, errorListener)) {
+        if (!NameCollector.run(ast, variables, overloads, errorListener)) {
             return false;
         }
         if (flagPrintNameMap) {

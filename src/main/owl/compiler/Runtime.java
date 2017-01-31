@@ -32,14 +32,14 @@ final class Runtime {
 
     private static final NameMap<AstAbstractType> ABSTRACT_TYPES = new NameMap<>(0);
     static {
-        ABSTRACT_TYPES.put(AstScalarType.BOOL);
-        ABSTRACT_TYPES.put(AstScalarType.CHAR);
-        ABSTRACT_TYPES.put(AstScalarType.F32);
-        ABSTRACT_TYPES.put(AstScalarType.F64);
-        ABSTRACT_TYPES.put(AstScalarType.I32);
-        ABSTRACT_TYPES.put(AstScalarType.I64);
-        ABSTRACT_TYPES.put(AstScalarType.NONE);
-        ABSTRACT_TYPES.put(AstScalarType.STRING);
+        ABSTRACT_TYPES.put(AstScalar.BOOL);
+        ABSTRACT_TYPES.put(AstScalar.CHAR);
+        ABSTRACT_TYPES.put(AstScalar.F32);
+        ABSTRACT_TYPES.put(AstScalar.F64);
+        ABSTRACT_TYPES.put(AstScalar.I32);
+        ABSTRACT_TYPES.put(AstScalar.I64);
+        ABSTRACT_TYPES.put(AstScalar.NONE);
+        ABSTRACT_TYPES.put(AstScalar.STRING);
         ABSTRACT_TYPES.put(AstArrayType.INSTANCE);
     }
 
@@ -114,6 +114,7 @@ final class Runtime {
         FUNCTIONS.put(fn("fdiv", AstType.F64, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn("fdiv", AstType.F64, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn("size", AstType.I32, AstType.STRING));
+        FUNCTIONS.put(fn("size", AstType.I32, AstType.arrayOf(new AstGenericType())));
 
         FUNCTIONS.put(fn("println", AstType.NONE, AstType.BOOL));
         FUNCTIONS.put(fn("println", AstType.NONE, AstType.CHAR));
@@ -134,7 +135,7 @@ final class Runtime {
         List<AstVariable> args = new ArrayList<>();
         int i = 0;
         for (AstType t : argTypes) {
-            TypeMatcher.run(t, ABSTRACT_TYPES, null);
+            TypeResolver.run(t, ABSTRACT_TYPES, null);
             args.add(new AstVariable(new AstVariable.Local(), null, "_" + i++, t, null));
         }
         return new AstFunction("", name, methodName, args, returnType, null);

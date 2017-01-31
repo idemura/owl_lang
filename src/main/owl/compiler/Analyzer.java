@@ -57,7 +57,7 @@ final class Analyzer {
 
         @Override
         public Boolean visit(AstType node) {
-            return TypeMatcher.run(node, abstractTypes, errorListener);
+            return TypeResolver.run(node, abstractTypes, errorListener);
         }
 
         @Override
@@ -117,6 +117,10 @@ final class Analyzer {
                 return false;
             }
             node.type = AstType.of(node.expr);
+            if (!accept(node.type)) {
+                Util.check("variable type is not resolvable");
+            }
+            Util.check(node.type.abstractType != null);
             if (!fnStack.isEmpty()) {
                 if (nameMap.shadows(node.getName())) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
@@ -263,7 +267,7 @@ final class Analyzer {
 
             AstType lType = AstType.of(node.l);
             AstType rType = AstType.of(node.r);
-            if (!rType.canAssignTo(lType)) {
+            if (!rType.compatible(lType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
                 return false;
@@ -330,7 +334,7 @@ final class Analyzer {
             }
             AstType returnExprType = AstType.of(node.expr);
             AstType returnType = fnStack.top().getReturnType();
-            if (!returnExprType.canAssignTo(returnType)) {
+            if (!returnExprType.compatible(returnType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "return type " + returnType + " is not compatible with " + returnExprType);
                 return false;

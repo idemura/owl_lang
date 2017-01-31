@@ -16,19 +16,19 @@ package owl.compiler;
 
 import java.util.List;
 
-final class AstScalarType extends AstAbstractType {
-    static final AstScalarType BOOL = new AstScalarType("Bool");
-    static final AstScalarType CHAR = new AstScalarType("Char");
-    static final AstScalarType F32 = new AstScalarType("F32");
-    static final AstScalarType F64 = new AstScalarType("F64");
-    static final AstScalarType I32 = new AstScalarType("I32");
-    static final AstScalarType I64 = new AstScalarType("I64");
-    static final AstScalarType NONE = new AstScalarType("None");
-    static final AstScalarType STRING = new AstScalarType("String");
+final class AstScalar extends AstAbstractType {
+    static final AstAbstractType BOOL = new AstScalar("Bool");
+    static final AstAbstractType CHAR = new AstScalar("Char");
+    static final AstAbstractType F32 = new AstScalar("F32");
+    static final AstAbstractType F64 = new AstScalar("F64");
+    static final AstAbstractType I32 = new AstScalar("I32");
+    static final AstAbstractType I64 = new AstScalar("I64");
+    static final AstAbstractType NONE = new AstScalar("None");
+    static final AstAbstractType STRING = new AstScalar("String");
 
     final String name;
 
-    private AstScalarType(String name) {
+    private AstScalar(String name) {
         this.name = name;
     }
 
@@ -49,7 +49,7 @@ final class AstScalarType extends AstAbstractType {
     }
 
     @Override
-    List<TypeMatcher.ParamMatcher> getParamMatchers() {
+    List<TypeParam> getTypeParams() {
         return Util.listOf();
     }
 

@@ -20,9 +20,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 // Generic type with parameters
-final class AstType extends AstNode {
-    private static final String ARRAY = "Array";
-    private static final String FUNCTION = "Fn";
+class AstType extends AstNode {
+    static final String ARRAY = "Array";
+    static final String FUNCTION = "Fn";
+    static final String GENERIC = "";
 
     static final int kNONE = 0;
     static final int kBOOL = 1;
@@ -71,6 +72,10 @@ final class AstType extends AstNode {
 
     boolean isFunction() {
         return name.equals(FUNCTION);
+    }
+
+    boolean isGeneric() {
+        return name.isEmpty();
     }
 
     AstType getReturnType() {
@@ -135,14 +140,31 @@ final class AstType extends AstNode {
         return true;
     }
 
-    boolean acceptsArgs(List<AstType> argsIn) {
+    boolean functionTakes(List<AstType> types) {
         Util.check(isFunction(), "function type expected");
         // Do not count return type
-        if (args.size() - 1 != argsIn.size()) {
+        if (args.size() - 1 != types.size()) {
             return false;
         }
-        for (int i = 0; i < argsIn.size(); i++) {
-            if (!argsIn.get(i).equals(args.get(i))) {
+        for (int i = 0; i < types.size(); i++) {
+            if (!args.get(i).compatibleRec(types.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean compatibleRec(AstType type) {
+        if (this instanceof AstGenericType) {
+            return true;
+        }
+        Util.check(this.abstractType != null);
+        Util.check(type.abstractType != null);
+        if (!abstractType.equals(type.abstractType)) {
+            return false;
+        }
+        for (int i = 0; i < args.size(); i++) {
+            if (!args.get(i).compatibleRec(type.args.get(i))) {
                 return false;
             }
         }
@@ -150,15 +172,11 @@ final class AstType extends AstNode {
     }
 
     // This is exactly the same relationship as implicitly convertible.
-    boolean canAssignTo(AstType dst) {
-        if (this.equals(dst)) {
+    boolean compatible(AstType dst) {
+        if (equals(AstType.I32) && dst.equals(AstType.I64)) {
             return true;
         }
-        if (this.equals(AstType.I32) && dst.equals(AstType.I64)) {
-            return true;
-        }
-        // TODO: Bool to integers
-        return false;
+        return compatibleRec(dst);
     }
 
     boolean canCoerceTo(AstType dst) {
