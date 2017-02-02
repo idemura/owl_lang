@@ -21,6 +21,16 @@ test1() {
     assert(s == 6);
 }
 
+test2() {
+    var s = "hello";
+    var i = 0;
+    for i < size(s) {
+        println(s[i]);
+        i += 1;
+    }
+
+}
 main(argv: String[]) {
     test1();
+    test2();
 }

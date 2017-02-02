@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 final class Util {
     private Util() {}
 
-    static void check(String msg) {
+    static void checkFail(String msg) {
         throw new IllegalStateException(msg);
     }
 

@@ -68,7 +68,7 @@ Module analyzer
       ;
     ;;
   
-  Function arrays1
+  Function arrays
     ReturnType: None
     Variable a: Array(I32)
     Block
@@ -86,6 +86,21 @@ Module analyzer
       ;
     ;;
   
+  Function stringIndexAssign
+    ReturnType: None
+    Variable s: String
+    Block
+      Expr
+        Assign
+          Index
+            Name s
+            Literal 0 I32
+          Index
+            Name s
+            Literal 1 I32
+      ;
+    ;;
+  
 --- STDERR
 programs/analyzer/analyzer.owl: error: missing return statement in f10
 programs/analyzer/analyzer.owl: error: missing return statement in f11
@@ -96,3 +111,4 @@ programs/analyzer/analyzer.owl: error: condition must be of type Bool
 programs/analyzer/analyzer.owl: error: condition must be of type Bool
 programs/analyzer/analyzer.owl: error: array index must be I32
 programs/analyzer/analyzer.owl: error: String not assignable to I32
+programs/analyzer/analyzer.owl: error: string is immutable, can't assign to index in it

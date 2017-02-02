@@ -93,9 +93,40 @@ public class arrays {
      133: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
      136: return
 
+  static void test2();
+    Code:
+       0: ldc           #18                 // String hello
+       2: astore_0
+       3: iconst_0
+       4: istore_1
+       5: iload_1
+       6: aload_0
+       7: invokestatic  #22                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
+      10: if_icmpge     17
+      13: iconst_1
+      14: goto          18
+      17: iconst_0
+      18: ifeq          36
+      21: aload_0
+      22: iload_1
+      23: invokevirtual #28                 // Method java/lang/String.charAt:(I)C
+      26: invokestatic  #32                 // Method owl/runtime/RT.println:(C)V
+      29: iload_1
+      30: iconst_1
+      31: iadd
+      32: istore_1
+      33: goto          5
+      36: return
+
   public static void main(java.lang.String[]);
     Code:
-       0: invokestatic  #19                 // Method test1:()V
-       3: return
+       0: invokestatic  #36                 // Method test1:()V
+       3: invokestatic  #38                 // Method test2:()V
+       6: return
 }
+h
+e
+l
+l
+o
 --- STDERR

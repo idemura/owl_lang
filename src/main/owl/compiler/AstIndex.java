@@ -30,6 +30,14 @@ final class AstIndex extends AstNode
 
     @Override
     public AstType getType() {
-        return AstType.of(array).args.get(0);
+        AstType type = AstType.of(array);
+        if (type.isArray()) {
+            return type.args.get(0);
+        }
+        if (type.equals(AstType.STRING)) {
+            return AstType.CHAR;
+        }
+        Util.checkFail("invalid type of array");
+        return type;
     }
 }

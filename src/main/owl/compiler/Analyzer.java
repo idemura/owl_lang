@@ -118,7 +118,7 @@ final class Analyzer {
             }
             node.type = AstType.of(node.expr);
             if (!accept(node.type)) {
-                Util.check("variable type is not resolvable");
+                Util.checkFail("variable type is not resolvable");
             }
             Util.check(node.type.abstractType != null);
             if (!fnStack.isEmpty()) {
@@ -185,9 +185,9 @@ final class Analyzer {
             if (!res) {
                 return false;
             }
-            if (!AstType.of(node.array).isArray()) {
+            if (!AstType.of(node.array).isArray() && !AstType.of(node.array).equals(AstType.STRING)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
-                        "array expected on the left of []");
+                        "array or string expected on the left of []");
                 return false;
             }
             if (!AstType.of(node.index).equals(AstType.I32)) {
@@ -273,13 +273,25 @@ final class Analyzer {
                 return false;
             }
 
-            // TODO: This is lvalue check
-            boolean lvalue = node.l instanceof AstName || node.l instanceof AstIndex;
-            if (!lvalue) {
-                errorListener.error(node.getLine(), node.getCharPosition(),
-                        "left of assignment is not lvalue");
+            return isLValue(node.l);
+        }
+
+        private boolean isLValue(AstNode node) {
+            if (node instanceof AstName) {
+                return true;
             }
-            return true;
+            if (node instanceof AstIndex) {
+                AstIndex index = (AstIndex) node;
+                if (AstType.of(index.array).equals(AstType.STRING)) {
+                    errorListener.error(node.getLine(), node.getCharPosition(),
+                            "string is immutable, can't assign to index in it");
+                    return false;
+                }
+                return true;
+            }
+            errorListener.error(node.getLine(), node.getCharPosition(),
+                    "left of assignment is not lvalue");
+            return false;
         }
 
         @Override

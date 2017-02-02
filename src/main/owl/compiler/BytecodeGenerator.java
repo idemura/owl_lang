@@ -239,7 +239,7 @@ final class BytecodeGenerator {
                         mv.visitTypeInsn(Opcodes.ANEWARRAY, elemType.getJvmType());
                         break;
                     default:
-                        Util.check("new of stack type");
+                        Util.checkFail("new of stack type");
                 }
             } else {
                 throw new UnsupportedOperationException("code generator");
@@ -342,9 +342,13 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstIndex node) {
-            Util.check(AstType.of(node.array).isArray());
             accept(node.array);
             accept(node.index);
+            if (AstType.of(node.array).equals(AstType.STRING)) {
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "charAt", "(I)C", false);
+                return null;
+            }
+            Util.check(AstType.of(node.array).isArray());
             AstType elemType = AstType.of(node.array).args.get(0);
             switch (elemType.getJvmStackType()) {
                 case AstType.kBOOL:

@@ -30,8 +30,13 @@ boolCondTest() {
     for "hello" {}
 }
 
-# Array
-arrays1(a: I32[]) {
+# Arrays
+arrays(a: I32[]) {
     a["fail"];
     a[0] = "fail";
+}
+
+# Do not assign string index
+stringIndexAssign(s: String) {
+    s[0] = s[1];
 }
