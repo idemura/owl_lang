@@ -298,16 +298,11 @@ final class BytecodeGenerator {
                 if (methodName == null) {
                     methodName = fn.getName();
                 }
-                if (optLevel > 0 && fn.getName().equals("assert")) {
-                    // Assert computes expression for side effects
-                    mv.visitInsn(Opcodes.POP);
-                } else {
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                            Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : className,
-                            methodName,
-                            fn.getJvmDescriptor(),
-                            false);
-                }
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : className,
+                        methodName,
+                        fn.getJvmDescriptor(),
+                        false);
                 return null;
             }
 
@@ -547,6 +542,7 @@ final class BytecodeGenerator {
         public Void visit(AstExpr node) {
             accept(node.expr);
             if (node.discards()) {
+                // TODO: Optimize out anything without side effect?
                 switch (node.getType().getJvmStackType()) {
                     case AstType.kBOOL:
                     case AstType.kCHAR:
