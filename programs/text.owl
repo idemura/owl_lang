@@ -1,0 +1,24 @@
+module text;
+
+testChar() {
+    var c = $"X";
+    assert(c == 88 : Char);
+    assert(c : I32 == 88);
+    var n = 89;
+    println(c);
+    println(c : I32);
+    println(n : Char);
+    assert(c < $"Y");
+    assert(c > $"U");
+    assert(c == $"X");
+    assert(c != $"x");
+    var i = 0;
+    var s = "abc";
+    for i < size(s) {
+        assert(s[i] == ($"a" : I32 + i) : Char);
+        i += 1;
+    }
+}
+
+main(argv: String[]) {
+}

@@ -144,16 +144,15 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
             return new AstName(ctx.NAME().getText());
         }
         if (ctx.BOOL() != null) {
-            return new AstLiteral(ctx.BOOL().getText().equals("true")? Boolean.TRUE: Boolean.FALSE, AstType.BOOL);
+            return new AstLiteral(ctx.BOOL().getText(), AstType.BOOL);
         }
         if (ctx.INT() != null) {
-            // TODO: Check range
-            // TODO: Deduce type
-            return new AstLiteral(Integer.valueOf(ctx.INT().getText()), AstType.I32);
+            return new AstLiteral(ctx.INT().getText(), AstType.I32);
         }
         if (ctx.STRING() != null) {
             String text = ctx.STRING().getText();
-            return new AstLiteral(text.substring(1, text.length() - 1), AstType.STRING);
+            return new AstLiteral(text.substring(1, text.length() - 1),
+                    ctx.dollar != null ? AstType.CHAR: AstType.STRING);
         }
         return accept(ctx.expression());
     }

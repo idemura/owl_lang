@@ -81,23 +81,29 @@ final class Runtime {
         FUNCTIONS.put(fn("|", AstType.I64, AstType.I64, AstType.I64));
 
         // Comparisons
+        FUNCTIONS.put(fn("<", AstType.BOOL, AstType.CHAR, AstType.CHAR));
         FUNCTIONS.put(fn("<", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn("<", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn("<", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.CHAR, AstType.CHAR));
         FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn("<=", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn(">", AstType.BOOL, AstType.CHAR, AstType.CHAR));
         FUNCTIONS.put(fn(">", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn(">", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn(">", AstType.BOOL, AstType.STRING, AstType.STRING));
+        FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.CHAR, AstType.CHAR));
         FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn(">=", AstType.BOOL, AstType.STRING, AstType.STRING));
         FUNCTIONS.put(fn("==", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("==", AstType.BOOL, AstType.CHAR, AstType.CHAR));
         FUNCTIONS.put(fn("==", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn("==", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn("==", AstType.BOOL, AstType.STRING, AstType.STRING));
         FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.BOOL, AstType.BOOL));
+        FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.CHAR, AstType.CHAR));
         FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.I32, AstType.I32));
         FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.I64, AstType.I64));
         FUNCTIONS.put(fn("!=", AstType.BOOL, AstType.STRING, AstType.STRING));

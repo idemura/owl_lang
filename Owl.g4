@@ -53,7 +53,7 @@ exprPrime
 :   NAME
 |   BOOL
 |   INT
-|   STRING
+|   (dollar = '$')? STRING
 |   '(' expression ')'
 |   exprNew
 ;
@@ -206,7 +206,6 @@ typeConstructor
 type
 :   typeConstructor ('=>' typeConstructor)*
 ;
-
 
 BOOL: 'true' | 'false';
 NAME: [a-zA-Z] [a-zA-Z0-9_]*;

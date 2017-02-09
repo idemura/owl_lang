@@ -181,10 +181,8 @@ public final class CLI {
         if (!Analyzer.run(ast, abstractTypes, variables, overloads, errorListener)) {
             return false;
         }
+        Util.check(errorListener.getErrorCount() == 0);
         AssignmentGen.run(ast);
-        if (errorListener.getErrorCount() != 0) {
-            return false;
-        }
         timeAnalysis = System.nanoTime() - start;
         start = System.nanoTime();
         try {

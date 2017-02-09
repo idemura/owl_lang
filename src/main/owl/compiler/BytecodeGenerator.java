@@ -133,6 +133,7 @@ final class BytecodeGenerator {
                 int index = ((AstVariable.Local) v.getStorage()).index;
                 switch (v.getType().getJvmStackType()) {
                     case AstType.kBOOL:
+                    case AstType.kCHAR:
                     case AstType.kI32:
                         mv.visitVarInsn(Opcodes.ILOAD, index);
                         break;
@@ -162,6 +163,7 @@ final class BytecodeGenerator {
                 int index = ((AstVariable.Local) v.getStorage()).index;
                 switch (v.getType().getJvmStackType()) {
                     case AstType.kBOOL:
+                    case AstType.kCHAR:
                     case AstType.kI32:
                         mv.visitVarInsn(Opcodes.ISTORE, index);
                         break;
@@ -250,9 +252,6 @@ final class BytecodeGenerator {
         @Override
         public Void visit(AstApply node) {
             AstFunction fn = (AstFunction) ((AstName) node.fn).entity;
-            if (optLevel > 0 && fn.getName().equals("assert")) {
-                return null;
-            }
 
             switch (fn.getName()) {
                 case "&&": {
@@ -299,11 +298,16 @@ final class BytecodeGenerator {
                 if (methodName == null) {
                     methodName = fn.getName();
                 }
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                        Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : className,
-                        methodName,
-                        fn.getJvmDescriptor(),
-                        false);
+                if (optLevel > 0 && fn.getName().equals("assert")) {
+                    // Assert computes expression for side effects
+                    mv.visitInsn(Opcodes.POP);
+                } else {
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                            Util.isEmpty(fn.getModuleName()) ? Runtime.NAME : className,
+                            methodName,
+                            fn.getJvmDescriptor(),
+                            false);
+                }
                 return null;
             }
 
@@ -435,7 +439,6 @@ final class BytecodeGenerator {
                     }
                     break;
                 case AstType.kCHAR:
-                    throw new UnsupportedOperationException("literal");
                 case AstType.kI32:
                     int v = (Integer) node.object;
                     if (-1 <= v && v <= 5) {
@@ -544,7 +547,18 @@ final class BytecodeGenerator {
         public Void visit(AstExpr node) {
             accept(node.expr);
             if (node.discards()) {
-                mv.visitInsn(Opcodes.POP);
+                switch (node.getType().getJvmStackType()) {
+                    case AstType.kBOOL:
+                    case AstType.kCHAR:
+                    case AstType.kI32:
+                        mv.visitInsn(Opcodes.POP);
+                        break;
+                    case AstType.kI64:
+                        mv.visitInsn(Opcodes.POP2);
+                        break;
+                    default:
+                        Util.checkFail("invalid discard stack type");
+                }
             }
             return null;
         }
@@ -715,6 +729,7 @@ final class BytecodeGenerator {
                     break;
                 case "<":
                     switch (lt) {
+                        case AstType.kCHAR:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPGE);
                             return;
@@ -722,6 +737,7 @@ final class BytecodeGenerator {
                     break;
                 case "<=":
                     switch (lt) {
+                        case AstType.kCHAR:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPGT);
                             return;
@@ -729,6 +745,7 @@ final class BytecodeGenerator {
                     break;
                 case ">":
                     switch (lt) {
+                        case AstType.kCHAR:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPLE);
                             return;
@@ -736,6 +753,7 @@ final class BytecodeGenerator {
                     break;
                 case ">=":
                     switch (lt) {
+                        case AstType.kCHAR:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPLT);
                             return;
@@ -744,6 +762,7 @@ final class BytecodeGenerator {
                 case "==":
                     switch (lt) {
                         case AstType.kBOOL:
+                        case AstType.kCHAR:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPNE);
                             return;
@@ -752,6 +771,7 @@ final class BytecodeGenerator {
                 case "!=":
                     switch (lt) {
                         case AstType.kBOOL:
+                        case AstType.kCHAR:
                         case AstType.kI32:
                             compare(Opcodes.IF_ICMPEQ);
                             return;
@@ -783,10 +803,22 @@ final class BytecodeGenerator {
                             return;
                     }
                     break;
+                case AstType.kCHAR:
+                    switch (dtype.getJvmStackType()) {
+                        case AstType.kI32:
+                            return;
+                        case AstType.kI64:
+                            mv.visitInsn(Opcodes.I2L);
+                            return;
+                    }
+                    break;
                 case AstType.kI32:
                     switch (dtype.getJvmStackType()) {
                         case AstType.kBOOL:
                             compare(Opcodes.IFEQ);
+                            return;
+                        case AstType.kCHAR:
+                            mv.visitInsn(Opcodes.I2C);
                             return;
                         case AstType.kI64:
                             mv.visitInsn(Opcodes.I2L);
@@ -795,6 +827,10 @@ final class BytecodeGenerator {
                     break;
                 case AstType.kI64:
                     switch (dtype.getJvmStackType()) {
+                        case AstType.kCHAR:
+                            mv.visitInsn(Opcodes.L2I);
+                            mv.visitInsn(Opcodes.I2C);
+                            return;
                         case AstType.kI32:
                             mv.visitInsn(Opcodes.L2I);
                             return;

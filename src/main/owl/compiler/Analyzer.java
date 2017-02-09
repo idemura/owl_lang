@@ -296,7 +296,31 @@ final class Analyzer {
 
         @Override
         public Boolean visit(AstLiteral node) {
-             return accept(node.type);
+            if (!accept(node.type)) {
+                return false;
+            }
+            String text = (String) node.object;
+            if (node.getType().equals(AstType.I32)) {
+                // TODO: Check range
+                // TODO: Deduce type
+                node.object = Integer.valueOf(text);
+            } else if (node.getType().equals(AstType.BOOL)) {
+                node.object = text.equals("true")? Boolean.TRUE: Boolean.FALSE;
+            } else if (node.getType().equals(AstType.CHAR) || node.getType().equals(AstType.STRING)) {
+                // TODO: Escape codes
+                if (node.getType().equals(AstType.CHAR)) {
+                    String s = (String) node.object;
+                    if (s.length() != 1) {
+                        errorListener.error(node.getLine(), node.getCharPosition(),
+                                "char string must have length of 1");
+                        return false;
+                    }
+                    node.object = (int) s.charAt(0);
+                }
+            } else {
+                Util.checkFail("unknown literal type");
+            }
+            return true;
         }
 
         @Override

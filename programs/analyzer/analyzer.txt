@@ -1,7 +1,7 @@
 --- STDOUT
 Module analyzer
   Variable a
-    Literal 15 I32
+    Literal "15" I32
   
   Function f10
     ReturnType: I32
@@ -16,10 +16,10 @@ Module analyzer
         Apply
           Name <
           Name x
-          Literal 0 I32
+          Literal "0" I32
         Block
           Return
-            Literal 1 I32
+            Literal "1" I32
           ;
         ;;
       ;
@@ -30,26 +30,26 @@ Module analyzer
     Variable b: I32
     Block
       Variable a
-        Literal 10 I32
+        Literal "10" I32
       ;
       If
-        Literal true Bool
+        Literal "true" Bool
         Block
           Variable a
-            Literal 11 I32
+            Literal "11" I32
           ;
         ;;
       ;
       If
-        Literal true Bool
+        Literal "true" Bool
         Block
           Variable a
-            Literal 12 I32
+            Literal "12" I32
           ;
         ;;
       ;
       Variable b
-        Literal 24 I32
+        Literal "24" I32
       ;
     ;;
   
@@ -57,7 +57,7 @@ Module analyzer
     ReturnType: None
     Block
       If
-        Literal 0 I32
+        Literal "0" I32
         Block
         ;;
       ;
@@ -81,7 +81,7 @@ Module analyzer
         Assign
           Index
             Name a
-            Literal 0 I32
+            Literal "0" I32
           Literal "fail" String
       ;
     ;;
@@ -94,10 +94,10 @@ Module analyzer
         Assign
           Index
             Name s
-            Literal 0 I32
+            Literal "0" I32
           Index
             Name s
-            Literal 1 I32
+            Literal "1" I32
       ;
     ;;
   

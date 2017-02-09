@@ -192,7 +192,11 @@ class AstType extends AstNode {
         if (equals(AstType.I32) && dst.equals(AstType.BOOL) || equals(AstType.BOOL) && dst.equals(AstType.I32)) {
             return true;
         }
+        if (equals(AstType.I32) && dst.equals(AstType.CHAR) || equals(AstType.CHAR) && dst.equals(AstType.I32)) {
+            return true;
+        }
         // TODO: Bool <-> I64
+        // TODO: Char <-> I64
         return false;
     }
 
