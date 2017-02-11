@@ -19,6 +19,9 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import owl.compiler.AstFor.ForBoolean;
+import owl.compiler.AstFor.ForRange;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -190,7 +193,7 @@ final class BytecodeGenerator {
 
         @Override
         public Void visit(AstFunction node) {
-            accept(node.getBlock());
+            accept(node.block);
             return null;
         }
 
@@ -493,11 +496,24 @@ final class BytecodeGenerator {
         public Void visit(AstFor node) {
             Label begin = new Label();
             Label end = new Label();
-            mv.visitLabel(begin);
-            accept(node.condition);
-            mv.visitJumpInsn(Opcodes.IFEQ, end);
-            accept(node.block);
-            mv.visitJumpInsn(Opcodes.GOTO, begin);
+            if (node.condition instanceof ForBoolean) {
+                ForBoolean cond = (ForBoolean) node.condition;
+                mv.visitLabel(begin);
+                accept(cond.expr);
+                mv.visitJumpInsn(Opcodes.IFEQ, end);
+                accept(node.block);
+                mv.visitJumpInsn(Opcodes.GOTO, begin);
+            } else {
+                ForRange range = (AstFor.ForRange) node.condition;
+                accept(range.iter);
+                accept(range.last);
+                mv.visitLabel(begin);
+                accept(range.expr);
+                mv.visitJumpInsn(Opcodes.IFEQ, end);
+                accept(node.block);
+                accept(range.increment);
+                mv.visitJumpInsn(Opcodes.GOTO, begin);
+            }
             mv.visitLabel(end);
             return null;
         }

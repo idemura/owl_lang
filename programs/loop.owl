@@ -11,6 +11,34 @@ test1() {
     assert(i == 5);
 }
 
+test2() {
+    for i in 0, 5 {
+        println(i);
+    }
+    println("---");
+    for i in 5, 10 {
+        println(i);
+    }
+    var s = 0;
+    for i in 0, 5 {
+        s += i;
+    }
+    assert(s == 10);
+}
+
+test3() {
+    var s = "hello";
+    var found = 0;
+    for i in 0, size(s) {
+        if s[i] == $"l" {
+            found += 1;
+        }
+    }
+    assert(found == 2);
+}
+
 main(argv: String[]) {
     test1();
+    test2();
+    test3();
 }

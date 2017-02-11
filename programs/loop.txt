@@ -39,9 +39,139 @@ public class loop {
       52: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
       55: return
 
+  static void test2();
+    Code:
+       0: iconst_0
+       1: istore_0
+       2: iconst_5
+       3: istore_1
+       4: iload_0
+       5: iload_1
+       6: if_icmpge     13
+       9: iconst_1
+      10: goto          14
+      13: iconst_0
+      14: ifeq          28
+      17: iload_0
+      18: invokestatic  #18                 // Method owl/runtime/RT.println:(I)V
+      21: iload_0
+      22: iconst_1
+      23: iadd
+      24: istore_0
+      25: goto          4
+      28: ldc           #20                 // String ---
+      30: invokestatic  #23                 // Method owl/runtime/RT.println:(Ljava/lang/String;)V
+      33: iconst_5
+      34: istore_2
+      35: bipush        10
+      37: istore_3
+      38: iload_2
+      39: iload_3
+      40: if_icmpge     47
+      43: iconst_1
+      44: goto          48
+      47: iconst_0
+      48: ifeq          62
+      51: iload_2
+      52: invokestatic  #18                 // Method owl/runtime/RT.println:(I)V
+      55: iload_2
+      56: iconst_1
+      57: iadd
+      58: istore_2
+      59: goto          38
+      62: iconst_0
+      63: istore        4
+      65: iconst_0
+      66: istore        5
+      68: iconst_5
+      69: istore        6
+      71: iload         5
+      73: iload         6
+      75: if_icmpge     82
+      78: iconst_1
+      79: goto          83
+      82: iconst_0
+      83: ifeq          102
+      86: iload         4
+      88: iload         5
+      90: iadd
+      91: istore        4
+      93: iload         5
+      95: iconst_1
+      96: iadd
+      97: istore        5
+      99: goto          71
+     102: iload         4
+     104: bipush        10
+     106: if_icmpne     113
+     109: iconst_1
+     110: goto          114
+     113: iconst_0
+     114: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+     117: return
+
+  static void test3();
+    Code:
+       0: ldc           #26                 // String hello
+       2: astore_0
+       3: iconst_0
+       4: istore_1
+       5: iconst_0
+       6: istore_2
+       7: aload_0
+       8: invokestatic  #30                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
+      11: istore_3
+      12: iload_2
+      13: iload_3
+      14: if_icmpge     21
+      17: iconst_1
+      18: goto          22
+      21: iconst_0
+      22: ifeq          57
+      25: aload_0
+      26: iload_2
+      27: invokevirtual #36                 // Method java/lang/String.charAt:(I)C
+      30: bipush        108
+      32: if_icmpne     39
+      35: iconst_1
+      36: goto          40
+      39: iconst_0
+      40: ifeq          50
+      43: iload_1
+      44: iconst_1
+      45: iadd
+      46: istore_1
+      47: goto          50
+      50: iload_2
+      51: iconst_1
+      52: iadd
+      53: istore_2
+      54: goto          12
+      57: iload_1
+      58: iconst_2
+      59: if_icmpne     66
+      62: iconst_1
+      63: goto          67
+      66: iconst_0
+      67: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      70: return
+
   public static void main(java.lang.String[]);
     Code:
-       0: invokestatic  #17                 // Method test1:()V
-       3: return
+       0: invokestatic  #40                 // Method test1:()V
+       3: invokestatic  #42                 // Method test2:()V
+       6: invokestatic  #44                 // Method test3:()V
+       9: return
 }
+0
+1
+2
+3
+4
+---
+5
+6
+7
+8
+9
 --- STDERR

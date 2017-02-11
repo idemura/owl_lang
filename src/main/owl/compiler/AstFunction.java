@@ -27,7 +27,7 @@ final class AstFunction extends AstNode
     private List<AstVariable> args = new ArrayList<>();
     private List<AstVariable> vars = new ArrayList<>();
     private AstType returnType = AstType.NONE;
-    private AstBlock block;
+    AstBlock block;
 
     AstFunction(
             String moduleName,
@@ -128,10 +128,6 @@ final class AstFunction extends AstNode
 
     AstType getReturnType() {
         return returnType;
-    }
-
-    AstBlock getBlock() {
-        return block;
     }
 
     void indexLocals() {

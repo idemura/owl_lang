@@ -14,6 +14,9 @@
  */
 package owl.compiler;
 
+import owl.compiler.AstFor.ForBoolean;
+import owl.compiler.AstFor.ForRange;
+
 import java.io.PrintStream;
 
 final class DebugPrint {
@@ -71,7 +74,7 @@ final class DebugPrint {
             for (AstVariable a : node.getArgs()) {
                 leaf(a, a.getName() + ": " + a.getType());
             }
-            accept(node.getBlock());
+            accept(node.block);
             endNode();
             return null;
         }
@@ -140,7 +143,16 @@ final class DebugPrint {
         @Override
         public Void visit(AstFor node) {
             beginNode(node);
-            accept(node.condition);
+            if (node.condition instanceof ForBoolean) {
+                ForBoolean cond = (ForBoolean) node.condition;
+                accept(cond.expr);
+            } else {
+                ForRange range = (ForRange) node.condition;
+                printer.print("iter:");
+                accept(range.iter);
+                printer.print("last:");
+                accept(range.last);
+            }
             accept(node.block);
             endNode();
             return null;

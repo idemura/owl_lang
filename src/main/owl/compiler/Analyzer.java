@@ -14,6 +14,9 @@
  */
 package owl.compiler;
 
+import owl.compiler.AstFor.ForBoolean;
+import owl.compiler.AstFor.ForRange;
+
 import java.util.List;
 
 // Check types of function applications. Resolves entity names and function overloads.
@@ -25,10 +28,10 @@ final class Analyzer {
             NameMap<Entity> variables,
             OverloadNameMap overloads,
             ErrorListener errorListener) {
-        return ast.accept(new Visitor(abstractTypes, variables, overloads, errorListener));
+        return ast.accept(new Visitor(abstractTypes, variables, overloads, errorListener)) == 0;
     }
 
-    private static final class Visitor implements AstVisitor<Boolean> {
+    private static final class Visitor implements AstVisitor<Integer> {
         private final ErrorListener errorListener;
         private final NameMap<AstAbstractType> abstractTypes;
         private final NestedNameMap nameMap;
@@ -45,157 +48,143 @@ final class Analyzer {
         }
 
         @Override
-        public Boolean visit(AstName node) {
+        public Integer visit(AstName node) {
             node.entity = nameMap.get(node.name);
             if (node.entity == null) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "name " + node.name + " not found");
-                return false;
+                return 1;
             }
-            return true;
+            return 0;
         }
 
         @Override
-        public Boolean visit(AstType node) {
-            return TypeResolver.run(node, abstractTypes, errorListener);
+        public Integer visit(AstType node) {
+            return TypeResolver.run(node, abstractTypes, errorListener)? 0: 1;
         }
 
         @Override
-        public Boolean visit(AstSelect node) {
+        public Integer visit(AstSelect node) {
             throw new UnsupportedOperationException("type checker");
         }
 
         @Override
-        public Boolean visit(AstModule node) {
-            boolean res = true;
+        public Integer visit(AstModule node) {
+            int e = 0;
             for (AstNode v : node.variables) {
-                if (!accept(v)) {
-                    res = false;
-                }
+                e += accept(v);
             }
             for (AstNode f : node.functions) {
-                if (!accept(f)) {
-                    res = false;
-                }
+                e += accept(f);
             }
-            return res;
+            return e;
         }
 
         @Override
-        public Boolean visit(AstFunction node) {
+        public Integer visit(AstFunction node) {
             nameMap.pushScopeId();
             nameMap.push();
             fnStack.push(node);
-            boolean res = true;
+            int e = 0;
             for (AstVariable a : node.getArgs()) {
-                if (!accept(a.type)) {
-                    res = false;
-                }
+                e += accept(a.type);
                 if (!nameMap.put(a))  {
                     throw new IllegalStateException("error put local");
                 }
             }
-            if (!accept(node.getReturnType())) {
-                res = false;
+            e += accept(node.getReturnType());
+            if (e != 0) {
+                return 1;
             }
-            if (!res) {
-                return false;
-            }
-            res = accept(node.getBlock());
+            e += accept(node.block);
             fnStack.pop();
             nameMap.pop();
             nameMap.popScopeId();
             if (!ReturnCheck.run(node, errorListener)) {
-                res = false;
+                e++;
             }
-            return res;
+            return e;
         }
 
         @Override
-        public Boolean visit(AstVariable node) {
-            if (!accept(node.expr)) {
-                return false;
+        public Integer visit(AstVariable node) {
+            if (accept(node.expr) != 0) {
+                return 1;
             }
             node.type = AstType.of(node.expr);
-            if (!accept(node.type)) {
-                Util.checkFail("variable type is not resolvable");
+            if (accept(node.type) != 0) {
+                Util.checkFail("variable abstract type not resolved");
             }
             Util.check(node.type.abstractType != null);
-            if (!fnStack.isEmpty()) {
-                if (nameMap.shadows(node.getName())) {
-                    errorListener.error(node.getLine(), node.getCharPosition(),
-                            "variable " + node.getName() + " shadows existing local");
-                    return false;
+            if (node.getName() != null) {
+                if (!fnStack.isEmpty()) {
+                    if (nameMap.shadows(node.getName())) {
+                        errorListener.error(node.getLine(), node.getCharPosition(),
+                                "variable " + node.getName() + " shadows existing local");
+                        return 1;
+                    }
+                    if (!nameMap.put(node)) {
+                        throw new IllegalStateException("error put local");
+                    }
+                    fnStack.top().addVar(node);
                 }
-                if (!nameMap.put(node)) {
-                    throw new IllegalStateException("error put local");
-                }
-                fnStack.top().addVar(node);
             }
-            return true;
+            return 0;
         }
 
         @Override
-        public Boolean visit(AstBlock node) {
-            if (fnStack.top().getBlock() != node) {
+        public Integer visit(AstBlock node) {
+            if (node.scope) {
                 // Function block shares scope with arguments.
                 nameMap.push();
             }
-            boolean res = true;
+            int e = 0;
             for (AstNode s : node.children) {
-                if (!accept(s)) {
-                    res = false;
-                }
+                e += accept(s);
             }
-            if (fnStack.top().getBlock() != node) {
+            if (node.scope) {
                 nameMap.pop();
             }
-            return res;
+            return e;
         }
 
         @Override
-        public Boolean visit(AstApply node) {
-            boolean res = true;
-            for (AstNode e : node.args) {
-                if (!accept(e)) {
-                    res = false;
-                }
+        public Integer visit(AstApply node) {
+            int e = 0;
+            for (AstNode a : node.args) {
+                e += accept(a);
             }
-            if (!res) {
-                return false;
+            if (e != 0) {
+                return 1;
             }
 
             // Now we know types of arguments and (in case of lambda) function. Resolve function overload.
             if (node.fn instanceof AstName) {
-                return resolveFunction(node);
+                return resolveFunction(node)? 0: 1;
             } else {
                 throw new UnsupportedOperationException("apply function expr");
             }
         }
 
         @Override
-        public Boolean visit(AstIndex node) {
-            boolean res = true;
-            if (!accept(node.array)) {
-                res = false;
-            }
-            if (!accept(node.index)) {
-                res = false;
-            }
-            if (!res) {
-                return false;
+        public Integer visit(AstIndex node) {
+            int e = 0;
+            e += accept(node.array);
+            e += accept(node.index);
+            if (e != 0) {
+                return 1;
             }
             if (!AstType.of(node.array).isArray() && !AstType.of(node.array).equals(AstType.STRING)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "array or string expected on the left of []");
-                return false;
+                return 1;
             }
             if (!AstType.of(node.index).equals(AstType.I32)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "array index must be I32");
-                return false;
+                return 1;
             }
-            return true;
+            return 0;
         }
 
         private boolean resolveFunction(AstApply node) {
@@ -258,11 +247,10 @@ final class Analyzer {
         }
 
         @Override
-        public Boolean visit(AstAssign node) {
-            boolean b1 = accept(node.l);
-            boolean b2 = accept(node.r);
-            if (!(b1 && b2)) {
-                return false;
+        public Integer visit(AstAssign node) {
+            int e = accept(node.l) + accept(node.r);
+            if (e != 0) {
+                return 1;
             }
 
             AstType lType = AstType.of(node.l);
@@ -270,10 +258,10 @@ final class Analyzer {
             if (!rType.compatible(lType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         rType + " not assignable to " + lType);
-                return false;
+                return 1;
             }
 
-            return isLValue(node.l);
+            return isLValue(node.l)? 0: 1;
         }
 
         private boolean isLValue(AstNode node) {
@@ -295,9 +283,9 @@ final class Analyzer {
         }
 
         @Override
-        public Boolean visit(AstLiteral node) {
-            if (!accept(node.type)) {
-                return false;
+        public Integer visit(AstLiteral node) {
+            if (accept(node.type) != 0) {
+                return 1;
             }
             String text = (String) node.object;
             if (node.getType().equals(AstType.I32)) {
@@ -313,125 +301,143 @@ final class Analyzer {
                     if (s.length() != 1) {
                         errorListener.error(node.getLine(), node.getCharPosition(),
                                 "char string must have length of 1");
-                        return false;
+                        return 1;
                     }
                     node.object = (int) s.charAt(0);
                 }
             } else {
                 Util.checkFail("unknown literal type");
             }
-            return true;
+            return 0;
         }
 
         @Override
-        public Boolean visit(AstIf node) {
-            boolean res = true;
+        public Integer visit(AstIf node) {
+            int e = 0;
             for (AstIf.Branch b : node.branches) {
                 if (b.condition != null) {
-                    if (!accept(b.condition)) {
-                        res = false;
-                    }
+                    e += accept(b.condition);
                     if (AstType.of(b.condition) == null) {
-                        res = false;
+                        e++;
                     } else if(!AstType.of(b.condition).equals(AstType.BOOL)) {
                         errorListener.error(node.getLine(), node.getCharPosition(),
                                 "condition must be of type Bool");
-                        res = false;
+                        e++;
                     }
                 }
-                if (!accept(b.block)) {
-                    res = false;
+                e += accept(b.block);
+            }
+            return e;
+        }
+
+        @Override
+        public Integer visit(AstFor node) {
+            int e = 0;
+            nameMap.push();
+            if (node.condition instanceof ForBoolean) {
+                ForBoolean cond = (ForBoolean) node.condition;
+                e += accept(cond.expr);
+                if (e == 0 && !AstType.of(cond.expr).equals(AstType.BOOL)) {
+                    errorListener.error(node.getLine(), node.getCharPosition(),
+                            "'for' condition must be of type Bool");
+                    e++;
+                }
+            } else {
+                ForRange range = (ForRange) node.condition;
+                e += accept(range.iter);  // Puts @iter into the name map.
+                e += accept(range.last);
+                if (e == 0) {
+                    // TODO: More checks
+                    if (!range.iter.type.equals(AstType.of(range.last))) {
+                        errorListener.error(node.getLine(), node.getCharPosition(),
+                                "for-range: range expression types mismatch");
+                        e++;
+                    }
+                    if (!range.iter.type.equals(AstType.I32)) {
+                        errorListener.error(node.getLine(), node.getCharPosition(),
+                                "for-range: only integer allowed");
+                    }
+                    range.expr = new AstApply(new AstName("<"), Util.listOf(
+                            new AstName(range.iter.getName()),
+                            new AstName(range.last.getName())));
+                    e += accept(range.expr);
+                    range.increment = new AstAssign(
+                            new AstName(range.iter.getName()),
+                            new AstApply(new AstName("+"), Util.listOf(
+                                    new AstName(range.iter.getName()),
+                                    new AstLiteral("1", AstType.I32))));
+                    e += accept(range.increment);
                 }
             }
-            return res;
+            e += accept(node.block);
+            nameMap.pop();
+            return e;
         }
 
         @Override
-        public Boolean visit(AstFor node) {
-            boolean res = accept(node.condition);
-            if (!accept(node.block)) {
-                res = false;
-            }
-            if (!res) {
-                return false;
-            }
-            if (!AstType.of(node.condition).equals(AstType.BOOL)) {
-                errorListener.error(node.getLine(), node.getCharPosition(),
-                        "condition must be of type Bool");
-                res = false;
-            }
-            return res;
-        }
-
-        @Override
-        public Boolean visit(AstReturn node) {
-            if (node.expr != null && !accept(node.expr)) {
-                return false;
+        public Integer visit(AstReturn node) {
+            if (node.expr != null && accept(node.expr) != 0) {
+                return 1;
             }
             AstType returnExprType = AstType.of(node.expr);
             AstType returnType = fnStack.top().getReturnType();
             if (!returnExprType.compatible(returnType)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "return type " + returnType + " is not compatible with " + returnExprType);
-                return false;
+                return 1;
             }
-            return true;
+            return 0;
         }
 
         @Override
-        public Boolean visit(AstExpr node) {
+        public Integer visit(AstExpr node) {
             return accept(node.expr);
         }
 
         @Override
-        public Boolean visit(AstCoerce node) {
-            boolean b1 = accept(node.expr);
-            boolean b2 = accept(node.type);
-            if (!(b1 && b2)) {
-                return false;
+        public Integer visit(AstCoerce node) {
+            int e = accept(node.expr) + accept(node.type);
+            if (e != 0) {
+                return 1;
             }
             AstType exprType = AstType.of(node.expr);
             if (!exprType.canCoerceTo(node.type)) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "no coerce from " + exprType + " to " + node.type);
-                return false;
+                return 1;
             }
-            return true;
+            return 0;
         }
 
         @Override
-        public Boolean visit(AstGroup node) {
-            boolean res = true;
+        public Integer visit(AstGroup node) {
+            int e = 0;
             for (AstNode c : node.children) {
-                if (!accept(c)) {
-                    res = false;
-                }
+                e += accept(c);
             }
-            return res;
+            return e;
         }
 
         @Override
-        public Boolean visit(AstNew node) {
-            boolean res = true;
+        public Integer visit(AstNew node) {
+            int e = 0;
             for (AstNode n : node.init) {
-                if (!accept(n)) {
-                    res = false;
-                }
+                e += accept(n);
             }
-            if (!res) {
-                return false;
+            if (e != 0) {
+                return 1;
             }
             if (node.type.isFunction()) {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "new of a function");
-                return false;
+                return 1;
             }
             if (node.type.isArray()) {
                 AstType elemType = node.type.args.get(0);
                 if (elemType.equals(AstType.NONE)) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "array of time None is invalid");
-                    return false;
+                    return 1;
                 }
                 if (elemType.isArray()) {
                     throw new UnsupportedOperationException("new");
@@ -442,19 +448,19 @@ final class Analyzer {
                 if (node.init.size() != 1) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "array init must have one argument");
-                    return false;
+                    return 1;
                 }
                 AstType sizeType = AstType.of(node.init.get(0));
                 if (!sizeType.equals(AstType.I32)) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "array init must I32, provided " + sizeType);
-                    return false;
+                    return 1;
                 }
-                return true;
+                return 0;
             } else {
                 errorListener.error(node.getLine(), node.getCharPosition(),
                         "new of non-array is not supported");
-                return false;
+                return 1;
             }
         }
     }

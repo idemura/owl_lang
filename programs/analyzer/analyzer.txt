@@ -108,7 +108,7 @@ programs/analyzer/analyzer.owl: error: variable a shadows existing local
 programs/analyzer/analyzer.owl: error: variable a shadows existing local
 programs/analyzer/analyzer.owl: error: variable b shadows existing local
 programs/analyzer/analyzer.owl: error: condition must be of type Bool
-programs/analyzer/analyzer.owl: error: condition must be of type Bool
+programs/analyzer/analyzer.owl: error: 'for' condition must be of type Bool
 programs/analyzer/analyzer.owl: error: array index must be I32
 programs/analyzer/analyzer.owl: error: String not assignable to I32
 programs/analyzer/analyzer.owl: error: string is immutable, can't assign to index in it

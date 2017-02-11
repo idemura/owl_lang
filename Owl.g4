@@ -178,7 +178,7 @@ stmtReturn
 ;
 
 stmtFor
-:   'for' expression block
+:   'for' (c = expression | NAME 'in' l = expression ',' r = expression) block
 ;
 
 // Another would be stmtForKey

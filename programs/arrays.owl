@@ -28,9 +28,29 @@ test2() {
         println(s[i]);
         i += 1;
     }
-
 }
+
+test3() {
+    var s = "hello";
+    for i in 0, size(s) {
+        println(s[i]);
+    }
+}
+
+test4() {
+    var n = 10;
+    var primes = new I32[]{n};
+    for i in 1, 4 {
+        primes[2 * i] = i * i;
+    }
+    for i in 0, n {
+        println(primes[i]);
+    }
+}
+
 main(argv: String[]) {
     test1();
     test2();
+    test3();
+    test4();
 }

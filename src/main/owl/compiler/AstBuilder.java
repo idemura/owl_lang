@@ -34,7 +34,8 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     private String moduleName;
-    private int functionNestLevel = 0;
+    private int functionNest = 0;
+    private final NameGen gen = new NameGen("$");
 
     private AstBuilder() {}
 
@@ -55,7 +56,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     private String getEntityModuleName() {
-        return functionNestLevel > 0? null: moduleName;
+        return functionNest > 0? null: moduleName;
     }
 
     @Override
@@ -79,7 +80,7 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitVariable(VariableContext ctx) {
-        if (functionNestLevel > 0) {
+        if (functionNest > 0) {
             return new AstVariable(
                     new AstVariable.Local(),
                     null,
@@ -98,7 +99,8 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitFunction(FunctionContext ctx) {
-        functionNestLevel++;
+        functionNest++;
+        gen.push();
         List<AstVariable> args;
         if (ctx.argument() == null) {
             args = new ArrayList<>();
@@ -107,14 +109,17 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
                     .map(a -> (AstVariable) accept(a))
                     .collect(Collectors.toList());
         }
+        AstBlock block = (AstBlock) accept(ctx.block());
+        block.scope = false;
         AstNode r = new AstFunction(
                 getEntityModuleName(),
                 getTextOpt(ctx.NAME()),
                 null,
                 args,
                 (AstType) accept(ctx.type()),
-                (AstBlock) accept(ctx.block()));
-        functionNestLevel--;
+                block);
+        gen.pop();
+        functionNest--;
         return r;
     }
 
@@ -355,7 +360,22 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
 
     @Override
     public AstNode visitStmtFor(StmtForContext ctx) {
-        return new AstFor(accept(ctx.expression()), (AstBlock) accept(ctx.block()));
+        AstBlock block = (AstBlock) accept(ctx.block());
+        block.scope = false;
+        if (ctx.NAME() != null) {
+            return new AstFor(
+                    AstVariable.local(
+                            ctx.NAME().getText(),
+                            accept(ctx.l)),
+                    AstVariable.local(
+                            gen.newName(),
+                            accept(ctx.r)),
+                    block);
+        } else {
+            return new AstFor(
+                    accept(ctx.c),
+                    block);
+        }
     }
 
     @Override

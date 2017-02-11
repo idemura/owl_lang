@@ -37,15 +37,15 @@ final class ReturnCheck {
             // We should not recurse into a new function
             Util.check(function == null);
             function = node;
-            AstNode ret = accept(node.getBlock());
+            AstNode ret = accept(node.block);
             if (ret != null) {
-                if (ret != Util.last(node.getBlock().children)) {
+                if (ret != Util.last(node.block.children)) {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "unreachable statements after return in " + function.getName());
                 }
             } else {
                 if (node.getReturnType().equals(AstType.NONE)) {
-                    node.getBlock().add(new AstReturn(null));
+                    node.block.add(new AstReturn(null));
                 } else {
                     errorListener.error(node.getLine(), node.getCharPosition(),
                             "missing return statement in " + function.getName());

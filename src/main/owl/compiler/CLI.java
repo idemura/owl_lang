@@ -182,7 +182,7 @@ public final class CLI {
             return false;
         }
         Util.check(errorListener.getErrorCount() == 0);
-        AssignmentGen.run(ast);
+        Rewriter.run(ast);
         timeAnalysis = System.nanoTime() - start;
         start = System.nanoTime();
         try {

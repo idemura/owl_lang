@@ -50,6 +50,10 @@ final class AstVariable extends AstNode
     AstType type;
     AstNode expr;
 
+    static AstVariable local(String name, AstNode expr) {
+        return new AstVariable(new Local(), null, name, null, expr);
+    }
+
     AstVariable(Storage storage, String moduleName, String name, AstType type, AstNode expr) {
         this.storage = storage;
         this.moduleName = moduleName;
