@@ -3,14 +3,28 @@
 f(a)[g(b)] += x
 f(a) and g(b) are evaluated once
 
-// operator. Takes I32/I64/F32/F64 and divides to get F64.
+# operator. Takes I32/I64/F32/F64 and divides to get F64.
 
 enum Maybe(T) {
     None;
     Just: T;
 }
 
-fn test {
+# lambda: fn x, y {
+#   assert(x > y);
+#   return x - y;
+#}
+fn plus(x, y: i32): i32 {
+    return x + y;
+    # => x + y;
+}
+
+# fn minus(x, y: i32) => x - y;
+# same as => is "return":
+fn minus(x, y: i32) return x - y;
+
+# Function do not need special keyword, but... lambdas
+fn test() {
     match (open("file")) {
         None: {
             println("error");
@@ -22,3 +36,14 @@ fn test {
 }
 
 const PI = 3.14;
+
+public class C(Base): Itf1, Itf2 {
+    # Members always private
+    public String name;
+    i32 count;
+};
+
+# link to single public class
+.foo(i32 c) {
+    count += c;
+}
