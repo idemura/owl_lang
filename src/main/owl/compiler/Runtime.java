@@ -22,11 +22,11 @@ final class Runtime {
 
     static final String NAME = "owl/runtime/RT";
 
-    static NameMap<AstAbstractType> getAbstractTypes() {
+    static NameMap<AstAbstractType> cloneAbstractTypes() {
         return ABSTRACT_TYPES.clone();
     }
 
-    static OverloadNameMap getFunctions() {
+    static OverloadNameMap cloneFunctions() {
         return FUNCTIONS.clone();
     }
 

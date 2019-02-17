@@ -219,6 +219,15 @@ final class DebugPrint {
             return null;
         }
 
+        @Override
+        public Void visit(AstObject node) {
+            beginNode(node);
+            prop("name:", node.getModuleName() + "::" + node.getName());
+            node.fields.forEach(this::accept);
+            endNode();
+            return null;
+        }
+
         private void prop(String name, String s) {
             printer.println(name + ": " + s);
         }

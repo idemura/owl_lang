@@ -23,22 +23,26 @@ final class NameCollector {
     private NameCollector() {}
 
     static boolean run(Ast ast,
+            NameMap<AstAbstractType> types,
             NameMap<Entity> variables,
             OverloadNameMap overloads,
             ErrorListener errorListener) {
         CountErrorListener errorCounter = new CountErrorListener(errorListener);
-        return ast.accept(new Visitor(variables, overloads, errorCounter));
+        return ast.accept(new Visitor(types, variables, overloads, errorCounter));
     }
 
     private static final class Visitor implements AstVisitor<Boolean> {
         private final ErrorListener errorListener;
-        private NameMap<Entity> variables;
-        private OverloadNameMap overloads;
+        private final NameMap<AstAbstractType> types;
+        private final NameMap<Entity> variables;
+        private final OverloadNameMap overloads;
 
         private Visitor(
+                NameMap<AstAbstractType> types,
                 NameMap<Entity> variables,
                 OverloadNameMap overloads,
                 ErrorListener errorListener) {
+            this.types = types;
             this.variables = variables;
             this.overloads = overloads;
             this.errorListener = errorListener;
@@ -111,6 +115,17 @@ final class NameCollector {
         @Override
         public Boolean visit(AstGroup node) {
             return visitAll(node.children);
+        }
+
+        @Override
+        public Boolean visit(AstObject node) {
+            if (types.contains(node.getName())) {
+                errorListener.error(node.getLine(), node.getCharPosition(),
+                        "type " + node.getName() + " redefined");
+                return false;
+            }
+            types.put(node);
+            return true;
         }
 
         private <T extends AstNode> Boolean visitAll(List<T> nodes) {

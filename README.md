@@ -20,7 +20,14 @@ module test;
 
 main(argv: String[]) {
   var greeting = "hello world";
+  var spaces = 0;
+  for i in 0, size(greeting) {
+    if (greeting[i] == @" ") {
+      spaces += 1;
+    }
+  }
   println(greeting);
+  println(spaces);
 }
 ```
 Compile it to JVM class file (compiler writes output to owl_out by default):

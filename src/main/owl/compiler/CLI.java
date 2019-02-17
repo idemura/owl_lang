@@ -167,10 +167,10 @@ public final class CLI {
             DebugPrint.printAst(ast, debugOut);
         }
         long start = System.nanoTime();
-        NameMap<AstAbstractType> abstractTypes = Runtime.getAbstractTypes();
-        OverloadNameMap overloads = Runtime.getFunctions();
+        NameMap<AstAbstractType> abstractTypes = Runtime.cloneAbstractTypes();
+        OverloadNameMap overloads = Runtime.cloneFunctions();
         NameMap<Entity> variables = new NameMap<>(0);
-        if (!NameCollector.run(ast, variables, overloads, errorListener)) {
+        if (!NameCollector.run(ast, abstractTypes, variables, overloads, errorListener)) {
             return false;
         }
         if (flagPrintNameMap) {

@@ -79,6 +79,14 @@ final class AstBuilder extends AbstractParseTreeVisitor<AstNode>
     }
 
     @Override
+    public AstNode visitObject(ObjectContext ctx) {
+        List<AstVariable> fields = ctx.argument().stream()
+                .map(argCtx -> new AstVariable(new AstVariable.Field(), moduleName, argCtx.NAME().getText(), (AstType) accept(argCtx.type()), null))
+                .collect(Collectors.toList());
+        return new AstObject(moduleName, ctx.NAME().getText(), fields);
+    }
+
+    @Override
     public AstNode visitVariable(VariableContext ctx) {
         if (functionNest > 0) {
             return new AstVariable(

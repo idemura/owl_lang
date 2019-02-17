@@ -25,11 +25,16 @@ module
     (
         function
     |   variable
+    |   object
     )*
 ;
 
 qualifiedName
 :   NAME ('::' NAME)*
+;
+
+object
+:   'object' NAME '{' (argument (';' argument)*)? '}'
 ;
 
 variable

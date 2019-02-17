@@ -37,6 +37,7 @@ interface AstVisitor<T> {
     default T visit(AstModule node) { return visitError(); }
     default T visit(AstName node) { return visitError(); }
     default T visit(AstNew node) { return visitError(); }
+    default T visit(AstObject node) { return visitError(); }
     default T visit(AstReturn node) { return visitError(); }
     default T visit(AstSelect node) { return visitError(); }
     default T visit(AstType node) { return visitError(); }
