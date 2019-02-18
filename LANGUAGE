@@ -60,7 +60,7 @@ public class Polygon(Base): Itf1, Itf2 {
         # array has overloaded constructors:
         #   - array(n: i32)
         #   - array(n: i32, fill: T)
-    };
+    }
 };
 
 # link to single public class
