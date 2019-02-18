@@ -32,12 +32,12 @@ fn minus(x, y: i32) return x - y;
 # Function do not need special keyword, but... lambdas
 fn test() {
     match open("file") {
-        None {
-            println("error");
-        }
-        Just content {
-            println(content);
-        }
+    None {
+        println("error");
+    }
+    Just content {
+        println(content);
+    }
     }
 }
 
