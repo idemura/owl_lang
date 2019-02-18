@@ -1,49 +1,83 @@
-= Owl Programming Language specification
+# Owl Programming Language
+# General rule: items inside list {} separated with ; inside [] and () with ,
 
-f(a)[g(b)] += x
-f(a) and g(b) are evaluated once
-
-# operator. Takes I32/I64/F32/F64 and divides to get F64.
+import owl.util(openFile, File);
+import owl.util.openFile;
+import owl.util.*;
 
 enum Maybe(T) {
     None;
-    Just: T;
+    Just T;
 }
 
-# lambda: fn x, y {
-#   assert(x > y);
-#   return x - y;
-#}
+# var - variable
+# final - variable that doesn't change
+# const - const in compile time
+
+const PI = 3.14;
+
+#lambda:
+final lam1 = fn(x, y: String) {
+    # ...
+}
+final lam2 = fn(x, y: String) return x + y;
+
 fn plus(x, y: i32): i32 {
     return x + y;
-    # => x + y;
 }
 
-# fn minus(x, y: i32) => x - y;
-# same as => is "return":
+# Deduce return type
 fn minus(x, y: i32) return x - y;
 
 # Function do not need special keyword, but... lambdas
 fn test() {
-    match (open("file")) {
-        None: {
+    match open("file") {
+        None {
             println("error");
         }
-        Just content: {
+        Just content {
             println(content);
         }
     }
 }
 
-const PI = 3.14;
+# automatically final, and should not have base class and implement
+# interfaces(?). Potentially can be inlined.
+value class Point {
+    x, y: i32;
+}
 
-public class C(Base): Itf1, Itf2 {
-    # Members always private
-    public String name;
-    i32 count;
+public class Polygon(Base): Itf1, Itf2 {
+    const dim = 2;
+    
+    public name: String = "polygon";
+    vertex: Point[];
+    
+    # constructor
+    fn() {}
+    fn(n: i32) { 
+        this.vertex = new Point[](n);
+        # array has overloaded constructors:
+        #   - array(n: i32)
+        #   - array(n: i32, fill: T)
+    };
 };
 
 # link to single public class
-.foo(i32 c) {
+public fn C.foo(i32 c) {
     count += c;
 }
+
+# don't need to mark function override, it it comes from interface (but can)
+public fn C.interfaceMethodSample() {
+    print(name)
+}
+
+# have override to if exists in the base class:
+override fn C.baseMethod() {}
+# You can't change visibility of base class function: it will remain "public" or "family"
+# (analog of C++ protected). By default, function is private: visible within current _file_.
+# File is the unit of isolation.
+
+# Visible for family - all descendent classes
+family fn C.newMethod(x, y: i32) {}
