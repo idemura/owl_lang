@@ -64,7 +64,7 @@ public class Polygon(Base): Itf1, Itf2 {
 };
 
 # link to single public class
-public fn C.foo(i32 c) {
+public fn C.foo(c: i32) {
     count += c;
 }
 
