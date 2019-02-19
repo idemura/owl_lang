@@ -6,10 +6,10 @@ _the license you receive to my code is from me and not from my employer (Faceboo
 
 ## Build
 To build Owl from command line, Buck build is required (https://buckbuild.com/).
-First, download dependencies: `cd lib && python download_libs.py lib_list`. In the project root run:
+First, download dependencies: `buck fetch ...`.
 
 ```
-./antlr && ./build
+./antlr && buck build ...
 ```
 
 ## Compile and Run Owl Program
