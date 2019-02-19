@@ -1,0 +1,66 @@
+maven_jar(
+  group = 'junit',
+  artifact = 'junit',
+  version = '4.12',
+  sha1 = '2973d150c0dc1fefe998f834810d68f278ea58ec',
+)
+
+maven_jar(
+  group = 'com.beust',
+  artifact = 'jcommander',
+  version = '1.72',
+  sha1 = '6375e521c1e11d6563d4f25a07ce124ccf8cd171',
+)
+
+maven_jar(
+  group = 'org.ow2.asm',
+  artifact = 'asm',
+  version = '7.0',
+  sha1 = 'd74d4ba0dee443f68fb2dcb7fcdb945a2cd89912',
+)
+
+maven_jar(
+  group = 'org.antlr',
+  artifact = 'antlr4-runtime',
+  version = '4.7.2',
+  sha1 = 'e27d8ab4f984f9d186f54da984a6ab1cccac755e',
+)
+
+java_library(
+    name = 'compiler',
+    srcs = glob([
+        'src/main/owl/compiler/*.java',
+    ]),
+    deps = [
+        ':antlr4-runtime',
+        ':asm',
+        ':jcommander',
+    ],
+)
+
+java_library(
+    name = 'owl_runtime',
+    srcs = glob([
+        'src/main/owl/runtime/*.java',
+    ]),
+    deps = [],
+)
+
+java_test(
+    name = 'compiler_test',
+    srcs = glob([
+        'src/test/owl/compiler/*.java',
+    ]),
+    deps = [
+        ':compiler',
+        ':junit',
+    ],
+)
+
+java_binary(
+    name = 'owl_compiler_cli',
+    manifest_file = 'src/main/resources/META-INF/MANIFEST.MF',
+    deps = [
+        ':compiler',
+    ],
+)

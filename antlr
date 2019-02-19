@@ -1,6 +1,6 @@
 #! /bin/bash
-java -cp lib/antlr4-4.5.3.jar org.antlr.v4.Tool \
-    -Werror -visitor -no-listener -o src/main/owl/compiler/ Owl.g4
-OWL_OUT=src/main/owl/compiler
-rm $OWL_OUT/Owl.tokens $OWL_OUT/OwlLexer.tokens $OWL_OUT/OwlBaseVisitor.java 2> /dev/null
+
+OUT=src/main/owl/compiler
+java -cp "jars/antlr-4.7.2.jar" org.antlr.v4.Tool -Werror -visitor -no-listener -o $OUT Owl.g4
+rm $OUT/Owl.tokens $OUT/OwlLexer.tokens $OUT/OwlBaseVisitor.java 2> /dev/null
 

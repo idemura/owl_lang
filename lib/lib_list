@@ -1,5 +1,0 @@
-junit junit
-org.ow2.asm asm 5.2
-org.antlr antlr4-runtime 4.5.3
-org.antlr antlr4 4.5.3
-com.beust jcommander

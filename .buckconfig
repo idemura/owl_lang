@@ -1,3 +1,9 @@
+[buildfile]
+    name = BUILD
+    includes = //DEFS.py
+
 [java]
-  source_level = 8
-  target_level = 8
+    source_level = 8
+    target_level = 8
+    unused_dependencies_action = warn
+    extra_arguments = -deprecation
