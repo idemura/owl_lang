@@ -5,12 +5,8 @@ buck-out
 # IntelliJ Idea
 .idea
 out
-src/owl_lang.iml
+*.iml
 
 # Owl out
 *.class
 owl_out
-
-# Test
-test.owl
-

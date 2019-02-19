@@ -6,10 +6,10 @@ _the license you receive to my code is from me and not from my employer (Faceboo
 
 ## Build
 To build Owl from command line, Buck build is required (https://buckbuild.com/).
-First, download dependencies: `buck fetch ...`.
+First, download dependencies: `buck fetch --java11-test-mode ...`.
 
 ```
-./antlr && buck build ...
+./antlr && buck build --java11-test-mode ...
 ```
 
 ## Compile and Run Owl Program
