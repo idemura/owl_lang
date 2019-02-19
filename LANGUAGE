@@ -60,7 +60,7 @@ public class Polygon(Base): Itf1, Itf2 {
         #   - array(n: i32)
         #   - array(n: i32, fill: T)
     }
-};
+}
 
 # link to single public class
 public fn C.foo(c: i32) {
