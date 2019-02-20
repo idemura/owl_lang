@@ -1,4 +1,5 @@
 #! /bin/bash
 
-CLASS_PATH=`find buck-out/gen -name rt.jar`:owl_out
-./owl --opt ${OPT:-0} $1 && java -cp $CLASS_PATH `basename ${1%.owl}`
+class_path=owl_out:`find buck-out/gen -name rt.jar`
+name=`basename ${1%.owl}`
+./owl "${@:2}" $1 && javap -c owl_out/$name.class && java -cp $class_path $name
