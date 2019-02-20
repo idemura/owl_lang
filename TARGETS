@@ -49,7 +49,7 @@ java_library(
 java_test(
     name = 'compiler_test',
     srcs = glob([
-        'src/test/owl/compiler/*.java',
+        'compiler/src/test/owl/compiler/*.java',
     ]),
     deps = [
         ':compiler',

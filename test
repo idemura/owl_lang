@@ -9,8 +9,8 @@ for owl in `find programs -name '*.owl'`; do
     echo "--- STDERR" > $err
     name=`basename ${owl%.owl}`
     ./owl $flags $owl 1>> $out 2>> $err \
-            && javap -c owl_out/$name.class 1>> $out \
-            && java -cp $CLASS_PATH $name 1>> $out
+            && javap -c owl_out/$name.class >> $out \
+            && java -cp $CLASS_PATH $name >> $out
     cat $out $err > ${owl%.owl}.txt
 done
 if git status -s programs | grep '\.txt$'; then
