@@ -1,3 +1,2 @@
 #! /bin/bash
-
 buck build --java11-test-mode ...

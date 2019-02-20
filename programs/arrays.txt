@@ -33,7 +33,7 @@ public class arrays {
       38: iconst_1
       39: goto          43
       42: iconst_0
-      43: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      43: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       46: aload_0
       47: iconst_1
       48: iaload
@@ -42,7 +42,7 @@ public class arrays {
       53: iconst_1
       54: goto          58
       57: iconst_0
-      58: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      58: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       61: aload_0
       62: iconst_2
       63: iaload
@@ -51,7 +51,7 @@ public class arrays {
       68: iconst_1
       69: goto          73
       72: iconst_0
-      73: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      73: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       76: aload_0
       77: iconst_3
       78: iaload
@@ -60,7 +60,7 @@ public class arrays {
       83: iconst_1
       84: goto          88
       87: iconst_0
-      88: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      88: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       91: iconst_0
       92: istore_2
       93: iconst_0
@@ -90,7 +90,7 @@ public class arrays {
      128: iconst_1
      129: goto          133
      132: iconst_0
-     133: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+     133: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
      136: return
 
   static void test2();
@@ -101,7 +101,7 @@ public class arrays {
        4: istore_1
        5: iload_1
        6: aload_0
-       7: invokestatic  #22                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
+       7: invokestatic  #22                 // Method owl/rt/RT.size:(Ljava/lang/String;)I
       10: if_icmpge     17
       13: iconst_1
       14: goto          18
@@ -110,7 +110,7 @@ public class arrays {
       21: aload_0
       22: iload_1
       23: invokevirtual #28                 // Method java/lang/String.charAt:(I)C
-      26: invokestatic  #32                 // Method owl/runtime/RT.println:(C)V
+      26: invokestatic  #32                 // Method owl/rt/RT.println:(C)V
       29: iload_1
       30: iconst_1
       31: iadd
@@ -125,7 +125,7 @@ public class arrays {
        3: iconst_0
        4: istore_1
        5: aload_0
-       6: invokestatic  #22                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
+       6: invokestatic  #22                 // Method owl/rt/RT.size:(Ljava/lang/String;)I
        9: istore_2
       10: iload_1
       11: iload_2
@@ -137,7 +137,7 @@ public class arrays {
       23: aload_0
       24: iload_1
       25: invokevirtual #28                 // Method java/lang/String.charAt:(I)C
-      28: invokestatic  #32                 // Method owl/runtime/RT.println:(C)V
+      28: invokestatic  #32                 // Method owl/rt/RT.println:(C)V
       31: iload_1
       32: iconst_1
       33: iadd
@@ -190,7 +190,7 @@ public class arrays {
       60: aload_1
       61: iload         4
       63: iaload
-      64: invokestatic  #37                 // Method owl/runtime/RT.println:(I)V
+      64: invokestatic  #37                 // Method owl/rt/RT.println:(I)V
       67: iload         4
       69: iconst_1
       70: iadd

@@ -6,7 +6,7 @@ import java.util.List;
 final class Runtime {
     private Runtime() {}
 
-    static final String NAME = "owl/runtime/RT";
+    static final String NAME = "owl/rt/RT";
 
     static NameMap<AstAbstractType> cloneAbstractTypes() {
         return ABSTRACT_TYPES.clone();

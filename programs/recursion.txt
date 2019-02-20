@@ -27,7 +27,7 @@ public class recursion {
     Code:
        0: iconst_5
        1: invokestatic  #9                  // Method fact:(I)I
-       4: invokestatic  #19                 // Method owl/runtime/RT.println:(I)V
+       4: invokestatic  #19                 // Method owl/rt/RT.println:(I)V
        7: return
 }
 120

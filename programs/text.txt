@@ -12,58 +12,58 @@ public class text {
       10: iconst_1
       11: goto          15
       14: iconst_0
-      15: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      15: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       18: iload_0
       19: bipush        88
       21: if_icmpne     28
       24: iconst_1
       25: goto          29
       28: iconst_0
-      29: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      29: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       32: bipush        89
       34: istore_1
       35: iload_0
-      36: invokestatic  #17                 // Method owl/runtime/RT.println:(C)V
+      36: invokestatic  #17                 // Method owl/rt/RT.println:(C)V
       39: iload_0
-      40: invokestatic  #20                 // Method owl/runtime/RT.println:(I)V
+      40: invokestatic  #20                 // Method owl/rt/RT.println:(I)V
       43: iload_1
       44: i2c
-      45: invokestatic  #17                 // Method owl/runtime/RT.println:(C)V
+      45: invokestatic  #17                 // Method owl/rt/RT.println:(C)V
       48: iload_0
       49: bipush        89
       51: if_icmpge     58
       54: iconst_1
       55: goto          59
       58: iconst_0
-      59: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      59: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       62: iload_0
       63: bipush        85
       65: if_icmple     72
       68: iconst_1
       69: goto          73
       72: iconst_0
-      73: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      73: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       76: iload_0
       77: bipush        88
       79: if_icmpne     86
       82: iconst_1
       83: goto          87
       86: iconst_0
-      87: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+      87: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
       90: iload_0
       91: bipush        120
       93: if_icmpeq     100
       96: iconst_1
       97: goto          101
      100: iconst_0
-     101: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+     101: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
      104: iconst_0
      105: istore_2
      106: ldc           #22                 // String abc
      108: astore_3
      109: iload_2
      110: aload_3
-     111: invokestatic  #26                 // Method owl/runtime/RT.size:(Ljava/lang/String;)I
+     111: invokestatic  #26                 // Method owl/rt/RT.size:(Ljava/lang/String;)I
      114: if_icmpge     121
      117: iconst_1
      118: goto          122
@@ -80,7 +80,7 @@ public class text {
      138: iconst_1
      139: goto          143
      142: iconst_0
-     143: invokestatic  #13                 // Method owl/runtime/RT.owl_assert:(Z)V
+     143: invokestatic  #13                 // Method owl/rt/RT.owl_assert:(Z)V
      146: iload_2
      147: iconst_1
      148: iadd

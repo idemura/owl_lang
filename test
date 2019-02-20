@@ -1,6 +1,6 @@
 #! /bin/bash
 
-CLASS_PATH=`find buck-out/gen -name owl_runtime.jar`:owl_out
+CLASS_PATH=`find buck-out/gen -name rt.jar`:owl_out
 for owl in `find programs -name '*.owl'`; do
     flags=`cat $(dirname "$owl")/FLAGS`
     out=`mktemp`

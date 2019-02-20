@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
-Program-Title: Igor's Owl Language Compiler
+Program-Title: Owl Compiler
 Owl-Compiler-Vendor: Igor Demura
 Owl-Language-Version: 1
 Owl-Compiler-Version: 0.105 (alpha)
-Owl-Compiler-Name: Igor's Owl Compiler
+Owl-Compiler-Name: Owl Compiler
 Main-Class: owl.compiler.CLI

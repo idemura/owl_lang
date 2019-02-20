@@ -34,7 +34,7 @@ public class locals {
       10: iconst_1
       11: goto          15
       14: iconst_0
-      15: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
+      15: invokestatic  #17                 // Method owl/rt/RT.owl_assert:(Z)V
       18: return
 
   static void test2();
@@ -45,18 +45,18 @@ public class locals {
        4: ifeq          17
        7: aload_0
        8: ldc           #22                 // String fox
-      10: invokestatic  #26                 // Method owl/runtime/RT.concat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      10: invokestatic  #26                 // Method owl/rt/RT.concat:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
       13: astore_0
       14: goto          17
       17: aload_0
       18: ldc           #28                 // String catfox
-      20: invokestatic  #32                 // Method owl/runtime/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
+      20: invokestatic  #32                 // Method owl/rt/RT.compare:(Ljava/lang/String;Ljava/lang/String;)I
       23: iconst_0
       24: if_icmpne     31
       27: iconst_1
       28: goto          32
       31: iconst_0
-      32: invokestatic  #17                 // Method owl/runtime/RT.owl_assert:(Z)V
+      32: invokestatic  #17                 // Method owl/rt/RT.owl_assert:(Z)V
       35: return
 
   public static void main(java.lang.String[]);

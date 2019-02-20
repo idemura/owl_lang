@@ -1,6 +1,5 @@
 #! /bin/bash
 
-OUT=src/main/owl/compiler
-java -cp "jars/antlr-4.7.2.jar" org.antlr.v4.Tool -Werror -visitor -no-listener -o $OUT Owl.g4
-rm $OUT/Owl*.tokens $OUT/Owl*.interp $OUT/OwlBaseVisitor.java 2> /dev/null
-
+SRC=compiler/src/main/owl/compiler
+java -cp antlr-4.7.2-complete.jar org.antlr.v4.Tool -Werror -visitor -no-listener $SRC/Owl.g4
+rm $SRC/Owl*.tokens $SRC/Owl*.interp $SRC/OwlBaseVisitor.java

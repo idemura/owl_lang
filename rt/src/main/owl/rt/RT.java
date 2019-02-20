@@ -1,4 +1,4 @@
-package owl.runtime;
+package owl.rt;
 
 public class RT {
     private RT() {}

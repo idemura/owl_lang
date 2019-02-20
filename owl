@@ -1,2 +1,2 @@
 #! /bin/bash
-java -jar buck-out/gen/owl_compiler_cli.jar "$@"
+java -jar buck-out/gen/compiler_cli.jar "$@"

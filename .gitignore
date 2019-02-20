@@ -2,6 +2,10 @@
 buck-out
 .buckd
 
+# ANTLR
+*.interp
+*.tokens
+
 # IntelliJ Idea
 .idea
 out
