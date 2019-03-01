@@ -22,7 +22,7 @@ main(argv: String[]) {
   var greeting = "hello world";
   var spaces = 0;
   for i in 0, size(greeting) {
-    if (greeting[i] == @" ") {
+    if (greeting[i] == $\_) {
       spaces += 1;
     }
   }
