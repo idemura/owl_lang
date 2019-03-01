@@ -35,7 +35,7 @@ fn test() {
     None:
         # label is a block
         println("error");
-    Just content:
+    Just(content):
         println(content);
     }
 }
