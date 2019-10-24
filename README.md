@@ -112,6 +112,7 @@ public class NameCollection {
     } else {
       return "127.0.0.1";
     }
+  }
 }
 ```
 Compile it to JVM class file (compiler writes output to owl_out by default):
