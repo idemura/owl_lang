@@ -43,15 +43,15 @@ class Name {
   }
   
   // Property. Underlying variable is this.<name>
-  var address: String
+  property address: String
     get set;
-  var address: String
+  property address: String
     get; // Read only
     
-  var address: String
+  property address: String
     get = this.address + " USA";
   // Body allowed:
-  var address: String
+  property address: String
     get {
       if this.address.endsWith("USA") {
         return this.address;
