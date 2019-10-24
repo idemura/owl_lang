@@ -1,0 +1,16 @@
+# BUCK
+buck-out
+.buckd
+
+# ANTLR
+*.interp
+*.tokens
+
+# IntelliJ Idea
+.idea
+out
+*.iml
+
+# Owl out
+*.class
+owl_out
