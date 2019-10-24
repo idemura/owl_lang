@@ -25,7 +25,8 @@ package id.owl_example;
 // i32 - int
 // I32 - Integer
 // f64 - F64
-// char - Char
+// char - char
+// bool - boolean
 
 // By default, class is package private, as Java
 class Name {
