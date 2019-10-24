@@ -1,16 +1,16 @@
-# BUCK
-buck-out
-.buckd
-
 # ANTLR
 *.interp
 *.tokens
 
-# IntelliJ Idea
+# IntelliJ
 .idea
 out
 *.iml
 
+# Gradle
+build
+
 # Owl out
 *.class
 owl_out
+
