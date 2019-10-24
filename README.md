@@ -91,6 +91,27 @@ public class NameCollection {
   static fn main(argv: String[]) {
     final var nc = new NameCollection();
   }
+  
+  // There is no null for class types. Use T? if you want optional.
+  // From Java perspective, it is still T with null. You HAVE TO
+  // check T? before use! Don't use == null.
+  // All types coming from Java are T?. @Nonnull are T from Owl perspective:
+  // Java:
+  // void f(T x)
+  // Owl:
+  // fn f(x: T?)
+  //
+  // Java:
+  // void f(@Nonnull T x)
+  // Owl:
+  // fn f(x: T)
+  static fn getIP(ip: String?): String {
+    if ip {
+      // After if auto deduces that ip has type T
+      return ip;
+    } else {
+      return "127.0.0.1";
+    }
 }
 ```
 Compile it to JVM class file (compiler writes output to owl_out by default):
