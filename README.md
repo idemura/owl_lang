@@ -21,9 +21,11 @@ Same Java class files:
 // Skeleton:
 package id.owl_example;
 
-// Java -> Owl:
-// int -> i32
-// Integer -> I32
+// Owl - Java
+// i32 - int
+// I32 - Integer
+// f64 - F64
+// char - Char
 
 // By default, class is package private, as Java
 class Name {
@@ -43,13 +45,16 @@ class Name {
   }
   
   // Property. Underlying variable is this.<name>
+  // get, set or both should be there!
   property address: String
     get set;
+
   property address: String
     get; // Read only
     
   property address: String
     get = this.address + " USA";
+  
   // Body allowed:
   property address: String
     get {
@@ -95,14 +100,14 @@ public class NameCollection {
   // There is no null for class types. Use T? if you want optional.
   // From Java perspective, it is still T with null. You HAVE TO
   // check T? before use! Don't use == null.
-  // All types coming from Java are T?. @Nonnull are T from Owl perspective:
+  // All types coming from Java are T?. @NotNull are T from Owl perspective:
   // Java:
   // void f(T x)
   // Owl:
   // fn f(x: T?)
   //
   // Java:
-  // void f(@Nonnull T x)
+  // void f(@NotNull T x)
   // Owl:
   // fn f(x: T)
   static fn getIP(ip: String?): String {
