@@ -4,13 +4,15 @@
 
 # IntelliJ
 .idea
-out
 *.iml
 
 # Gradle
+.gradle
 build
 
 # Owl out
 *.class
 owl_out
+
+lombok.config
 
