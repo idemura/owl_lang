@@ -7,7 +7,6 @@ plugins {
     java
     application
     id("com.github.johnrengelman.shadow") version "5.1.0"
-    id("io.freefair.lombok") version "4.1.0"
 }
 
 java {
@@ -20,7 +19,6 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.guava:guava:28.0-jre")
     implementation("com.beust:jcommander:1.78")
     implementation("org.slf4j:slf4j-api:1.7.25")
     runtimeOnly("org.slf4j:slf4j-simple:1.7.25")
@@ -32,20 +30,10 @@ application {
     mainClassName = "id.owl_lang.App"
 }
 
-// shadowJar {
-//     exclude("about.html")
-//     exclude("META-INF/LICENSE")
-//     exclude("META-INF/LICENSE.txt")
-//     exclude("META-INF/NOTICE")
-// }
-
-tasks {
-    named<ShadowJar>("shadowJar") {
-        archiveBaseName.set("shadow")
-        mergeServiceFiles()
-        manifest {
-            attributes(mapOf("Main-Class" to "com.github.csolem.gradle.shadow.kotlin.example.App"))
-        }
+tasks.withType<ShadowJar>() {
+    // TODO: Exclude unused files
+    manifest {
+        attributes["Main-Class"] = "id.owl_lang.App"
     }
 }
 
